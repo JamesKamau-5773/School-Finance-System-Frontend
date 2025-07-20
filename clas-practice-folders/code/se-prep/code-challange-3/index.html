@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dev Blog</title>
+  <link rel="stylesheet" href="./styling.css">
+</head>
+<body>
+  <header>
+    <h1>Dev Blog</h1>
+  </header>
+  
+  <main>
+    <section id="post-list">
+      <h2>Latest Posts</h2>
+      <ul class="post-list-container"></ul>
+    </section>
+
+    <section id="post-details">
+      <div class="empty-state">
+        <p>Select a post to view details</p>
+      </div>
+
+      <div class="post-content hidden">
+        <h2 class="post-title"></h2>
+        <div class="post-meta">
+          <span class="post-author"></span>
+          <span class="post-date"></span>
+          <span class="post-likes">❤️ <span class="like-count">0</span> likes</span>
+        </div>
+        <article class="post-body"></article>
+        <div class="post-actions">
+          <button class="like-btn">Like</button>
+          <button class="edit-btn">Edit</button>
+          <button class="delete-btn">Delete</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="new-post-form">
+      <form id="post-form">
+        <fieldset>
+          <legend>Create New Post</legend>
+          <div class="form-group">
+            <label for="post-title">Title</label>
+            <input type="text" id="post-title" name="title" required placeholder="Enter post title">
+          </div>
+          <div class="form-group">
+            <label for="post-author">Author</label>
+            <input type="text" id="post-author" name="author" required placeholder="Enter author name">
+          </div>
+          <div class="form-group">
+            <label for="post-content">Content</label>
+            <textarea id="post-content" name="content" rows="6" required placeholder="Write post content here"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="post-image">Image URL (optional)</label>
+            <input type="url" id="post-image" name="image" placeholder="https://example.com/image.jpg">
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="submit-btn">Publish Post</button>
+          </div>
+        </fieldset>
+      </form>
+    </section>
+
+    <section id="edit-post-form" class="hidden">
+      <form id="post-edit-form">
+        <fieldset>
+          <legend>Edit Post</legend>
+          <input type="hidden" id="edit-post-id">
+          <div class="form-group">
+            <label for="edit-post-title">Title</label>
+            <input type="text" id="edit-post-title" required>
+          </div>
+          <div class="form-group">
+            <label for="edit-post-author">Author</label>
+            <input type="text" id="edit-post-author" required>
+          </div>
+          <div class="form-group">
+            <label for="edit-post-content">Content</label>
+            <textarea id="edit-post-content" rows="6" required></textarea>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="cancel-btn">Cancel</button>
+            <button type="submit" class="update-btn">Update Post</button>
+          </div>
+        </fieldset>
+      </form>
+    </section>
+  </main>
+  
+  <script src="./index.js"></script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+{
+  "posts": [
+    {
+      "id": 1,
+      "title": "Getting Started with JavaScript",
+      "author": "Sarah Johnson",
+      "content": "JavaScript is the programming language of the web. In this post, we'll cover the basics of variables, functions, and DOM manipulation. Whether you're new to programming or coming from another language, JavaScript is a great skill to learn for web development.",
+      "date": "2023-05-15",
+      "likes": 24
+    },
+    {
+      "id": 2,
+      "title": "CSS Flexbox Explained",
+      "author": "Michael Chen",
+      "content": "Flexbox is a powerful layout model that makes it easy to design flexible responsive layouts. In this guide, we'll walk through all the flexbox properties with practical examples you can use in your projects today.",
+      "date": "2023-06-02",
+      "likes": 18
+    },
+    {
+      "id": 3,
+      "title": "React Hooks Tutorial",
+      "author": "Emma Wilson",
+      "content": "React Hooks revolutionized how we write React components. Learn how to use useState, useEffect, and other hooks to simplify your components and manage state effectively in functional components.",
+      "date": "2023-06-20",
+      "likes": 32
+    },
+    {
+      "id": 4,
+      "title": "Node.js Backend Basics",
+      "author": "David Kim",
+      "content": "Node.js allows you to run JavaScript on the server. In this tutorial, we'll set up a basic Express server, create RESTful endpoints, and connect to a database. Perfect for full-stack JavaScript developers!",
+      "date": "2023-07-05",
+      "likes": 15
+    },
+    {
+      "id": 5,
+      "title": "Responsive Design Principles",
+      "author": "Lisa Rodriguez",
+      "content": "Responsive design ensures your websites look great on all devices. We'll cover media queries, fluid layouts, and responsive images to create websites that adapt to any screen size.",
+      "date": "2023-07-18",
+      "likes": 21
+    },
+    {
+      "title": "jumnji",
+      "author": "peterson",
+      "content": "hali ya ulimwengu kenya",
+      "image": null,
+      "date": "2025-06-23",
+      "likes": 1,
+      "id": 6
+    }
+  ]
+}
