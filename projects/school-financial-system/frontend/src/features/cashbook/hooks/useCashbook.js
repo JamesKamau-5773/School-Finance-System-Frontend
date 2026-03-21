@@ -1,6 +1,16 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { financeApi } from "../../../api/financeApi";
 
+const shouldRetryQuery = (failureCount, error) => {
+  const status = error?.response?.status;
+
+  if (status >= 400 && status < 500) {
+    return false;
+  }
+
+  return failureCount < 2;
+};
+
 const QUERY_KEYS = {
   transactions: ["transactions"],
   voteHeads: ["vote-heads"],
@@ -101,5 +111,17 @@ export const useTrialBalance = () => {
     queryKey: QUERY_KEYS.trialBalance,
     queryFn: financeApi.getTrialBalance,
     staleTime: 1000 * 60 * 5,
+    retry: shouldRetryQuery,
+  });
+};
+
+// 9. Hook to fetch account ledger by account name
+export const useAccountLedger = (accountName) => {
+  return useQuery({
+    queryKey: ["account_ledger", accountName],
+    queryFn: () => financeApi.getAccountLedger(accountName),
+    enabled: !!accountName,
+    staleTime: 1000 * 60 * 2,
+    retry: shouldRetryQuery,
   });
 };

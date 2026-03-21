@@ -90,7 +90,35 @@ export const financeApi = {
 
   // 8. Fetch trial balance report lines and totals
   getTrialBalance: async () => {
-    const response = await apiClient.get('/api/finance/reports/trial-balance');
+    const endpoints = [
+      '/api/finance/reports/trial-balance',
+      '/api/finance/trial-balance',
+    ];
+
+    let lastError;
+
+    for (const endpoint of endpoints) {
+      try {
+        const response = await apiClient.get(endpoint);
+        return response.data;
+      } catch (error) {
+        lastError = error;
+        const status = error?.response?.status;
+
+        if (status !== 400 && status !== 404) {
+          throw error;
+        }
+      }
+    }
+
+    throw lastError;
+  },
+
+  // 9. Fetch ledger entries for a specific account
+  getAccountLedger: async (accountName) => {
+    const response = await apiClient.get(
+      `/api/finance/ledger/${encodeURIComponent(accountName)}`,
+    );
     return response.data;
   },
 };
