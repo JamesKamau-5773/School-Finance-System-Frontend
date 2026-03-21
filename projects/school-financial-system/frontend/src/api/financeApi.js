@@ -88,8 +88,9 @@ export const financeApi = {
     return response.data;
   },
 
+  // 8. Fetch trial balance report lines and totals
   getTrialBalance: async () => {
-    const response = await apiClient.get('/finance/reports/trial-balance');
+    const response = await apiClient.get('/api/finance/reports/trial-balance');
     return response.data;
   },
 };
