@@ -1,6 +1,8 @@
 import React from "react";
+import { NavLink } from "react-router-dom";
 import {
   Wallet,
+  WalletCards,
   Boxes,
   FileText,
   Settings,
@@ -8,9 +10,14 @@ import {
 
 export default function MainLayout({
   children,
-  activeSection = "cashbook",
-  onSectionChange = () => {},
 }) {
+  const navClassName = ({ isActive }) =>
+    `flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${
+      isActive
+        ? "bg-[#1A4D5C] text-white border border-[#05CD99]/30"
+        : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
+    }`;
+
   return (
     <div className="flex min-h-screen bg-[#050B14] text-white font-sans selection:bg-[#FFC107] selection:text-black">
       {/* Sidebar - Glassy and Modern */}
@@ -25,30 +32,28 @@ export default function MainLayout({
         </div>
 
         <nav className="flex-1 p-4 space-y-2">
-          <NavItem
-            icon={<Wallet size={20} />}
-            label="Cashbook"
-            active={activeSection === "cashbook"}
-            onClick={() => onSectionChange("cashbook")}
-          />
-          <NavItem
-            icon={<FileText size={20} />}
-            label="Fee Master"
-            active={activeSection === "fee-master"}
-            onClick={() => onSectionChange("fee-master")}
-          />
-          <NavItem
-            icon={<Boxes size={20} />}
-            label="Store Keeper"
-            active={activeSection === "store-keeper"}
-            onClick={() => onSectionChange("store-keeper")}
-          />
-          <NavItem
-            icon={<FileText size={20} />}
-            label="Audit Report"
-            active={activeSection === "audit-report"}
-            onClick={() => onSectionChange("audit-report")}
-          />
+          <NavLink to="/cashbook" className={navClassName}>
+            <Wallet size={18} />
+            Cashbook
+          </NavLink>
+          <NavLink
+            to="/fees"
+            className={navClassName}
+          >
+            <WalletCards size={18} />
+            Fee Master
+          </NavLink>
+          <NavLink to="/store-keeper" className={navClassName}>
+            <Boxes size={18} />
+            Store Keeper
+          </NavLink>
+          <NavLink
+            to="/reports"
+            className={navClassName}
+          >
+            <FileText size={18} />
+            Audit Report
+          </NavLink>
         </nav>
 
         <div className="p-4 border-t border-white/5">

@@ -121,4 +121,22 @@ export const financeApi = {
     );
     return response.data;
   },
+
+  // --- PHASE 5: FEE MASTER ENDPOINTS ---
+  getFeeStructures: async (filters = {}) => {
+    const response = await apiClient.get('/fees/structures', { params: filters });
+    return response.data;
+  },
+
+  createFeeStructure: async (feeData) => {
+    const payload = {
+      name: feeData.name,
+      amount: parseFloat(feeData.amount),
+      academic_year: feeData.academic_year,
+      term: feeData.term,
+      target_cohort: feeData.target_cohort
+    };
+    const response = await apiClient.post('/fees/structures', payload);
+    return response.data;
+  }
 };

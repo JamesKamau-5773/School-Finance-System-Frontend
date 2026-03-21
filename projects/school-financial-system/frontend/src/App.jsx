@@ -1,7 +1,9 @@
-import React, { useMemo, useState } from 'react';
+import React from 'react';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import MainLayout from './layout/MainLayout';
 import CashbookDashboard from './features/cashbook/CashbookDashboard';
 import TrialBalance from './features/reports/TrialBalance';
+import FeeMaster from './features/fees/FeeMaster';
 
 function PlaceholderPage({ title }) {
   return (
@@ -13,30 +15,16 @@ function PlaceholderPage({ title }) {
 }
 
 function App() {
-  const [activeSection, setActiveSection] = useState('cashbook');
-
-  const content = useMemo(() => {
-    if (activeSection === 'audit-report') {
-      return <TrialBalance />;
-    }
-
-    if (activeSection === 'fee-master') {
-      return <PlaceholderPage title="Fee Master" />;
-    }
-
-    if (activeSection === 'store-keeper') {
-      return <PlaceholderPage title="Store Keeper" />;
-    }
-
-    return <CashbookDashboard />;
-  }, [activeSection]);
-
   return (
-    <MainLayout
-      activeSection={activeSection}
-      onSectionChange={setActiveSection}
-    >
-      {content}
+    <MainLayout>
+      <Routes>
+        <Route path="/" element={<Navigate to="/cashbook" replace />} />
+        <Route path="/cashbook" element={<CashbookDashboard />} />
+        <Route path="/reports" element={<TrialBalance />} />
+        <Route path="/fees" element={<FeeMaster />} />
+        <Route path="/store-keeper" element={<PlaceholderPage title="Store Keeper" />} />
+        <Route path="*" element={<Navigate to="/cashbook" replace />} />
+      </Routes>
     </MainLayout>
   );
 }
