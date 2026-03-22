@@ -11,15 +11,12 @@ import CashbookFilter from './CashbookFilter';
 
 export default function CashbookDashboard() {
   const [filters, setFilters] = useState({
-    description: "",
+    omnisearch: "",
     date: "",
-    referenceNo: "",
     minAmount: 0,
     type: "",
     category: "",
     method: "",
-    invoiceNo: "",
-    studentId: "",
   });
 
   const { data: transactions = [], isLoading: isLoadingTransactions } = useTransactions();
@@ -31,55 +28,27 @@ export default function CashbookDashboard() {
   const [isReallocateModalOpen, setIsReallocateModalOpen] = useState(false);
 
   const filteredTransactions = useMemo(() => {
-    const normalizedDescription = filters.description.trim().toLowerCase();
-    const normalizedRefNo = filters.referenceNo.trim().toLowerCase();
-    const normalizedCategory = filters.category.trim().toLowerCase();
-    const normalizedMethod = filters.method.trim().toLowerCase();
-    const normalizedInvoiceNo = filters.invoiceNo.trim().toLowerCase();
-    const normalizedStudentId = filters.studentId.trim().toLowerCase();
+    const normalizedSearch = filters.omnisearch.trim().toLowerCase();
     const minAmount = filters.minAmount || 0;
 
     return transactions.filter((tx) => {
-      if (
-        normalizedDescription &&
-        !String(tx.description || "").toLowerCase().includes(normalizedDescription)
-      ) {
-        return false;
-      }
+      // Omni-search: check across description, reference_no, invoice_no, and student_id
+      if (normalizedSearch) {
+        const searchableFields = [
+          String(tx.description || ""),
+          String(tx.reference_no || ""),
+          String(tx.invoice_no || ""),
+          String(tx.student_id || ""),
+        ]
+          .map((val) => val.toLowerCase());
 
-      if (
-        normalizedRefNo &&
-        !String(tx.reference_no || "").toLowerCase().includes(normalizedRefNo)
-      ) {
-        return false;
-      }
+        const matchesSearch = searchableFields.some((field) =>
+          field.includes(normalizedSearch)
+        );
 
-      if (
-        normalizedCategory &&
-        !String(tx.category || "").toLowerCase().includes(normalizedCategory)
-      ) {
-        return false;
-      }
-
-      if (
-        normalizedMethod &&
-        !String(tx.payment_method || "").toLowerCase().includes(normalizedMethod)
-      ) {
-        return false;
-      }
-
-      if (
-        normalizedInvoiceNo &&
-        !String(tx.invoice_no || "").toLowerCase().includes(normalizedInvoiceNo)
-      ) {
-        return false;
-      }
-
-      if (
-        normalizedStudentId &&
-        !String(tx.student_id || "").toLowerCase().includes(normalizedStudentId)
-      ) {
-        return false;
+        if (!matchesSearch) {
+          return false;
+        }
       }
 
       if (filters.date && tx.date !== filters.date) {
@@ -94,21 +63,32 @@ export default function CashbookDashboard() {
         return false;
       }
 
+      if (
+        filters.category &&
+        !String(tx.category || "").toLowerCase().includes(filters.category.toLowerCase())
+      ) {
+        return false;
+      }
+
+      if (
+        filters.method &&
+        !String(tx.payment_method || "").toLowerCase().includes(filters.method.toLowerCase())
+      ) {
+        return false;
+      }
+
       return true;
     });
   }, [transactions, filters]);
 
   const handleResetFilters = () => {
     setFilters({
-      description: "",
+      omnisearch: "",
       date: "",
-      referenceNo: "",
       minAmount: 0,
       type: "",
       category: "",
       method: "",
-      invoiceNo: "",
-      studentId: "",
     });
   };
 
