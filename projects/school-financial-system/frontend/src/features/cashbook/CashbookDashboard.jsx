@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Plus, ArrowDownRight, Activity, Landmark, ArrowRightLeft } from "lucide-react";
 import PaymentModal from './PaymentModal';
 import ExpenseModal from './ExpenseModal';
@@ -6,9 +6,22 @@ import CapitationModal from './CapitationModal';
 import ReallocateModal from './ReallocateModal';
 import { useTransactions, useSummary } from './hooks/useCashbook';
 import VoteHeadDistribution from './VoteHeadDistribution';
+import CashbookFilter from './CashbookFilter';
 
 
 export default function CashbookDashboard() {
+  const [filters, setFilters] = useState({
+    description: "",
+    date: "",
+    referenceNo: "",
+    minAmount: 0,
+    type: "",
+    category: "",
+    method: "",
+    invoiceNo: "",
+    studentId: "",
+  });
+
   const { data: transactions = [], isLoading: isLoadingTransactions } = useTransactions();
   const { data: summary, isLoading: isLoadingSummary } = useSummary();
 
@@ -16,6 +29,88 @@ export default function CashbookDashboard() {
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
   const [isCapitationModalOpen, setIsCapitationModalOpen] = useState(false);
   const [isReallocateModalOpen, setIsReallocateModalOpen] = useState(false);
+
+  const filteredTransactions = useMemo(() => {
+    const normalizedDescription = filters.description.trim().toLowerCase();
+    const normalizedRefNo = filters.referenceNo.trim().toLowerCase();
+    const normalizedCategory = filters.category.trim().toLowerCase();
+    const normalizedMethod = filters.method.trim().toLowerCase();
+    const normalizedInvoiceNo = filters.invoiceNo.trim().toLowerCase();
+    const normalizedStudentId = filters.studentId.trim().toLowerCase();
+    const minAmount = filters.minAmount || 0;
+
+    return transactions.filter((tx) => {
+      if (
+        normalizedDescription &&
+        !String(tx.description || "").toLowerCase().includes(normalizedDescription)
+      ) {
+        return false;
+      }
+
+      if (
+        normalizedRefNo &&
+        !String(tx.reference_no || "").toLowerCase().includes(normalizedRefNo)
+      ) {
+        return false;
+      }
+
+      if (
+        normalizedCategory &&
+        !String(tx.category || "").toLowerCase().includes(normalizedCategory)
+      ) {
+        return false;
+      }
+
+      if (
+        normalizedMethod &&
+        !String(tx.payment_method || "").toLowerCase().includes(normalizedMethod)
+      ) {
+        return false;
+      }
+
+      if (
+        normalizedInvoiceNo &&
+        !String(tx.invoice_no || "").toLowerCase().includes(normalizedInvoiceNo)
+      ) {
+        return false;
+      }
+
+      if (
+        normalizedStudentId &&
+        !String(tx.student_id || "").toLowerCase().includes(normalizedStudentId)
+      ) {
+        return false;
+      }
+
+      if (filters.date && tx.date !== filters.date) {
+        return false;
+      }
+
+      if (minAmount > 0 && Number(tx.amount || 0) < minAmount) {
+        return false;
+      }
+
+      if (filters.type && tx.type !== filters.type) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [transactions, filters]);
+
+  const handleResetFilters = () => {
+    setFilters({
+      description: "",
+      date: "",
+      referenceNo: "",
+      minAmount: 0,
+      type: "",
+      category: "",
+      method: "",
+      invoiceNo: "",
+      studentId: "",
+    });
+  };
 
   if (isLoadingSummary) {
     return (
@@ -121,6 +216,12 @@ export default function CashbookDashboard() {
 
       <VoteHeadDistribution />
 
+      <CashbookFilter
+        filters={filters}
+        onFilterChange={setFilters}
+        onReset={handleResetFilters}
+      />
+
       {/* Ledger Table */}
       <div className="edtech-card p-0 overflow-hidden">
         <div className="p-6 border-b border-white/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -157,8 +258,8 @@ export default function CashbookDashboard() {
                     Loading transactions...
                   </td>
                 </tr>
-              ) : (
-                transactions.map((tx) => (
+              ) : filteredTransactions.length > 0 ? (
+                filteredTransactions.map((tx) => (
                   <tr
                     key={tx.id}
                     className="border-b border-white/5 last:border-b-0 hover:bg-white/5 transition-colors"
@@ -188,6 +289,15 @@ export default function CashbookDashboard() {
                     </td>
                   </tr>
                 ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan={4}
+                    className="p-8 text-center text-white/50 font-medium"
+                  >
+                    No transactions match the current filters.
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>
