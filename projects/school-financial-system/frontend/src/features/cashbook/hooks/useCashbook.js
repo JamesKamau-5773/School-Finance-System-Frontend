@@ -28,11 +28,11 @@ const invalidateDashboardFinancials = (queryClient) => {
   queryClient.invalidateQueries({ queryKey: QUERY_KEYS.summary });
 };
 
-// 1. Hook to fetch and cache the ledger
-export const useTransactions = () => {
+// 1. Hook to fetch and cache the ledger with optional filters
+export const useTransactions = (filters = {}) => {
   return useQuery({
-    queryKey: QUERY_KEYS.transactions,
-    queryFn: financeApi.getTransactions,
+    queryKey: [QUERY_KEYS.transactions, filters],
+    queryFn: () => financeApi.getTransactions(filters),
     staleTime: 1000 * 60 * 5, // Cache data for 5 minutes to reduce server load
   });
 };

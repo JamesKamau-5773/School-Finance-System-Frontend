@@ -5,12 +5,20 @@ import {
   WalletCards,
   Boxes,
   FileText,
+  Users,
+  UserCog,
   Settings,
 } from "lucide-react";
+import AuthHelper from "../components/AuthHelper";
+import { useAuth } from "../context/AuthContext";
+import { canAccessModule } from "../auth/roleAccess";
 
 export default function MainLayout({
   children,
 }) {
+  const { user } = useAuth();
+  const canAccess = (moduleKey) => canAccessModule(user?.role, moduleKey);
+
   const navClassName = ({ isActive }) =>
     `flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${
       isActive
@@ -32,54 +40,68 @@ export default function MainLayout({
         </div>
 
         <nav className="flex-1 p-4 space-y-2">
-          <NavLink to="/cashbook" className={navClassName}>
-            <Wallet size={18} />
-            Cashbook
-          </NavLink>
-          <NavLink
-            to="/fees"
-            className={navClassName}
-          >
-            <WalletCards size={18} />
-            Fee Master
-          </NavLink>
-          <NavLink to="/store-keeper" className={navClassName}>
-            <Boxes size={18} />
-            Store Keeper
-          </NavLink>
-          <NavLink
-            to="/reports"
-            className={navClassName}
-          >
-            <FileText size={18} />
-            Audit Report
-          </NavLink>
+          {canAccess("cashbook") && (
+            <NavLink to="/cashbook" className={navClassName}>
+              <Wallet size={18} />
+              Cashbook
+            </NavLink>
+          )}
+          {canAccess("fees") && (
+            <NavLink
+              to="/fees"
+              className={navClassName}
+            >
+              <WalletCards size={18} />
+              Fee Master
+            </NavLink>
+          )}
+          {canAccess("students") && (
+            <NavLink
+              to="/students"
+              className={navClassName}
+            >
+              <Users size={18} />
+              Student Directory
+            </NavLink>
+          )}
+          {canAccess("inventory") && (
+            <NavLink to="/inventory" className={navClassName}>
+              <Boxes size={18} />
+              Store Keeper
+            </NavLink>
+          )}
+          {canAccess("reports") && (
+            <NavLink
+              to="/reports"
+              className={navClassName}
+            >
+              <FileText size={18} />
+              Audit Report
+            </NavLink>
+          )}
         </nav>
 
         <div className="p-4 border-t border-white/5">
-          <NavItem icon={<Settings size={20} />} label="Settings" />
+          {canAccess("users") && (
+            <NavLink to="/users" className={navClassName}>
+              <UserCog size={18} />
+              User Management
+            </NavLink>
+          )}
+          {canAccess("settings") && (
+            <NavLink to="/settings" className={navClassName}>
+              <Settings size={18} />
+              Settings
+            </NavLink>
+          )}
         </div>
       </aside>
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto">{children}</main>
-    </div>
-  );
-}
 
-// Sub-component for navigation items
-function NavItem({ icon, label, active, onClick }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors rounded-lg ${
-        active
-          ? "bg-[#FFC107]/10 text-[#FFC107] font-bold"
-          : "text-white/60 hover:bg-white/5 hover:text-white"
-      }`}
-    >
-      {icon}
-      <span>{label}</span>
-    </button>
+      {/* Development: JWT Token Helper */}
+      <AuthHelper />
+    </div>
   );
 }

@@ -19,67 +19,33 @@ export default function CashbookDashboard() {
     method: "",
   });
 
-  const { data: transactions = [], isLoading: isLoadingTransactions } = useTransactions();
+  const { data: transactionData, isLoading: isLoadingTransactions } = useTransactions(filters);
   const { data: summary, isLoading: isLoadingSummary } = useSummary();
+
+  const transactions = useMemo(() => {
+    if (Array.isArray(transactionData)) {
+      return transactionData;
+    }
+
+    if (Array.isArray(transactionData?.transactions)) {
+      return transactionData.transactions;
+    }
+
+    if (Array.isArray(transactionData?.data)) {
+      return transactionData.data;
+    }
+
+    return [];
+  }, [transactionData]);
 
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
   const [isCapitationModalOpen, setIsCapitationModalOpen] = useState(false);
   const [isReallocateModalOpen, setIsReallocateModalOpen] = useState(false);
 
-  const filteredTransactions = useMemo(() => {
-    const normalizedSearch = filters.omnisearch.trim().toLowerCase();
-    const minAmount = filters.minAmount || 0;
-
-    return transactions.filter((tx) => {
-      // Omni-search: check across description, reference_no, invoice_no, and student_id
-      if (normalizedSearch) {
-        const searchableFields = [
-          String(tx.description || ""),
-          String(tx.reference_no || ""),
-          String(tx.invoice_no || ""),
-          String(tx.student_id || ""),
-        ]
-          .map((val) => val.toLowerCase());
-
-        const matchesSearch = searchableFields.some((field) =>
-          field.includes(normalizedSearch)
-        );
-
-        if (!matchesSearch) {
-          return false;
-        }
-      }
-
-      if (filters.date && tx.date !== filters.date) {
-        return false;
-      }
-
-      if (minAmount > 0 && Number(tx.amount || 0) < minAmount) {
-        return false;
-      }
-
-      if (filters.type && tx.type !== filters.type) {
-        return false;
-      }
-
-      if (
-        filters.category &&
-        !String(tx.category || "").toLowerCase().includes(filters.category.toLowerCase())
-      ) {
-        return false;
-      }
-
-      if (
-        filters.method &&
-        !String(tx.payment_method || "").toLowerCase().includes(filters.method.toLowerCase())
-      ) {
-        return false;
-      }
-
-      return true;
-    });
-  }, [transactions, filters]);
+  // Since the backend now handles server-side filtering, 
+  // we no longer need client-side filtering for the API-returned data
+  const filteredTransactions = transactions;
 
   const handleResetFilters = () => {
     setFilters({
@@ -176,34 +142,36 @@ export default function CashbookDashboard() {
           <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500 opacity-50 group-hover:opacity-100 transition-opacity"></div>
           <h3 className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-3">Total Collections</h3>
           <p className="text-4xl financial-data text-white">
-            {summary.total_collections.toLocaleString('en-KE', { minimumFractionDigits: 2 })}
+            {summary?.total_collections?.toLocaleString('en-KE', { minimumFractionDigits: 2 }) || '0.00'}
           </p>
         </div>
         <div className="edtech-card relative overflow-hidden group">
           <div className="absolute top-0 left-0 w-1 h-full bg-rose-500 opacity-50 group-hover:opacity-100 transition-opacity"></div>
           <h3 className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-3">Total Expenses</h3>
           <p className="text-4xl financial-data text-white">
-            {summary.total_expenses.toLocaleString('en-KE', { minimumFractionDigits: 2 })}
+            {summary?.total_expenses?.toLocaleString('en-KE', { minimumFractionDigits: 2 }) || '0.00'}
           </p>
         </div>
         <div className="edtech-card relative overflow-hidden border-[#FFC107]/30 bg-[#1A4D5C]/40">
           <h3 className="text-[#FFC107] text-xs font-bold uppercase tracking-widest mb-3">Net Position</h3>
           <p className="text-4xl financial-data text-white">
-            {summary.net_position.toLocaleString('en-KE', { minimumFractionDigits: 2 })}
+            {summary?.net_position?.toLocaleString('en-KE', { minimumFractionDigits: 2 }) || '0.00'}
           </p>
         </div>
       </div>
 
       <VoteHeadDistribution />
 
-      <CashbookFilter
-        filters={filters}
-        onFilterChange={setFilters}
-        onReset={handleResetFilters}
-      />
+      <div className="relative z-20">
+        <CashbookFilter
+          filters={filters}
+          onFilterChange={setFilters}
+          onReset={handleResetFilters}
+        />
+      </div>
 
       {/* Ledger Table */}
-      <div className="edtech-card p-0 overflow-hidden">
+      <div className="edtech-card p-0">
         <div className="p-6 border-b border-white/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <h3 className="font-bold text-white text-lg">Recent Transactions</h3>
           <span className="text-xs whitespace-nowrap font-bold px-3 py-1 bg-white/5 text-white/60 tracking-wider rounded-lg border border-white/10">
@@ -252,13 +220,17 @@ export default function CashbookDashboard() {
                       {tx.description}
                     </td>
                     <td className="p-4 text-center">
-                      {tx.type === "INCOME" ? (
+                      {tx.type.toUpperCase() === "INCOME" ? (
                         <span className="inline-flex items-center justify-center px-2.5 py-1 bg-emerald-500/10 text-emerald-400 font-sans text-xs font-bold rounded-full">
                           INCOME
                         </span>
-                      ) : (
+                      ) : tx.type.toUpperCase() === "EXPENSE" ? (
                         <span className="inline-flex items-center justify-center px-2.5 py-1 bg-rose-500/10 text-rose-400 font-sans text-xs font-bold rounded-full">
                           EXPENSE
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center justify-center px-2.5 py-1 bg-sky-500/10 text-sky-400 font-sans text-xs font-bold rounded-full">
+                          ADJUSTMENT
                         </span>
                       )}
                     </td>

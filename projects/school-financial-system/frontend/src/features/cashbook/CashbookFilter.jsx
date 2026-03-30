@@ -3,11 +3,11 @@ import {
   Search,
   X,
   ChevronDown,
-  Calendar,
   DollarSign,
   Tag,
   Sliders,
 } from "lucide-react";
+import DatePicker from "./components/DatePicker";
 
 export default function CashbookFilter({
   filters,
@@ -30,12 +30,13 @@ export default function CashbookFilter({
     });
   };
 
-  const hasActiveFilters = Object.entries(filters).some(([key, val]) => {
-    if (key === "omnisearch" && typeof val === "string") return val.trim() !== "";
-    if (typeof val === "string") return val.trim() !== "";
-    if (typeof val === "number") return val > 0;
-    return false;
-  });
+  const hasValue = (value) => {
+    if (typeof value === "string") return value.trim() !== "";
+    if (typeof value === "number") return value > 0;
+    return Boolean(value);
+  };
+
+  const hasActiveFilters = Object.values(filters).some(hasValue);
 
   const activeFilterList = [
     { key: "omnisearch", label: "Search", value: filters.omnisearch },
@@ -44,12 +45,7 @@ export default function CashbookFilter({
     { key: "type", label: "Type", value: filters.type },
     { key: "category", label: "Category", value: filters.category },
     { key: "method", label: "Method", value: filters.method },
-  ].filter(
-    (f) =>
-      (typeof f.value === "string" && f.value.trim() !== "") ||
-      (typeof f.value === "number" && f.value > 0) ||
-      f.value !== null
-  );
+  ].filter((f) => hasValue(f.value));
 
   return (
     <div className="edtech-card p-6 mb-8">
@@ -127,24 +123,16 @@ export default function CashbookFilter({
 
       {/* Advanced Filters Drawer */}
       {isAdvancedOpen && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 pt-4 border-t border-white/10">
+        <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 pt-4 border-t border-white/10">
           {/* Filter by Date */}
           <div>
             <label className="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-wider">
               Date
             </label>
-            <div className="relative">
-              <Calendar
-                size={14}
-                className="absolute left-3 top-3 text-slate-500"
-              />
-              <input
-                type="date"
-                value={filters.date}
-                onChange={(e) => handleInputChange("date", e.target.value)}
-                className="w-full bg-[#050B14] border border-[#1A4D5C] text-white pl-9 pr-3 py-2 text-xs rounded-lg focus:outline-none focus:ring-2 focus:ring-[#05CD99] focus:border-transparent transition-all"
-              />
-            </div>
+            <DatePicker
+              value={filters.date}
+              onChange={(date) => handleInputChange("date", date)}
+            />
           </div>
 
           {/* Filter by Amount */}
@@ -182,6 +170,7 @@ export default function CashbookFilter({
               <option value="">All Types</option>
               <option value="INCOME">Income</option>
               <option value="EXPENSE">Expense</option>
+              <option value="ADJUSTMENT">Adjustment</option>
             </select>
           </div>
 

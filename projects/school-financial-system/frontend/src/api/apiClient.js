@@ -1,33 +1,42 @@
-import axios from "axios";
+import axios from 'axios';
 
-/**
- * API Client Configuration - CRITICAL
- * 
- * Uses Vite dev proxy to avoid CORS issues in development.
- * Frontend makes requests to http://localhost:5173/api/* (same origin)
- * Vite proxies them to http://localhost:5000/api/* (backend preserves path)
- * 
- * Environment Variable:
- * - VITE_API_BASE_URL (optional - overrides /api)
- * 
- * Route Pattern:
- * - Routes use /api prefix: /api/finance/transactions
- * - Resolves in browser to: http://localhost:5173/api/finance/transactions
- * - Vite proxies to backend: http://localhost:5000/api/finance/transactions
- */
-
-const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL;
-const normalizedBaseUrl =
-  configuredBaseUrl && configuredBaseUrl.startsWith("https://localhost")
-    ? configuredBaseUrl.replace("https://", "http://")
-    : configuredBaseUrl;
-
+// Use same-origin base URL so Vite can proxy /api/* to Flask in development.
 const apiClient = axios.create({
-  baseURL: normalizedBaseUrl || "",
-  timeout: 10000,
+  baseURL: '',
   headers: {
-    "Content-Type": "application/json",
-  },
+    'Content-Type': 'application/json'
+  }
 });
+
+// The Request Interceptor
+apiClient.interceptors.request.use(
+  (config) => {
+    // Retrieve the token from secure local storage
+    const token = localStorage.getItem('erp_token');
+    
+    // If a token exists, inject it into the Authorization header
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// The Response Interceptor (Handles Expired Tokens)
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      // If the backend rejects the token (expired or invalid), force a logout
+      localStorage.removeItem('erp_token');
+      localStorage.removeItem('erp_user');
+      window.location.href = '/login'; 
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default apiClient;

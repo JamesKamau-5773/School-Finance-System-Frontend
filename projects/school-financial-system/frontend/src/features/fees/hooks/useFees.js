@@ -18,3 +18,16 @@ export const useCreateFeeStructure = () => {
     },
   });
 };
+
+export const useIssueInvoices = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (structureId) => financeApi.issueCohortInvoices(structureId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["student_directory"] });
+      queryClient.invalidateQueries({ queryKey: ["student_ledger"] });
+      queryClient.invalidateQueries({ queryKey: ["summary"] });
+    },
+  });
+};
