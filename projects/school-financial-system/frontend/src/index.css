@@ -1,37 +1,21 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap");
-
 @import "tailwindcss";
 
+@theme {
+  --color-app-background: #f5f5f3;
+  --color-card-surface: #ffffff;
+  --color-text-border: #1c1917;
+  --color-structural-navy: #0a0a2a;
+  --color-action-mint: #00e98f;
+  --color-alert-crimson: #ff3366;
+  --font-sans: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
 @layer base {
-  :root {
-    /* EdTech Modern Palette (Inspired by your reference) */
-    --bg-deep-navy: #0b192c;
-    --bg-teal-glow: #1a4d5c;
-
-    /* The Signature Accent */
-    --accent-gold: #ffc107;
-    --accent-gold-hover: #ffb300;
-
-    /* Text & Lines */
-    --text-pure: #ffffff;
-    --text-muted: #94a3b8; /* Soft slate for secondary text */
-    --glass-border: rgba(255, 255, 255, 0.1);
-
-    /* Finance Indicators */
-    --finance-credit: #10b981; /* Glowing Emerald */
-    --finance-debit: #f43f5e; /* Vibrant Rose */
-  }
-
   body {
-    /* Replicating the rich, dynamic background from the image */
-    background: radial-gradient(
-      circle at top right,
-      var(--bg-teal-glow) 0%,
-      var(--bg-deep-navy) 45%,
-      #050b14 100%
-    );
-    background-attachment: fixed;
-    color: var(--text-pure);
+    background-color: #0a0a2a;
+    color: #f5f5f3;
     font-family: "Inter", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -45,19 +29,17 @@
   h4,
   h5,
   h6 {
-    font-weight: 800; /* Extra bold headings to match the "Power Up" text */
-    letter-spacing: -0.03em;
-    color: var(--text-pure);
+    @apply font-extrabold tracking-tight;
+    color: inherit;
   }
 
   *:focus-visible {
-    outline: 2px solid var(--accent-gold);
+    outline: 2px solid #00e98f;
     outline-offset: 2px;
   }
 }
 
 @layer components {
-  /* Enforce Tabular alignment for all financial data */
   .financial-data,
   .tabular-numbers,
   input[type="number"],
@@ -66,76 +48,62 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* The Original EdTech Glass Card */
   .edtech-card {
-    background: rgba(11, 25, 44, 0.4);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 1.5rem;
-    padding: 1.5rem;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-    color: white;
+    @apply border rounded-3xl p-6;
+    background-color: rgba(245, 245, 243, 0.14);
+    color: #f5f5f3;
+    border-color: rgba(245, 245, 243, 0.35);
+    backdrop-filter: blur(24px);
+    box-shadow: 0 12px 40px rgba(7, 18, 40, 0.35);
   }
 
-  /* The Original Signature Gold Pill Button */
   .edtech-btn {
-    background-color: #FFC107;
-    color: #000000;
-    font-weight: 700;
-    padding: 0.75rem 2rem;
-    border-radius: 9999px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    cursor: pointer;
-    border: none;
-    box-shadow: 0 4px 14px 0 rgba(255, 193, 7, 0.39);
-    transition: all 0.3s ease;
+    @apply font-bold py-3 px-8 rounded-full inline-flex items-center justify-center gap-2 cursor-pointer transition-all duration-300;
+    background-color: #00e98f;
+    color: #0a0a2a;
   }
 
   .edtech-btn:hover {
-    background-color: #FFCA28;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 193, 7, 0.5);
+    @apply -translate-y-0.5;
+    box-shadow: 0 6px 20px rgba(0, 233, 143, 0.5);
   }
 
-  /* The Original Ghost Outline Button */
+  .btn-secondary {
+    @apply text-white font-bold py-3 px-8 rounded-full inline-flex items-center justify-center gap-2 cursor-pointer transition-all duration-300;
+    background-color: #ff3366;
+  }
+
+  .btn-secondary:hover {
+    @apply -translate-y-0.5;
+    box-shadow: 0 6px 20px rgba(255, 51, 102, 0.5);
+  }
+
   .edtech-btn-secondary {
-    background-color: transparent;
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    padding: 0.75rem 2rem;
-    border-radius: 9999px;
+    @apply bg-transparent border py-3 px-8 rounded-full transition-all duration-300;
+    color: #f5f5f3;
+    border-color: rgba(245, 245, 243, 0.35);
     box-shadow: none;
-    transition: all 0.3s ease;
   }
 
   .edtech-btn-secondary:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.6);
+    background-color: rgba(245, 245, 243, 0.12);
+    border-color: rgba(245, 245, 243, 0.55);
   }
 
-  /* The Original Dark Translucent Inputs */
   .edtech-input {
-    background: rgba(11, 25, 44, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 0.75rem;
-    padding: 0.75rem 1rem;
-    width: 100%;
-    color: white;
-    transition: all 0.2s ease;
+    @apply border rounded-xl py-3 px-4 w-full transition-all duration-200;
+    background-color: #ffffff;
+    border-color: rgba(28, 25, 23, 0.2);
+    color: #1c1917;
   }
 
   .edtech-input::placeholder {
-    color: #64748B;
+    color: rgba(28, 25, 23, 0.5);
   }
 
   .edtech-input:focus {
-    background: rgba(11, 25, 44, 0.9);
-    border-color: #FFC107;
+    border-color: #00e98f;
     outline: none;
-    box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.2);
+    box-shadow: 0 0 0 3px rgba(0, 233, 143, 0.2);
   }
 }

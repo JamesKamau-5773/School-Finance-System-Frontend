@@ -8,6 +8,8 @@ import {
   Users,
   UserCog,
   Settings,
+  UserCircle2,
+  LogOut,
 } from "lucide-react";
 import AuthHelper from "../components/AuthHelper";
 import { useAuth } from "../context/AuthContext";
@@ -16,30 +18,30 @@ import { canAccessModule } from "../auth/roleAccess";
 export default function MainLayout({
   children,
 }) {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const canAccess = (moduleKey) => canAccessModule(user?.role, moduleKey);
 
   const navClassName = ({ isActive }) =>
     `flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${
       isActive
-        ? "bg-[#1A4D5C] text-white border border-[#05CD99]/30"
-        : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
+        ? "bg-app-background/35 text-structural-navy border border-app-background/60"
+        : "text-structural-navy/85 hover:bg-app-background/24 hover:text-structural-navy"
     }`;
 
   return (
-    <div className="flex min-h-screen bg-[#050B14] text-white font-sans selection:bg-[#FFC107] selection:text-black">
+    <div className="flex h-screen overflow-hidden bg-gradient-to-br from-structural-navy via-structural-navy/70 to-action-mint/35 text-app-background font-sans selection:bg-alert-crimson selection:text-structural-navy">
       {/* Sidebar - Glassy and Modern */}
-      <aside className="w-64 bg-black/20 backdrop-blur-lg border-r border-white/5 flex flex-col">
-        <div className="p-6 border-b border-white/5">
-          <h2 className="text-xl font-extrabold text-white tracking-tight">
+      <aside className="sticky top-0 w-64 h-screen shrink-0 bg-app-background/30 backdrop-blur-2xl border-r border-app-background/45 flex flex-col">
+        <div className="p-6 border-b border-app-background/55">
+          <h2 className="text-xl font-extrabold text-structural-navy tracking-tight">
             ST. GERALD HIGH
           </h2>
-          <p className="text-xs text-white/40 font-mono mt-1">
+          <p className="text-xs text-structural-navy/75 font-mono mt-1">
             FINANCE ENGINE v1.0
           </p>
         </div>
 
-        <nav className="flex-1 p-4 space-y-2">
+        <nav className="flex-1 overflow-y-auto p-4 space-y-2">
           {canAccess("cashbook") && (
             <NavLink to="/cashbook" className={navClassName}>
               <Wallet size={18} />
@@ -81,7 +83,12 @@ export default function MainLayout({
           )}
         </nav>
 
-        <div className="p-4 border-t border-white/5">
+        <div className="p-4 border-t border-app-background/55">
+          <NavLink to="/profile" className={navClassName}>
+            <UserCircle2 size={18} />
+            My Profile
+          </NavLink>
+
           {canAccess("users") && (
             <NavLink to="/users" className={navClassName}>
               <UserCog size={18} />
@@ -94,11 +101,20 @@ export default function MainLayout({
               Settings
             </NavLink>
           )}
+
+          <button
+            type="button"
+            onClick={logout}
+            className="mt-2 w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-alert-crimson hover:bg-alert-crimson/10 border border-alert-crimson/45"
+          >
+            <LogOut size={18} />
+            Logout
+          </button>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">{children}</main>
+      <main className="flex-1 h-screen overflow-y-auto">{children}</main>
 
       {/* Development: JWT Token Helper */}
       <AuthHelper />
