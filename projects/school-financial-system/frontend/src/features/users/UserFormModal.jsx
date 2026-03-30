@@ -1,22 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { Loader2, UserCog, UserPlus, X } from 'lucide-react';
+import { Eye, EyeOff, Loader2, UserCog, UserPlus, X } from 'lucide-react';
 import { useRegisterUser, useUpdateUser } from './hooks/useUsers';
 import { getPasswordRuleResults, getPasswordStrength, isPasswordStrong } from '../../utils/passwordValidation';
 
 const roleOptions = [
   'admin',
-  'accountant',
+  'bursar',
+  'clerk',
   'storekeeper',
   'principal',
-  'teacher',
-  'student',
+  'system',
+  'user',
 ];
 
 const defaultForm = {
   full_name: '',
   username: '',
   email: '',
-  role: 'teacher',
+  role: 'user',
   password: '',
 };
 
@@ -25,6 +26,7 @@ const USERNAME_REQUIREMENT_TEXT = 'Use only letters, numbers, and underscores (_
 export default function UserFormModal({ isOpen, onClose, initialData }) {
   const isEditMode = Boolean(initialData);
   const [formData, setFormData] = useState(defaultForm);
+  const [showPassword, setShowPassword] = useState(false);
   const [clientMessage, setClientMessage] = useState('');
   const passwordRuleResults = getPasswordRuleResults(formData.password || '');
   const passwordStrength = getPasswordStrength(formData.password || '');
@@ -69,13 +71,14 @@ export default function UserFormModal({ isOpen, onClose, initialData }) {
     resetCreate();
     resetUpdate();
     setClientMessage('');
+    setShowPassword(false);
 
     if (isEditMode) {
       setFormData({
         full_name: initialData.full_name || '',
         username: initialData.username || '',
         email: initialData.email || '',
-        role: initialData.role || 'teacher',
+        role: initialData.role || 'user',
         password: '',
       });
       return;
@@ -122,11 +125,11 @@ export default function UserFormModal({ isOpen, onClose, initialData }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-[#050B14]/90 backdrop-blur-md p-4">
-      <div className="w-full max-w-xl bg-[#0B192C] border border-[#1A4D5C] shadow-2xl shadow-black/70 rounded-xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-[#1A4D5C]/30">
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-structural-navy/90 backdrop-blur-md p-4">
+      <div className="w-full max-w-xl bg-text-border border border-text-border shadow-2xl shadow-black/70 rounded-xl overflow-hidden">
+        <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-text-border/30">
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            {isEditMode ? <UserCog size={20} className="text-[#05CD99]" /> : <UserPlus size={20} className="text-[#05CD99]" />}
+            {isEditMode ? <UserCog size={20} className="text-action-mint" /> : <UserPlus size={20} className="text-action-mint" />}
             {isEditMode ? 'Edit User Account' : 'Create User Account'}
           </h2>
           <button
@@ -166,7 +169,7 @@ export default function UserFormModal({ isOpen, onClose, initialData }) {
                 required
                 value={formData.full_name}
                 onChange={(event) => setFormData({ ...formData, full_name: event.target.value })}
-                className="w-full bg-[#050B14] border border-white/10 px-3 py-2.5 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#05CD99]"
+                className="w-full bg-structural-navy border border-white/10 px-3 py-2.5 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-action-mint"
                 placeholder="e.g. Jane Akinyi"
               />
             </div>
@@ -178,7 +181,7 @@ export default function UserFormModal({ isOpen, onClose, initialData }) {
                 required
                 value={formData.username}
                 onChange={(event) => setFormData({ ...formData, username: event.target.value })}
-                className="w-full bg-[#050B14] border border-white/10 px-3 py-2.5 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#05CD99]"
+                className="w-full bg-structural-navy border border-white/10 px-3 py-2.5 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-action-mint"
                 placeholder="e.g. teacher_001"
               />
               <p className="mt-1 text-[11px] text-slate-500">{USERNAME_REQUIREMENT_TEXT}</p>
@@ -189,7 +192,7 @@ export default function UserFormModal({ isOpen, onClose, initialData }) {
               <select
                 value={formData.role}
                 onChange={(event) => setFormData({ ...formData, role: event.target.value })}
-                className="w-full bg-[#050B14] border border-white/10 px-3 py-2.5 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#05CD99]"
+                className="w-full bg-structural-navy border border-white/10 px-3 py-2.5 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-action-mint"
               >
                 {roleOptions.map((role) => (
                   <option key={role} value={role}>
@@ -205,7 +208,7 @@ export default function UserFormModal({ isOpen, onClose, initialData }) {
                 type="email"
                 value={formData.email}
                 onChange={(event) => setFormData({ ...formData, email: event.target.value })}
-                className="w-full bg-[#050B14] border border-white/10 px-3 py-2.5 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#05CD99]"
+                className="w-full bg-structural-navy border border-white/10 px-3 py-2.5 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-action-mint"
                 placeholder="name@school.org"
               />
             </div>
@@ -214,17 +217,27 @@ export default function UserFormModal({ isOpen, onClose, initialData }) {
               <label className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">
                 Password
               </label>
-              <input
-                type="password"
-                required={!isEditMode}
-                value={formData.password}
-                onChange={(event) => setFormData({ ...formData, password: event.target.value })}
-                className="w-full bg-[#050B14] border border-white/10 px-3 py-2.5 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#05CD99]"
-                placeholder={isEditMode ? 'Leave blank to keep current password' : '••••••••'}
-              />
-              <div className="mt-2 bg-[#050B14] border border-white/10 rounded-lg p-3">
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  required={!isEditMode}
+                  value={formData.password}
+                  onChange={(event) => setFormData({ ...formData, password: event.target.value })}
+                  className="w-full bg-structural-navy border border-white/10 px-3 py-2.5 pr-12 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-action-mint"
+                  placeholder={isEditMode ? 'Leave blank to keep current password' : '••••••••'}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((value) => !value)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+              <div className="mt-2 bg-structural-navy border border-white/10 rounded-lg p-3">
                 <div className="flex items-center justify-between gap-3 mb-2">
-                  <p className="text-[11px] font-bold uppercase tracking-widest text-[#05CD99]">Password Requirements</p>
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-action-mint">Password Requirements</p>
                   <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded border ${strengthToneClass}`}>
                     {passwordStrength.label} ({passwordStrength.passedCount}/{passwordStrength.total})
                   </span>
@@ -265,7 +278,7 @@ export default function UserFormModal({ isOpen, onClose, initialData }) {
                 type="submit"
                 disabled={isPending || !isFormReadyToSubmit}
                 title={!isFormReadyToSubmit ? 'Complete required fields and password rules first' : 'Create User'}
-                className="px-4 py-2 rounded-md bg-[#05CD99] text-[#050B14] font-bold uppercase tracking-wider disabled:opacity-60 inline-flex items-center gap-2"
+                className="px-4 py-2 rounded-md bg-action-mint text-structural-navy font-bold uppercase tracking-wider disabled:opacity-60 inline-flex items-center gap-2"
               >
                 {isPending ? <Loader2 size={16} className="animate-spin" /> : null}
                 {isEditMode ? 'Save User' : 'Create User'}

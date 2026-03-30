@@ -37,11 +37,11 @@ export default function CreateLevyModal({ isOpen, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#050B14]/80 backdrop-blur-sm p-4">
-      <div className="w-full max-w-md edtech-card border border-white/10 !bg-[#0B192C]/90 p-0 overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-structural-navy/80 backdrop-blur-sm p-4">
+      <div className="w-full max-w-md edtech-card border border-white/10 !bg-text-border/90 p-0 overflow-hidden">
         <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center bg-black/20">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <WalletCards className="text-[#FFC107]" size={20} />
+            <WalletCards className="text-alert-crimson" size={20} />
             Define New Levy
           </h2>
           <button
@@ -81,7 +81,7 @@ export default function CreateLevyModal({ isOpen, onClose }) {
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <span className="text-[#FFC107] font-bold text-sm">KES</span>
+                <span className="text-alert-crimson font-bold text-sm">KES</span>
               </div>
               <input
                 type="number"
@@ -103,18 +103,18 @@ export default function CreateLevyModal({ isOpen, onClose }) {
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Calendar size={16} className="text-slate-400" />
+                  <Calendar size={16} className="text-app-background/70" />
                 </div>
                 <select
-                  className="edtech-input pl-10 appearance-none bg-[#0B192C]"
+                  className="edtech-input pl-10 appearance-none bg-text-border text-app-background border-white/20"
                   value={formData.term}
                   onChange={(e) =>
                     setFormData({ ...formData, term: e.target.value })
                   }
                 >
-                  <option value="Term 1">Term 1</option>
-                  <option value="Term 2">Term 2</option>
-                  <option value="Term 3">Term 3</option>
+                  <option className="bg-text-border text-app-background" value="Term 1">Term 1</option>
+                  <option className="bg-text-border text-app-background" value="Term 2">Term 2</option>
+                  <option className="bg-text-border text-app-background" value="Term 3">Term 3</option>
                 </select>
               </div>
             </div>
@@ -125,20 +125,20 @@ export default function CreateLevyModal({ isOpen, onClose }) {
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Users size={16} className="text-slate-400" />
+                  <Users size={16} className="text-app-background/70" />
                 </div>
                 <select
-                  className="edtech-input pl-10 appearance-none bg-[#0B192C]"
+                  className="edtech-input pl-10 appearance-none bg-text-border text-app-background border-white/20"
                   value={formData.target_cohort}
                   onChange={(e) =>
                     setFormData({ ...formData, target_cohort: e.target.value })
                   }
                 >
-                  <option value="All Students">All Students</option>
+                  <option className="bg-text-border text-app-background" value="All Students">All Students</option>
                   
-                  <option value="Grade 10">Grade 10</option>
-                  <option value="Form 3">Form 3</option>
-                  <option value="Form 4">Form 4</option>
+                  <option className="bg-text-border text-app-background" value="Grade 10">Grade 10</option>
+                  <option className="bg-text-border text-app-background" value="Form 3">Form 3</option>
+                  <option className="bg-text-border text-app-background" value="Form 4">Form 4</option>
                 </select>
               </div>
             </div>

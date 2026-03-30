@@ -1,22 +1,21 @@
 export const ROLE_PERMISSIONS = {
-  cashbook: ['finance_officer', 'accountant', 'admin'],
-  reports: ['finance_officer', 'accountant', 'admin', 'principal', 'teacher', 'student'],
-  fees: ['finance_officer', 'admin'],
+  cashbook: ['bursar', 'admin'],
+  reports: ['admin', 'principal'],
+  fees: ['bursar', 'admin'],
   students: ['admin', 'clerk'],
   users: ['admin'],
   settings: ['admin'],
-  inventory: ['admin', 'principal', 'storekeeper', 'accountant'],
+  inventory: ['admin', 'principal', 'storekeeper'],
 };
 
 export const ROLE_HOME_ROUTES = {
   admin: '/cashbook',
-  finance_officer: '/cashbook',
-  accountant: '/cashbook',
+  bursar: '/cashbook',
   storekeeper: '/inventory',
   clerk: '/students',
   principal: '/reports',
-  teacher: '/reports',
-  student: '/reports',
+  system: '/cashbook',
+  user: '/cashbook',
 };
 
 export const canAccessModule = (role, moduleKey) => {
