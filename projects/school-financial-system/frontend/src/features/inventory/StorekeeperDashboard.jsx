@@ -25,6 +25,7 @@ export default function StorekeeperDashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const items = response?.data || [];
+  const isRestrictedSummary = Boolean(response?.restricted);
 
   // Derived metrics for the top dashboard cards
   const lowStockItems = items.filter(
@@ -78,6 +79,12 @@ export default function StorekeeperDashboard() {
           </div>
         )}
       </div>
+
+      {isRestrictedSummary && (
+        <div className="mb-8 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm font-semibold text-amber-300">
+          Inventory summary access is limited for your role. You can still manage items, but the overview may be restricted.
+        </div>
+      )}
 
       {/* Omni-Search Row */}
       <div className="bg-text-border border border-text-border shadow-2xl shadow-black/50 rounded-xl mb-8 p-4 sm:p-6 flex flex-col sm:flex-row gap-4 items-center justify-between">

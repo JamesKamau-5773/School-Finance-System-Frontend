@@ -247,8 +247,31 @@ export const financeApi = {
   },
 
   getInventoryStatus: async () => {
-    const response = await apiClient.get("/api/inventory/status");
-    return response.data;
+    try {
+      const response = await apiClient.get("/api/inventory/status");
+      return response.data;
+    } catch (error) {
+      if (error?.response?.status === 403) {
+        try {
+          const itemsResponse = await apiClient.get("/api/inventory/items");
+          const items = Array.isArray(itemsResponse.data)
+            ? itemsResponse.data
+            : Array.isArray(itemsResponse.data?.data)
+              ? itemsResponse.data.data
+              : [];
+
+          return { data: items, restricted: false, fallbackSource: "items" };
+        } catch (fallbackError) {
+          if (fallbackError?.response?.status === 403) {
+            return { data: [], restricted: true };
+          }
+
+          throw fallbackError;
+        }
+      }
+
+      throw error;
+    }
   },
 
   // Fetch append-only transaction ledger with DB-level filtering
