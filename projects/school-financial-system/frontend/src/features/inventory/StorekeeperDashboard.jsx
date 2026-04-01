@@ -59,13 +59,13 @@ export default function StorekeeperDashboard() {
   return (
     <div className="p-8 max-w-7xl mx-auto w-full text-white">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 border-b border-[#1A4D5C]/50 pb-6 gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 border-b border-text-border/50 pb-6 gap-4">
         <div>
           <h1 className="text-3xl font-extrabold text-white flex items-center gap-3 mb-2">
-            <PackageSearch className="text-[#05CD99]" size={28} />
+            <PackageSearch className="text-action-mint" size={28} />
             Storekeeper & Inventory
           </h1>
-          <p className="text-slate-400 font-medium tracking-wide uppercase text-sm">
+          <p className="text-slate-300 font-medium tracking-wide uppercase text-sm">
             Physical Asset & Consumable Tracking
           </p>
         </div>
@@ -80,21 +80,21 @@ export default function StorekeeperDashboard() {
       </div>
 
       {/* Omni-Search Row */}
-      <div className="bg-[#0B192C] border border-[#1A4D5C] shadow-2xl shadow-black/50 rounded-xl mb-8 p-4 sm:p-6 flex flex-col sm:flex-row gap-4 items-center justify-between">
+      <div className="bg-text-border border border-text-border shadow-2xl shadow-black/50 rounded-xl mb-8 p-4 sm:p-6 flex flex-col sm:flex-row gap-4 items-center justify-between">
         <div className="relative w-full md:w-96">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <Search size={18} className="text-[#05CD99]" />
+            <Search size={18} className="text-action-mint" />
           </div>
           <input
             type="text"
-            className="w-full bg-[#050B14] border border-[#1A4D5C] text-white pl-11 pr-4 py-3 text-sm font-sans focus:outline-none focus:ring-2 focus:ring-[#05CD99] rounded-lg"
+            className="w-full bg-structural-navy border border-text-border text-white pl-11 pr-4 py-3 text-sm font-sans focus:outline-none focus:ring-2 focus:ring-action-mint rounded-lg"
             placeholder="Search by Item Name or Code..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
         <div className="flex gap-3">
-          <button className="px-4 py-3 bg-[#050B14] text-slate-400 border border-[#1A4D5C] hover:bg-[#1A4D5C]/50 hover:text-white text-sm font-bold uppercase tracking-wider rounded-lg transition-all flex items-center gap-2">
+          <button className="px-4 py-3 bg-structural-navy text-slate-300 border border-text-border hover:bg-text-border/50 hover:text-white text-sm font-bold uppercase tracking-wider rounded-lg transition-all flex items-center gap-2">
             <Filter size={16} /> Filter
           </button>
           <button
@@ -102,7 +102,7 @@ export default function StorekeeperDashboard() {
               setItemToEdit(null);
               setIsItemModalOpen(true);
             }}
-            className="px-4 py-3 bg-[#1A4D5C] text-white border border-[#05CD99]/30 hover:bg-[#1A4D5C]/80 text-sm font-bold uppercase tracking-wider rounded-lg transition-all flex items-center gap-2 shadow-lg"
+            className="px-4 py-3 bg-text-border text-white border border-action-mint/30 hover:bg-text-border/80 text-sm font-bold uppercase tracking-wider rounded-lg transition-all flex items-center gap-2 shadow-lg"
           >
             <Plus size={16} /> New Item
           </button>
@@ -110,27 +110,27 @@ export default function StorekeeperDashboard() {
       </div>
 
       {/* Main Stock Ledger Table */}
-      <div className="bg-[#0B192C] border border-[#1A4D5C] shadow-2xl shadow-black/50 p-0 overflow-hidden rounded-xl">
+      <div className="bg-text-border border border-text-border shadow-2xl shadow-black/50 p-0 overflow-hidden rounded-xl">
         <div style={{ overflowX: "auto" }}>
           <table
             className="w-full text-left"
             style={{ borderCollapse: "collapse", minWidth: "1000px" }}
           >
             <thead>
-              <tr className="border-b border-[#1A4D5C] bg-[#050B14]/50">
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-widest">
+              <tr className="border-b border-text-border bg-structural-navy/50">
+                <th className="p-4 text-xs font-bold text-slate-300 uppercase tracking-widest">
                   Item Code & Name
                 </th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                <th className="p-4 text-xs font-bold text-slate-300 uppercase tracking-widest">
                   Category
                 </th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-widest text-right">
+                <th className="p-4 text-xs font-bold text-slate-300 uppercase tracking-widest text-right">
                   Stock Level
                 </th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-widest text-right">
+                <th className="p-4 text-xs font-bold text-slate-300 uppercase tracking-widest text-right">
                   Reorder Threshold
                 </th>
-                <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-widest text-center">
+                <th className="p-4 text-xs font-bold text-slate-300 uppercase tracking-widest text-center">
                   Actions (IN / OUT)
                 </th>
               </tr>
@@ -145,6 +145,9 @@ export default function StorekeeperDashboard() {
               ) : filteredItems.length > 0 ? (
                 filteredItems.map((item) => {
                   const isLowStock = item.current_stock <= item.reorder_level;
+                  const displayUnit = (item.unit_of_measure || "")
+                    .replace(/^\d+\s*/u, "")
+                    .trim();
                   return (
                     <tr
                       key={item.id}
@@ -154,31 +157,33 @@ export default function StorekeeperDashboard() {
                         <div className="font-sans text-white font-bold text-base">
                           {item.name}
                         </div>
-                        <div className="text-xs text-[#FFC107] mt-1 font-mono tracking-wider">
+                        <div className="text-xs text-alert-crimson mt-1 font-mono tracking-wider">
                           {item.item_code}
                         </div>
                       </td>
                       <td className="p-4 font-sans text-slate-300">
-                        <span className="bg-white/5 px-2.5 py-1 border border-white/10 text-xs font-bold uppercase tracking-wider text-slate-400 rounded-md">
+                        <span className="bg-white/5 px-2.5 py-1 border border-white/10 text-xs font-bold uppercase tracking-wider text-slate-300 rounded-md">
                           {item.category}
                         </span>
                       </td>
                       <td className="p-4 text-right">
                         <div
-                          className={`font-mono font-bold text-lg tracking-wider ${isLowStock ? "text-rose-400" : "text-[#05CD99]"}`}
+                          className={`font-mono font-bold text-lg tracking-wider ${isLowStock ? "text-rose-400" : "text-action-mint"}`}
                         >
                           {item.current_stock.toLocaleString("en-KE", {
-                            minimumFractionDigits: 2,
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0,
                           })}
                         </div>
-                        <div className="text-xs text-slate-500 uppercase tracking-widest mt-1">
-                          {item.unit_of_measure}
+                        <div className="text-xs text-slate-300 uppercase tracking-widest mt-1">
+                          {displayUnit || item.unit_of_measure}
                         </div>
                       </td>
                       <td className="p-4 text-right">
-                        <div className="font-mono text-slate-400">
+                        <div className="font-mono text-slate-300">
                           {item.reorder_level.toLocaleString("en-KE", {
-                            minimumFractionDigits: 2,
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0,
                           })}
                         </div>
                       </td>
@@ -186,7 +191,7 @@ export default function StorekeeperDashboard() {
                         <div className="flex items-center justify-center gap-2 flex-wrap">
                           <button
                             onClick={() => openTransactionModal(item, "IN")}
-                            className="px-3 py-1.5 bg-[#05CD99]/10 hover:bg-[#05CD99]/20 text-[#05CD99] border border-[#05CD99]/30 rounded-md flex items-center gap-2 text-xs font-bold uppercase transition-all"
+                            className="px-3 py-1.5 bg-action-mint/10 hover:bg-action-mint/20 text-action-mint border border-action-mint/30 rounded-md flex items-center gap-2 text-xs font-bold uppercase transition-all"
                             title="Receive Stock"
                           >
                             <ArrowDownToLine size={14} /> IN
@@ -203,7 +208,7 @@ export default function StorekeeperDashboard() {
                               setItemToEdit(item);
                               setIsItemModalOpen(true);
                             }}
-                            className="h-8 w-8 inline-flex items-center justify-center rounded-md border border-[#1A4D5C] bg-[#1A4D5C]/20 text-slate-300 hover:bg-[#1A4D5C]/50 hover:text-white transition-all"
+                            className="h-8 w-8 inline-flex items-center justify-center rounded-md border border-text-border bg-text-border/20 text-slate-300 hover:bg-text-border/50 hover:text-white transition-all"
                             title="Edit Item"
                             aria-label="Edit Item"
                           >
@@ -226,7 +231,7 @@ export default function StorekeeperDashboard() {
                 <tr>
                   <td
                     colSpan="5"
-                    className="p-8 text-center text-slate-500 italic"
+                    className="p-8 text-center text-slate-300 italic"
                   >
                     No inventory items found.
                   </td>

@@ -11,7 +11,9 @@ import FeeMaster from './features/fees/FeeMaster';
 import StudentDirectory from './features/students/StudentDirectory';
 import Settings from './features/settings/Settings';
 import StorekeeperDashboard from './features/inventory/StorekeeperDashboard';
+import StoreLedger from './features/inventory/StoreLedger';
 import UserManagement from './features/users/UserManagement';
+import ProfileSettings from './features/profile/ProfileSettings';
 import { ROLE_PERMISSIONS, getHomeRouteForRole } from './auth/roleAccess';
 
 function App() {
@@ -80,7 +82,7 @@ function App() {
           } 
         />
 
-        {/* Settings Module (Admin Only) */}
+        {/* Settings Module (Admin, Bursar, Principal) */}
         <Route 
           path="/settings" 
           element={
@@ -100,7 +102,7 @@ function App() {
           }
         />
 
-        {/* Inventory Module (Storekeeper Only) */}
+        {/* Inventory Module (Admin, Bursar, Principal, Storekeeper) */}
         <Route 
           path="/inventory" 
           element={
@@ -109,6 +111,19 @@ function App() {
             </ProtectedRoute>
           } 
         />
+
+        {/* Store Ledger Module (Audit Trail) */}
+        <Route 
+          path="/ledger" 
+          element={
+            <ProtectedRoute allowedRoles={ROLE_PERMISSIONS.inventory}>
+              <StoreLedger />
+            </ProtectedRoute>
+          } 
+        />
+
+        {/* Profile Module (All Authenticated Users) */}
+        <Route path="/profile" element={<ProfileSettings />} />
 
         {/* Catch-all for undefined routes */}
         <Route path="*" element={<Navigate to="/" replace />} />

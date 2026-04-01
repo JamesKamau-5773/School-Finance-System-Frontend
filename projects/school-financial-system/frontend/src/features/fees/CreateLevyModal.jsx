@@ -81,15 +81,20 @@ export default function CreateLevyModal({ isOpen, onClose }) {
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <span className="text-alert-crimson font-bold text-sm">KES</span>
+                <span className="text-emerald-400 font-bold text-sm">KES</span>
               </div>
               <input
-                type="number"
-                className="edtech-input pl-12 financial-data text-white text-lg font-bold"
-                placeholder="0.00"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                className="edtech-input pl-12 financial-data text-emerald-400 text-lg font-bold"
+                placeholder="0"
                 value={formData.amount}
                 onChange={(e) =>
-                  setFormData({ ...formData, amount: e.target.value })
+                  setFormData({
+                    ...formData,
+                    amount: e.target.value.replace(/[^0-9]/g, ""),
+                  })
                 }
                 required
               />

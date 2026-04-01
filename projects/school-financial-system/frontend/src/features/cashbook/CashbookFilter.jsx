@@ -54,14 +54,14 @@ export default function CashbookFilter({
         <div className="relative flex-1">
           <Search
             size={16}
-            className="absolute left-3 top-3.5 text-slate-500"
+            className="absolute left-3 top-3.5 text-slate-300"
           />
           <input
             type="text"
             placeholder="Search transactions... (name, reference, invoice, student ID)"
             value={filters.omnisearch}
             onChange={(e) => handleSearchChange(e.target.value)}
-            className="w-full bg-[#050B14] border border-[#1A4D5C] text-white pl-10 pr-4 py-3 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-[#05CD99] focus:border-transparent transition-all"
+            className="w-full bg-structural-navy border border-text-border text-white pl-10 pr-4 py-3 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-action-mint focus:border-transparent transition-all"
           />
         </div>
 
@@ -70,8 +70,8 @@ export default function CashbookFilter({
           onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}
           className={`px-4 py-3 text-sm font-bold uppercase tracking-wider flex items-center gap-2 rounded-lg border transition-all ${
             isAdvancedOpen
-              ? "bg-[#05CD99]/10 text-[#05CD99] border-[#05CD99]/30"
-              : "bg-[#050B14] text-slate-300 border-[#1A4D5C] hover:bg-[#1A4D5C]/50"
+              ? "bg-action-mint/10 text-action-mint border-action-mint/30"
+              : "bg-structural-navy text-slate-300 border-text-border hover:bg-text-border/50"
           }`}
         >
           <Sliders size={14} />
@@ -86,7 +86,7 @@ export default function CashbookFilter({
         {hasActiveFilters && (
           <button
             onClick={onReset}
-            className="px-4 py-3 text-sm font-bold text-slate-400 hover:text-rose-400 flex items-center gap-1 transition-colors border border-transparent hover:border-rose-500/30 rounded-lg"
+            className="px-4 py-3 text-sm font-bold text-slate-300 hover:text-rose-400 flex items-center gap-1 transition-colors border border-transparent hover:border-rose-500/30 rounded-lg"
           >
             <X size={14} />
             Clear
@@ -100,10 +100,10 @@ export default function CashbookFilter({
           {activeFilterList.map((filter) => (
             <div
               key={filter.key}
-              className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#1A4D5C]/40 border border-[#1A4D5C] rounded-full text-xs font-bold text-white"
+              className="inline-flex items-center gap-2 px-3 py-1.5 bg-text-border/40 border border-text-border rounded-full text-xs font-bold text-white"
             >
-              <span className="text-slate-400">{filter.label}:</span>
-              <span className="text-[#05CD99]">{filter.value}</span>
+              <span className="text-slate-300">{filter.label}:</span>
+              <span className="text-action-mint">{filter.value}</span>
               <button
                 onClick={() => {
                   if (filter.key === "minAmount") {
@@ -112,7 +112,7 @@ export default function CashbookFilter({
                     handleInputChange(filter.key, "");
                   }
                 }}
-                className="ml-1 text-slate-400 hover:text-rose-400 transition-colors"
+                className="ml-1 text-slate-300 hover:text-rose-400 transition-colors"
               >
                 <X size={12} />
               </button>
@@ -126,7 +126,7 @@ export default function CashbookFilter({
         <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 pt-4 border-t border-white/10">
           {/* Filter by Date */}
           <div>
-            <label className="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-wider">
+            <label className="block text-xs font-bold text-slate-300 uppercase mb-2 tracking-wider">
               Date
             </label>
             <DatePicker
@@ -137,35 +137,40 @@ export default function CashbookFilter({
 
           {/* Filter by Amount */}
           <div>
-            <label className="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-wider">
+            <label className="block text-xs font-bold text-slate-300 uppercase mb-2 tracking-wider">
               Min Amount (KES)
             </label>
             <div className="relative">
               <DollarSign
                 size={14}
-                className="absolute left-3 top-3 text-slate-500"
+                className="absolute left-3 top-3 text-slate-300"
               />
               <input
-                type="number"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 placeholder="0"
                 value={filters.minAmount}
                 onChange={(e) =>
-                  handleInputChange("minAmount", parseFloat(e.target.value) || 0)
+                  handleInputChange(
+                    "minAmount",
+                    parseInt(e.target.value.replace(/[^0-9]/g, ""), 10) || 0,
+                  )
                 }
-                className="w-full bg-[#050B14] border border-[#1A4D5C] text-white pl-9 pr-3 py-2 text-xs rounded-lg focus:outline-none focus:ring-2 focus:ring-[#05CD99] focus:border-transparent transition-all"
+                className="w-full bg-structural-navy border border-text-border text-white pl-9 pr-3 py-2 text-xs rounded-lg focus:outline-none focus:ring-2 focus:ring-action-mint focus:border-transparent transition-all"
               />
             </div>
           </div>
 
           {/* Filter by Type */}
           <div>
-            <label className="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-wider">
+            <label className="block text-xs font-bold text-slate-300 uppercase mb-2 tracking-wider">
               Type
             </label>
             <select
               value={filters.type}
               onChange={(e) => handleInputChange("type", e.target.value)}
-              className="w-full bg-[#050B14] border border-[#1A4D5C] text-white px-3 py-2 text-xs rounded-lg focus:outline-none focus:ring-2 focus:ring-[#05CD99] focus:border-transparent transition-all appearance-none"
+              className="w-full bg-structural-navy border border-text-border text-white px-3 py-2 text-xs rounded-lg focus:outline-none focus:ring-2 focus:ring-action-mint focus:border-transparent transition-all appearance-none"
             >
               <option value="">All Types</option>
               <option value="INCOME">Income</option>
@@ -176,11 +181,11 @@ export default function CashbookFilter({
 
           {/* Filter by Category */}
           <div>
-            <label className="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-wider">
+            <label className="block text-xs font-bold text-slate-300 uppercase mb-2 tracking-wider">
               Category
             </label>
             <div className="relative">
-              <Tag size={14} className="absolute left-3 top-3 text-slate-500" />
+              <Tag size={14} className="absolute left-3 top-3 text-slate-300" />
               <input
                 type="text"
                 placeholder="Category..."
@@ -188,14 +193,14 @@ export default function CashbookFilter({
                 onChange={(e) =>
                   handleInputChange("category", e.target.value)
                 }
-                className="w-full bg-[#050B14] border border-[#1A4D5C] text-white pl-9 pr-3 py-2 text-xs rounded-lg focus:outline-none focus:ring-2 focus:ring-[#05CD99] focus:border-transparent transition-all"
+                className="w-full bg-structural-navy border border-text-border text-white pl-9 pr-3 py-2 text-xs rounded-lg focus:outline-none focus:ring-2 focus:ring-action-mint focus:border-transparent transition-all"
               />
             </div>
           </div>
 
           {/* Filter by Method */}
           <div>
-            <label className="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-wider">
+            <label className="block text-xs font-bold text-slate-300 uppercase mb-2 tracking-wider">
               Method
             </label>
             <input
@@ -203,7 +208,7 @@ export default function CashbookFilter({
               placeholder="Payment method..."
               value={filters.method}
               onChange={(e) => handleInputChange("method", e.target.value)}
-              className="w-full bg-[#050B14] border border-[#1A4D5C] text-white px-3 py-2 text-xs rounded-lg focus:outline-none focus:ring-2 focus:ring-[#05CD99] focus:border-transparent transition-all"
+              className="w-full bg-structural-navy border border-text-border text-white px-3 py-2 text-xs rounded-lg focus:outline-none focus:ring-2 focus:ring-action-mint focus:border-transparent transition-all"
             />
           </div>
         </div>

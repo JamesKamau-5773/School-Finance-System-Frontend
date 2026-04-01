@@ -37,17 +37,17 @@ export default function ReceivePaymentModal({ isOpen, onClose, student }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-[#050B14]/90 backdrop-blur-md p-4">
-      <div className="w-full max-w-md edtech-card border border-[#05CD99]/30 !bg-[#0B192C] p-0 overflow-hidden shadow-2xl shadow-[#05CD99]/10">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-structural-navy/90 backdrop-blur-md p-4">
+      <div className="w-full max-w-md edtech-card border border-action-mint/30 !bg-text-border p-0 overflow-hidden shadow-2xl shadow-[#00E98F]/10">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center bg-[#05CD99]/10">
-          <h2 className="text-lg font-bold text-[#05CD99] flex items-center gap-2">
+        <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center bg-action-mint/10">
+          <h2 className="text-lg font-bold text-action-mint flex items-center gap-2">
             <WalletCards size={20} />
             Receive Fee Payment
           </h2>
           <button
             onClick={onClose}
-            className="text-[#05CD99]/70 hover:text-[#05CD99] transition-colors p-1"
+            className="text-action-mint/70 hover:text-action-mint transition-colors p-1"
           >
             <X size={20} />
           </button>
@@ -91,18 +91,22 @@ export default function ReceivePaymentModal({ isOpen, onClose, student }) {
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <span className="text-[#05CD99] font-bold text-sm">KES</span>
+                <span className="text-action-mint font-bold text-sm">KES</span>
               </div>
               <input
-                type="number"
-                className="edtech-input pl-12 financial-data text-white text-xl font-bold border-[#05CD99]/30 focus:border-[#05CD99] focus:ring-[#05CD99]/20"
-                placeholder="0.00"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                className="edtech-input pl-12 financial-data text-emerald-400 text-xl font-bold border-action-mint/30 focus:border-action-mint focus:ring-action-mint/20"
+                placeholder="0"
                 value={formData.amount}
                 onChange={(e) =>
-                  setFormData({ ...formData, amount: e.target.value })
+                  setFormData({
+                    ...formData,
+                    amount: e.target.value.replace(/[^0-9]/g, ""),
+                  })
                 }
                 required
-                min="1"
               />
             </div>
           </div>
@@ -118,7 +122,7 @@ export default function ReceivePaymentModal({ isOpen, onClose, student }) {
                   <Building2 size={16} className="text-slate-400" />
                 </div>
                 <select
-                  className="edtech-input pl-10 appearance-none bg-[#0B192C]"
+                  className="edtech-input pl-10 appearance-none bg-text-border"
                   value={formData.method}
                   onChange={(e) =>
                     setFormData({ ...formData, method: e.target.value })
@@ -173,7 +177,7 @@ export default function ReceivePaymentModal({ isOpen, onClose, student }) {
             <button
               type="submit"
               disabled={isPending}
-              className="edtech-btn !bg-[#05CD99] hover:!bg-[#04B083] !text-[#050B14] !px-6 !py-2 text-sm shadow-[0_4px_14px_0_rgba(5,205,153,0.39)]"
+              className="edtech-btn !bg-action-mint hover:!bg-action-mint !text-structural-navy !px-6 !py-2 text-sm shadow-[0_4px_14px_0_rgba(5,205,153,0.39)]"
             >
               {isPending ? (
                 <>

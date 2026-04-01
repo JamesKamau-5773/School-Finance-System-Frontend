@@ -12,12 +12,12 @@ export default function StudentProfileModal({ isOpen, onClose, student }) {
   if (!isOpen || !student) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#050B14]/80 backdrop-blur-sm p-4">
-      <div className="w-full max-w-4xl edtech-card border border-white/10 !bg-[#0B192C]/95 p-0 overflow-hidden flex flex-col max-h-[90vh] shadow-2xl shadow-[#05CD99]/5 rounded-xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-structural-navy/80 backdrop-blur-sm p-4">
+      <div className="w-full max-w-4xl edtech-card border border-white/10 !bg-text-border/95 p-0 overflow-hidden flex flex-col max-h-[90vh] shadow-2xl shadow-[#00E98F]/5 rounded-xl">
         {/* Header: Student Identity & Action Buttons */}
         <div className="px-6 py-5 border-b border-white/10 flex justify-between items-start bg-black/40">
           <div className="flex gap-4">
-            <div className="w-12 h-12 rounded-full bg-[#1A4D5C] border border-[#05CD99]/30 flex items-center justify-center text-[#05CD99]">
+            <div className="w-12 h-12 rounded-full bg-text-border border border-action-mint/30 flex items-center justify-center text-action-mint">
               <User size={24} />
             </div>
             <div>
@@ -25,10 +25,10 @@ export default function StudentProfileModal({ isOpen, onClose, student }) {
                 {student.full_name}
               </h2>
               <div className="flex items-center gap-3 text-sm mt-1">
-                <span className="text-[#FFC107] font-mono tracking-wider">
+                <span className="text-alert-crimson font-mono tracking-wider">
                   {student.admission_number}
                 </span>
-                <span className="text-slate-500">•</span>
+                <span className="text-slate-300">•</span>
                 <span className="text-slate-300 font-bold uppercase">
                   {student.grade_level}
                 </span>
@@ -58,7 +58,7 @@ export default function StudentProfileModal({ isOpen, onClose, student }) {
                 })}
               </span>
             ) : (
-              <span className="text-3xl financial-data font-bold text-[#05CD99]">
+              <span className="text-3xl financial-data font-bold text-action-mint">
                 CLEARED
               </span>
             )}
@@ -71,9 +71,9 @@ export default function StudentProfileModal({ isOpen, onClose, student }) {
             </span>
             <div className="text-white font-bold">{student.sponsor.name}</div>
             <div className="flex items-center gap-2 text-sm text-slate-300 mt-1 font-mono">
-              <Phone size={14} className="text-[#05CD99]" />
+              <Phone size={14} className="text-action-mint" />
               {student.sponsor.phone}
-              <span className="font-sans text-xs text-slate-500">
+              <span className="font-sans text-xs text-slate-300">
                 ({student.sponsor.relation})
               </span>
             </div>
@@ -83,7 +83,7 @@ export default function StudentProfileModal({ isOpen, onClose, student }) {
           <div className="p-6 border-l border-white/5 flex flex-col gap-3 justify-center">
             <button
               onClick={() => setIsPaymentModalOpen(true)}
-              className="w-full py-2 bg-[#05CD99] hover:bg-[#04B083] text-[#050B14] text-sm font-bold flex items-center justify-center gap-2 rounded-lg transition-all shadow-[0_4px_14px_0_rgba(5,205,153,0.39)]"
+              className="w-full py-2 bg-action-mint hover:bg-action-mint text-structural-navy text-sm font-bold flex items-center justify-center gap-2 rounded-lg transition-all shadow-[0_4px_14px_0_rgba(5,205,153,0.39)]"
             >
               <Plus size={16} />
               Receive Payment
@@ -98,7 +98,7 @@ export default function StudentProfileModal({ isOpen, onClose, student }) {
         {/* Ledger History Table */}
         <div className="p-6 overflow-y-auto flex-1">
           <h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider mb-4 flex items-center gap-2">
-            <Receipt size={16} className="text-slate-500" />
+            <Receipt size={16} className="text-slate-300" />
             Account Statement History
           </h3>
 
@@ -108,16 +108,16 @@ export default function StudentProfileModal({ isOpen, onClose, student }) {
           >
             <thead>
               <tr className="border-b border-white/10">
-                <th className="pb-3 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <th className="pb-3 text-xs font-bold text-slate-300 uppercase tracking-wider">
                   Date / Ref
                 </th>
-                <th className="pb-3 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <th className="pb-3 text-xs font-bold text-slate-300 uppercase tracking-wider">
                   Description
                 </th>
-                <th className="pb-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">
+                <th className="pb-3 text-xs font-bold text-slate-300 uppercase tracking-wider text-right">
                   Invoice (DR)
                 </th>
-                <th className="pb-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">
+                <th className="pb-3 text-xs font-bold text-slate-300 uppercase tracking-wider text-right">
                   Payment (CR)
                 </th>
               </tr>
@@ -125,7 +125,7 @@ export default function StudentProfileModal({ isOpen, onClose, student }) {
             <tbody className="financial-data text-sm">
               {isLoading ? (
                 <tr>
-                  <td colSpan="4" className="py-8 text-center text-slate-500">
+                  <td colSpan="4" className="py-8 text-center text-slate-300">
                     Loading ledger records...
                   </td>
                 </tr>
@@ -139,7 +139,7 @@ export default function StudentProfileModal({ isOpen, onClose, student }) {
                       <div className="text-slate-300">
                         {entry.date.split(" ")[0]}
                       </div>
-                      <div className="text-xs text-slate-600 mt-0.5">
+                      <div className="text-xs text-slate-400 mt-0.5">
                         {entry.reference_no}
                       </div>
                     </td>
@@ -153,7 +153,7 @@ export default function StudentProfileModal({ isOpen, onClose, student }) {
                           })
                         : "-"}
                     </td>
-                    <td className="py-3 pl-4 text-right text-[#05CD99] font-mono">
+                    <td className="py-3 pl-4 text-right text-action-mint font-mono">
                       {entry.entry_type === "CREDIT"
                         ? entry.amount.toLocaleString("en-KE", {
                             minimumFractionDigits: 2,
@@ -166,7 +166,7 @@ export default function StudentProfileModal({ isOpen, onClose, student }) {
                 <tr>
                   <td
                     colSpan="4"
-                    className="py-8 text-center text-slate-600 italic"
+                    className="py-8 text-center text-slate-400 italic"
                   >
                     No financial records found for this student.
                   </td>

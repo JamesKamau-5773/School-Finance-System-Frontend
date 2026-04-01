@@ -97,7 +97,7 @@ export default function TrialBalance() {
       <div className="flex justify-between items-end mb-8 border-b border-white/10 pb-6">
         <div>
           <h1 className="text-3xl font-extrabold text-white flex items-center gap-3 mb-2">
-            <Scale className="text-[#FFC107]" size={28} />
+            <Scale className="text-alert-crimson" size={28} />
             Audit Reports
           </h1>
           <p className="text-slate-400 font-medium tracking-wide uppercase text-sm">
@@ -119,7 +119,7 @@ export default function TrialBalance() {
           onClick={() => setActiveTab("trial_balance")}
           className={`px-6 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2 transition-all ${
             activeTab === "trial_balance"
-              ? "bg-[#1A4D5C] text-white shadow-lg border border-[#05CD99]/30"
+              ? "bg-text-border text-white shadow-lg border border-action-mint/30"
               : "text-slate-400 hover:text-white hover:bg-white/5"
           }`}
         >
@@ -129,7 +129,7 @@ export default function TrialBalance() {
           onClick={() => setActiveTab("general_ledger")}
           className={`px-6 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2 transition-all ${
             activeTab === "general_ledger"
-              ? "bg-[#1A4D5C] text-white shadow-lg border border-[#05CD99]/30"
+              ? "bg-text-border text-white shadow-lg border border-action-mint/30"
               : "text-slate-400 hover:text-white hover:bg-white/5"
           }`}
         >
@@ -236,7 +236,7 @@ export default function TrialBalance() {
                 Select Account to Inspect
               </label>
               <select
-                className="edtech-input !py-2 !bg-transparent !border-white/20 !text-[#05CD99] font-bold"
+                className="edtech-input !py-2 !bg-transparent !border-white/20 !text-action-mint font-bold"
                 value={selectedAccount}
                 onChange={(e) => setSelectedAccount(e.target.value)}
               >
@@ -245,7 +245,7 @@ export default function TrialBalance() {
                   <option
                     key={idx}
                     value={line.account}
-                    className="bg-[#050B14] text-white"
+                    className="bg-structural-navy text-white"
                   >
                     {formatAccountName(line.account)}
                   </option>
@@ -284,7 +284,7 @@ export default function TrialBalance() {
                     <th className="p-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-right">
                       Credit (Out)
                     </th>
-                    <th className="p-4 text-xs font-bold text-[#FFC107] uppercase tracking-wider text-right bg-white/5">
+                    <th className="p-4 text-xs font-bold text-alert-crimson uppercase tracking-wider text-right bg-white/5">
                       Running Balance
                     </th>
                   </tr>
@@ -329,7 +329,7 @@ export default function TrialBalance() {
                             ? formatCurrency(tx.credit)
                             : "-"}
                         </td>
-                        <td className="p-4 text-right text-[#FFC107] font-bold bg-white/5">
+                        <td className="p-4 text-right text-alert-crimson font-bold bg-white/5">
                           {formatCurrency(tx.running_balance)}
                         </td>
                       </tr>

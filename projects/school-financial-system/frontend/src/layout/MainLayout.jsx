@@ -4,6 +4,7 @@ import {
   Wallet,
   WalletCards,
   Boxes,
+  ClipboardList,
   FileText,
   Users,
   UserCog,
@@ -70,6 +71,12 @@ export default function MainLayout({
             <NavLink to="/inventory" className={navClassName}>
               <Boxes size={18} />
               Store Keeper
+            </NavLink>
+          )}
+          {canAccess("inventory") && (
+            <NavLink to="/ledger" className={navClassName}>
+              <ClipboardList size={18} />
+              Store Ledger
             </NavLink>
           )}
           {canAccess("reports") && (

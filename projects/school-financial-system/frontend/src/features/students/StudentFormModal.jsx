@@ -89,21 +89,21 @@ export default function StudentFormModal({ isOpen, onClose, initialData }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-[#050B14]/90 backdrop-blur-md p-4">
-      <div className="w-full max-w-2xl edtech-card border border-[#1A4D5C] !bg-[#0B192C] p-0 overflow-hidden shadow-2xl shadow-black">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-structural-navy/90 backdrop-blur-md p-4">
+      <div className="w-full max-w-2xl edtech-card border border-text-border !bg-text-border p-0 overflow-hidden shadow-2xl shadow-black">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center bg-[#1A4D5C]/30">
+        <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center bg-text-border/30">
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
             {isEditMode ? (
-              <UserCog className="text-[#05CD99]" size={20} />
+              <UserCog className="text-action-mint" size={20} />
             ) : (
-              <UserPlus className="text-[#05CD99]" size={20} />
+              <UserPlus className="text-action-mint" size={20} />
             )}
             {isEditMode ? "Edit Student Profile" : "Register New Student"}
           </h2>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-rose-400 transition-colors p-1"
+            className="text-slate-300 hover:text-rose-400 transition-colors p-1"
           >
             <X size={20} />
           </button>
@@ -120,23 +120,23 @@ export default function StudentFormModal({ isOpen, onClose, initialData }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* --- SECTION 1: Academic Identity --- */}
             <div className="space-y-4">
-              <h3 className="text-xs font-bold text-[#05CD99] uppercase tracking-widest border-b border-white/10 pb-2">
+              <h3 className="text-xs font-bold text-action-mint uppercase tracking-widest border-b border-white/10 pb-2">
                 Academic Identity
               </h3>
 
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase mb-1">
+                <label className="block text-xs font-bold text-slate-300 uppercase mb-1">
                   Admission Number
                 </label>
                 <div className="relative">
                   <Hash
                     size={14}
-                    className="absolute left-3 top-3 text-slate-500"
+                    className="absolute left-3 top-3 text-slate-300"
                   />
                   <input
                     type="text"
                     disabled={isEditMode} // ADM numbers shouldn't change once assigned
-                    className="w-full bg-[#050B14] border border-white/10 text-white pl-9 pr-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#05CD99] focus:border-transparent transition-all disabled:opacity-50"
+                    className="w-full bg-structural-navy border border-white/10 text-white pl-9 pr-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-action-mint focus:border-transparent transition-all disabled:opacity-50"
                     placeholder="e.g. ADM-001"
                     value={formData.admission_number}
                     onChange={(e) =>
@@ -152,12 +152,12 @@ export default function StudentFormModal({ isOpen, onClose, initialData }) {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase mb-1">
+                  <label className="block text-xs font-bold text-slate-300 uppercase mb-1">
                     First Name
                   </label>
                   <input
                     type="text"
-                    className="w-full bg-[#050B14] border border-white/10 text-white px-3 py-2 text-sm font-sans focus:outline-none focus:ring-2 focus:ring-[#05CD99] focus:border-transparent transition-all"
+                    className="w-full bg-structural-navy border border-white/10 text-white px-3 py-2 text-sm font-sans focus:outline-none focus:ring-2 focus:ring-action-mint focus:border-transparent transition-all"
                     value={formData.first_name}
                     onChange={(e) =>
                       setFormData({ ...formData, first_name: e.target.value })
@@ -166,12 +166,12 @@ export default function StudentFormModal({ isOpen, onClose, initialData }) {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase mb-1">
+                  <label className="block text-xs font-bold text-slate-300 uppercase mb-1">
                     Last Name
                   </label>
                   <input
                     type="text"
-                    className="w-full bg-[#050B14] border border-white/10 text-white px-3 py-2 text-sm font-sans focus:outline-none focus:ring-2 focus:ring-[#05CD99] focus:border-transparent transition-all"
+                    className="w-full bg-structural-navy border border-white/10 text-white px-3 py-2 text-sm font-sans focus:outline-none focus:ring-2 focus:ring-action-mint focus:border-transparent transition-all"
                     value={formData.last_name}
                     onChange={(e) =>
                       setFormData({ ...formData, last_name: e.target.value })
@@ -182,16 +182,16 @@ export default function StudentFormModal({ isOpen, onClose, initialData }) {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase mb-1">
+                <label className="block text-xs font-bold text-slate-300 uppercase mb-1">
                   Grade / Cohort
                 </label>
                 <div className="relative">
                   <BookOpen
                     size={14}
-                    className="absolute left-3 top-3 text-slate-500"
+                    className="absolute left-3 top-3 text-slate-300"
                   />
                   <select
-                    className="w-full bg-[#050B14] border border-white/10 text-white pl-9 pr-3 py-2 text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-[#05CD99] focus:border-transparent transition-all"
+                    className="w-full bg-structural-navy border border-white/10 text-white pl-9 pr-3 py-2 text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-action-mint focus:border-transparent transition-all"
                     value={formData.grade_level}
                     onChange={(e) =>
                       setFormData({ ...formData, grade_level: e.target.value })
@@ -207,17 +207,17 @@ export default function StudentFormModal({ isOpen, onClose, initialData }) {
 
             {/* --- SECTION 2: Financial Sponsor --- */}
             <div className="space-y-4">
-              <h3 className="text-xs font-bold text-[#FFC107] uppercase tracking-widest border-b border-white/10 pb-2">
+              <h3 className="text-xs font-bold text-alert-crimson uppercase tracking-widest border-b border-white/10 pb-2">
                 Financial Sponsor
               </h3>
 
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase mb-1">
+                <label className="block text-xs font-bold text-slate-300 uppercase mb-1">
                   Sponsor Full Name
                 </label>
                 <input
                   type="text"
-                  className="w-full bg-[#050B14] border border-white/10 text-white px-3 py-2 text-sm font-sans focus:outline-none focus:ring-2 focus:ring-[#05CD99] focus:border-transparent transition-all"
+                  className="w-full bg-structural-navy border border-white/10 text-white px-3 py-2 text-sm font-sans focus:outline-none focus:ring-2 focus:ring-action-mint focus:border-transparent transition-all"
                   placeholder="e.g. John Doe"
                   value={formData.sponsor_name}
                   onChange={(e) =>
@@ -229,11 +229,11 @@ export default function StudentFormModal({ isOpen, onClose, initialData }) {
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="col-span-2">
-                  <label className="block text-xs font-bold text-slate-400 uppercase mb-1">
+                  <label className="block text-xs font-bold text-slate-300 uppercase mb-1">
                     Relation to Student
                   </label>
                   <select
-                    className="w-full bg-[#050B14] border border-white/10 text-white px-3 py-2 text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-[#05CD99] focus:border-transparent transition-all"
+                    className="w-full bg-structural-navy border border-white/10 text-white px-3 py-2 text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-action-mint focus:border-transparent transition-all"
                     value={formData.sponsor_relation}
                     onChange={(e) =>
                       setFormData({
@@ -253,17 +253,17 @@ export default function StudentFormModal({ isOpen, onClose, initialData }) {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase mb-1">
+                <label className="block text-xs font-bold text-slate-300 uppercase mb-1">
                   Primary Phone (For SMS)
                 </label>
                 <div className="relative">
                   <Phone
                     size={14}
-                    className="absolute left-3 top-3 text-slate-500"
+                    className="absolute left-3 top-3 text-slate-300"
                   />
                   <input
                     type="tel"
-                    className="w-full bg-[#050B14] border border-white/10 text-white pl-9 pr-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#05CD99] focus:border-transparent transition-all"
+                    className="w-full bg-structural-navy border border-white/10 text-white pl-9 pr-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-action-mint focus:border-transparent transition-all"
                     placeholder="e.g. 0712345678"
                     value={formData.sponsor_phone}
                     onChange={(e) =>
@@ -278,17 +278,17 @@ export default function StudentFormModal({ isOpen, onClose, initialData }) {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase mb-1">
+                <label className="block text-xs font-bold text-slate-300 uppercase mb-1">
                   Email Address (Optional)
                 </label>
                 <div className="relative">
                   <Mail
                     size={14}
-                    className="absolute left-3 top-3 text-slate-500"
+                    className="absolute left-3 top-3 text-slate-300"
                   />
                   <input
                     type="email"
-                    className="w-full bg-[#050B14] border border-white/10 text-white pl-9 pr-3 py-2 text-sm font-sans focus:outline-none focus:ring-2 focus:ring-[#05CD99] focus:border-transparent transition-all"
+                    className="w-full bg-structural-navy border border-white/10 text-white pl-9 pr-3 py-2 text-sm font-sans focus:outline-none focus:ring-2 focus:ring-action-mint focus:border-transparent transition-all"
                     placeholder="sponsor@email.com"
                     value={formData.sponsor_email}
                     onChange={(e) =>
@@ -309,14 +309,14 @@ export default function StudentFormModal({ isOpen, onClose, initialData }) {
               type="button"
               onClick={onClose}
               disabled={isPending}
-              className="px-6 py-2 bg-transparent text-slate-400 hover:text-white border border-white/10 text-sm font-bold uppercase tracking-wider transition-all"
+              className="px-6 py-2 bg-transparent text-slate-300 hover:text-white border border-white/10 text-sm font-bold uppercase tracking-wider transition-all"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isPending}
-              className="px-6 py-2 bg-[#05CD99] text-[#050B14] hover:bg-[#04B083] text-sm font-bold uppercase tracking-wider flex items-center gap-2 transition-all"
+              className="px-6 py-2 bg-action-mint text-structural-navy hover:bg-action-mint text-sm font-bold uppercase tracking-wider flex items-center gap-2 transition-all"
             >
               {isPending ? (
                 <>

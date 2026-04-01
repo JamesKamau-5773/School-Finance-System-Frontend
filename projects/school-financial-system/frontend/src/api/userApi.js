@@ -1,6 +1,53 @@
 import apiClient from './apiClient';
 
 export const userApi = {
+  getCurrentProfile: async () => {
+    const endpoints = ['/api/auth/me', '/api/auth/profile'];
+    let lastError;
+
+    for (const endpoint of endpoints) {
+      try {
+        const response = await apiClient.get(endpoint);
+        return response.data;
+      } catch (error) {
+        lastError = error;
+        const status = error?.response?.status;
+
+        if (status !== 404) {
+          throw error;
+        }
+      }
+    }
+
+    throw lastError;
+  },
+
+  updateCurrentProfile: async ({ data, userId }) => {
+    const endpoints = ['/api/auth/me', '/api/auth/profile'];
+
+    if (userId) {
+      endpoints.push(`/api/auth/users/${userId}`);
+    }
+
+    let lastError;
+
+    for (const endpoint of endpoints) {
+      try {
+        const response = await apiClient.patch(endpoint, data);
+        return response.data;
+      } catch (error) {
+        lastError = error;
+        const status = error?.response?.status;
+
+        if (status !== 404 && status !== 405) {
+          throw error;
+        }
+      }
+    }
+
+    throw lastError;
+  },
+
   getUsers: async () => {
     const response = await apiClient.get('/api/auth/users');
     return response.data;

@@ -190,15 +190,18 @@ export default function CashbookDashboard() {
         <div className="overflow-x-auto" aria-busy={isLoadingTransactions}>
           <table
             className="w-full text-left text-sm"
-            style={{ borderCollapse: "collapse", minWidth: "600px" }}
+            style={{ borderCollapse: "collapse", minWidth: "760px" }}
           >
             <thead>
               <tr className="border-b border-app-background/35">
                 <th className="p-4 text-xs font-bold text-app-background/70 uppercase tracking-wider">
-                  Date/Ref
+                  Date
                 </th>
                 <th className="p-4 text-xs font-bold text-app-background/70 uppercase tracking-wider">
                   Description
+                </th>
+                <th className="p-4 text-xs font-bold text-app-background/70 uppercase tracking-wider">
+                  Ref
                 </th>
                 <th className="p-4 text-xs font-bold text-app-background/70 uppercase tracking-wider text-center">
                   Type
@@ -223,10 +226,12 @@ export default function CashbookDashboard() {
                   >
                     <td className="p-4">
                       <div className="font-bold text-app-background">{tx.date}</div>
-                      <div className="text-xs text-app-background/60 mt-1">{tx.reference_no}</div>
                     </td>
                     <td className="p-4 font-sans text-app-background/85 font-medium">
-                      {tx.description}
+                      <div>{tx.description}</div>
+                    </td>
+                    <td className="p-4 font-mono text-xs text-app-background/65">
+                      {tx.reference_no || '-'}
                     </td>
                     <td className="p-4 text-center">
                       {tx.type.toUpperCase() === "INCOME" ? (
@@ -253,7 +258,7 @@ export default function CashbookDashboard() {
               ) : (
                 <tr>
                   <td
-                    colSpan={4}
+                    colSpan={5}
                     className="p-8 text-center text-app-background/60 font-medium"
                   >
                     No transactions match the current filters.

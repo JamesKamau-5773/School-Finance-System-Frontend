@@ -89,12 +89,12 @@ export default function DatePicker({ value, onChange }) {
       <div className="relative">
         <Calendar
           size={14}
-          className="absolute left-3 top-3 text-slate-500"
+          className="absolute left-3 top-3 text-slate-300"
         />
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="w-full bg-[#050B14] border border-[#1A4D5C] text-white pl-9 pr-10 py-2 text-xs rounded-lg focus:outline-none focus:ring-2 focus:ring-[#05CD99] focus:border-transparent transition-all text-left"
+          className="w-full bg-structural-navy border border-text-border text-white pl-9 pr-10 py-2 text-xs rounded-lg focus:outline-none focus:ring-2 focus:ring-action-mint focus:border-transparent transition-all text-left"
         >
           {value ? formatDisplayDate(value) : "mm/dd/yyyy"}
         </button>
@@ -102,7 +102,7 @@ export default function DatePicker({ value, onChange }) {
           <button
             type="button"
             onClick={handleClear}
-            className="absolute right-3 top-2.5 text-slate-500 hover:text-rose-400 transition-colors"
+            className="absolute right-3 top-2.5 text-slate-300 hover:text-rose-400 transition-colors"
           >
             <X size={14} />
           </button>
@@ -111,7 +111,7 @@ export default function DatePicker({ value, onChange }) {
 
       {/* Calendar Dropdown */}
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 z-[9999] bg-[#0B192C] border border-[#1A4D5C] rounded-lg shadow-2xl p-4 w-64">
+        <div className="absolute top-full left-0 mt-2 z-[9999] bg-text-border border border-text-border rounded-lg shadow-2xl p-4 w-64">
           {/* Month/Year Header */}
           <div className="flex items-center justify-between mb-4">
             <button
@@ -119,7 +119,7 @@ export default function DatePicker({ value, onChange }) {
               onClick={handlePrevMonth}
               className="p-1 hover:bg-white/10 rounded transition-colors"
             >
-              <ChevronLeft size={18} className="text-slate-400" />
+              <ChevronLeft size={18} className="text-slate-300" />
             </button>
             <h3 className="text-sm font-bold text-white">
               {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
@@ -129,7 +129,7 @@ export default function DatePicker({ value, onChange }) {
               onClick={handleNextMonth}
               className="p-1 hover:bg-white/10 rounded transition-colors"
             >
-              <ChevronRight size={18} className="text-slate-400" />
+              <ChevronRight size={18} className="text-slate-300" />
             </button>
           </div>
 
@@ -138,7 +138,7 @@ export default function DatePicker({ value, onChange }) {
             {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
               <div
                 key={day}
-                className="text-center text-xs font-bold text-slate-500 py-2"
+                className="text-center text-xs font-bold text-slate-300 py-2"
               >
                 {day}
               </div>
@@ -164,9 +164,9 @@ export default function DatePicker({ value, onChange }) {
                   className={`
                     p-2 text-xs font-semibold rounded transition-all
                     ${isSelected
-                      ? "bg-[#05CD99] text-[#050B14]"
+                      ? "bg-action-mint text-structural-navy"
                       : isToday
-                        ? "bg-[#1A4D5C] text-[#05CD99] border border-[#05CD99]"
+                        ? "bg-text-border text-action-mint border border-action-mint"
                         : "text-white hover:bg-white/10"
                     }
                   `}
@@ -187,7 +187,7 @@ export default function DatePicker({ value, onChange }) {
               setCurrentDate(todayDate);
               setIsOpen(false);
             }}
-            className="w-full mt-4 py-2 text-xs font-bold text-[#05CD99] hover:bg-[#05CD99]/10 border border-[#05CD99]/30 rounded transition-all"
+            className="w-full mt-4 py-2 text-xs font-bold text-action-mint hover:bg-action-mint/10 border border-action-mint/30 rounded transition-all"
           >
             Today
           </button>

@@ -10,6 +10,9 @@ import { useAddStock, useConsumeStock } from "./hooks/useInventory";
 
 export default function StockTransactionModal({ isOpen, onClose, item, type }) {
   const isReceiving = type === "IN";
+  const displayUnit = (item?.unit_of_measure || "")
+    .replace(/^\d+\s*/u, "")
+    .trim();
 
   const [formData, setFormData] = useState({
     quantity: "",
@@ -49,9 +52,14 @@ export default function StockTransactionModal({ isOpen, onClose, item, type }) {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    const quantity = Number(formData.quantity);
+    if (!Number.isInteger(quantity) || quantity <= 0) {
+      return;
+    }
+
     const payload = {
       item_id: item.id,
-      quantity: parseFloat(formData.quantity),
+      quantity,
       remarks: formData.remarks,
     };
 
@@ -67,14 +75,14 @@ export default function StockTransactionModal({ isOpen, onClose, item, type }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#050B14]/80 backdrop-blur-sm p-4">
-      <div className="w-full max-w-md edtech-card border border-white/10 !bg-[#0B192C]/95 p-0 overflow-hidden shadow-2xl rounded-xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-structural-navy/80 backdrop-blur-sm p-4">
+      <div className="w-full max-w-md edtech-card border border-white/10 !bg-text-border/95 p-0 overflow-hidden shadow-2xl rounded-xl">
         {/* Header */}
         <div
-          className={`px-6 py-4 border-b border-white/10 flex justify-between items-center ${isReceiving ? "bg-[#05CD99]/10" : "bg-rose-500/10"}`}
+          className={`px-6 py-4 border-b border-white/10 flex justify-between items-center ${isReceiving ? "bg-action-mint/10" : "bg-rose-500/10"}`}
         >
           <h2
-            className={`text-lg font-bold flex items-center gap-2 ${isReceiving ? "text-[#05CD99]" : "text-rose-400"}`}
+            className={`text-lg font-bold flex items-center gap-2 ${isReceiving ? "text-action-mint" : "text-rose-400"}`}
           >
             {isReceiving ? (
               <ArrowDownToLine size={20} />
@@ -93,10 +101,10 @@ export default function StockTransactionModal({ isOpen, onClose, item, type }) {
 
         <form onSubmit={handleSubmit} className="p-6">
           {/* Target Item Display */}
-          <div className="mb-6 bg-[#050B14] border border-[#1A4D5C] p-4 rounded-lg flex justify-between items-center">
+          <div className="mb-6 bg-structural-navy border border-text-border p-4 rounded-lg flex justify-between items-center">
             <div>
               <div className="text-white font-bold">{item.name}</div>
-              <div className="text-xs text-[#FFC107] font-mono mt-1">
+              <div className="text-xs text-alert-crimson font-mono mt-1">
                 {item.item_code}
               </div>
             </div>
@@ -104,8 +112,11 @@ export default function StockTransactionModal({ isOpen, onClose, item, type }) {
               <div className="text-xs text-slate-500 uppercase tracking-widest mb-1">
                 Available
               </div>
-              <div className="text-[#05CD99] font-mono font-bold">
-                {item.current_stock.toLocaleString()} {item.unit_of_measure}
+              <div className="text-action-mint font-mono font-bold">
+                {item.current_stock.toLocaleString("en-KE", {
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0,
+                })}
               </div>
             </div>
           </div>
@@ -124,21 +135,26 @@ export default function StockTransactionModal({ isOpen, onClose, item, type }) {
           <div className="space-y-4">
             <div>
               <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
-                Quantity ({item.unit_of_measure})
+                Quantity
               </label>
-              <input
-                type="number"
-                step="0.01"
-                min="0.01"
-                max={!isReceiving ? item.current_stock : undefined}
-                className="w-full bg-[#050B14] border border-[#1A4D5C] text-white px-4 py-3 text-lg font-mono focus:outline-none focus:ring-2 focus:ring-[#05CD99] rounded-lg"
-                placeholder="0.00"
-                value={formData.quantity}
-                onChange={(e) =>
-                  setFormData({ ...formData, quantity: e.target.value })
-                }
-                required
-              />
+              <div className="relative">
+                <input
+                  type="number"
+                  step="1"
+                  min="1"
+                  max={!isReceiving ? Math.floor(Number(item.current_stock) || 0) : undefined}
+                  className="w-full bg-structural-navy border border-text-border text-white px-4 pr-24 py-3 text-lg font-mono focus:outline-none focus:ring-2 focus:ring-action-mint rounded-lg"
+                  placeholder="0"
+                  value={formData.quantity}
+                  onChange={(e) =>
+                    setFormData({ ...formData, quantity: e.target.value })
+                  }
+                  required
+                />
+                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold uppercase tracking-wider text-slate-300">
+                  {displayUnit || item.unit_of_measure}
+                </span>
+              </div>
             </div>
 
             <div>
@@ -149,7 +165,7 @@ export default function StockTransactionModal({ isOpen, onClose, item, type }) {
               </label>
               <input
                 type="text"
-                className="w-full bg-[#050B14] border border-[#1A4D5C] text-white px-4 py-2.5 text-sm font-sans focus:outline-none focus:ring-2 focus:ring-[#05CD99] rounded-lg"
+                className="w-full bg-structural-navy border border-text-border text-white px-4 py-2.5 text-sm font-sans focus:outline-none focus:ring-2 focus:ring-action-mint rounded-lg"
                 value={formData.party_name}
                 onChange={(e) =>
                   setFormData({ ...formData, party_name: e.target.value })
@@ -165,7 +181,7 @@ export default function StockTransactionModal({ isOpen, onClose, item, type }) {
                 </label>
                 <input
                   type="text"
-                  className="w-full bg-[#050B14] border border-[#1A4D5C] text-white px-4 py-2.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#05CD99] rounded-lg"
+                  className="w-full bg-structural-navy border border-text-border text-white px-4 py-2.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-action-mint rounded-lg"
                   value={formData.reference_no}
                   onChange={(e) =>
                     setFormData({ ...formData, reference_no: e.target.value })
@@ -179,7 +195,7 @@ export default function StockTransactionModal({ isOpen, onClose, item, type }) {
                 Remarks (Optional)
               </label>
               <textarea
-                className="w-full bg-[#050B14] border border-[#1A4D5C] text-white px-4 py-2.5 text-sm font-sans focus:outline-none focus:ring-2 focus:ring-[#05CD99] rounded-lg resize-none"
+                className="w-full bg-structural-navy border border-text-border text-white px-4 py-2.5 text-sm font-sans focus:outline-none focus:ring-2 focus:ring-action-mint rounded-lg resize-none"
                 rows="2"
                 value={formData.remarks}
                 onChange={(e) =>
@@ -194,16 +210,16 @@ export default function StockTransactionModal({ isOpen, onClose, item, type }) {
               type="button"
               onClick={onClose}
               disabled={isPending}
-              className="px-6 py-2 bg-transparent text-slate-400 hover:text-white border border-[#1A4D5C] rounded-lg text-sm font-bold uppercase tracking-wider transition-all"
+              className="px-6 py-2 bg-transparent text-slate-400 hover:text-white border border-text-border rounded-lg text-sm font-bold uppercase tracking-wider transition-all"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isPending}
-              className={`px-6 py-2 text-[#050B14] rounded-lg text-sm font-bold uppercase tracking-wider flex items-center gap-2 transition-all ${
+              className={`px-6 py-2 text-structural-navy rounded-lg text-sm font-bold uppercase tracking-wider flex items-center gap-2 transition-all ${
                 isReceiving
-                  ? "bg-[#05CD99] hover:bg-[#04B083]"
+                  ? "bg-action-mint hover:bg-action-mint"
                   : "bg-rose-500 hover:bg-rose-600"
               }`}
             >

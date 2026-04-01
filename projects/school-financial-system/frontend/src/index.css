@@ -126,4 +126,14 @@
     outline: none;
     box-shadow: 0 0 0 3px rgba(0, 233, 143, 0.2);
   }
+
+  .date-input-visible {
+    color-scheme: dark;
+  }
+
+  .date-input-visible::-webkit-calendar-picker-indicator {
+    filter: invert(1) brightness(1.2);
+    opacity: 0.85;
+    cursor: pointer;
+  }
 }

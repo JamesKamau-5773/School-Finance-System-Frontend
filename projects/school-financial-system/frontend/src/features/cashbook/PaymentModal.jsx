@@ -267,16 +267,19 @@ export default function PaymentModal({ isOpen, onClose }) {
                 </span>
               </div>
               <input
-                type="number"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 className="edtech-input pl-12 financial-data text-emerald-400 text-lg font-bold"
-                placeholder="0.00"
+                placeholder="0"
                 value={formData.amount}
                 onChange={(e) =>
-                  setFormData({ ...formData, amount: e.target.value })
+                  setFormData({
+                    ...formData,
+                    amount: e.target.value.replace(/[^0-9]/g, ""),
+                  })
                 }
                 required
-                step="1"
-                min="1"
               />
             </div>
           </div>

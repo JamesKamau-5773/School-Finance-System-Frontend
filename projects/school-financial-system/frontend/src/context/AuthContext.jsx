@@ -39,7 +39,12 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('erp_user', JSON.stringify(userData));
       
       setUser(userData);
-      return { success: true, role: userData.role };
+      const mustChangePassword =
+        Boolean(response.data?.must_change_password) ||
+        Boolean(userData?.must_change_password) ||
+        Boolean(userData?.force_password_change);
+
+      return { success: true, role: userData.role, mustChangePassword };
     } catch (error) {
       throw new Error(error.response?.data?.message || error.response?.data?.error || 'Authentication failed. Server unreachable.');
     }
@@ -52,10 +57,22 @@ export const AuthProvider = ({ children }) => {
     window.location.href = '/login';
   };
 
-  if (isLoading) return <div className="min-h-screen bg-[#050B14]"></div>;
+  const updateLocalUser = (updates) => {
+    setUser((previousUser) => {
+      if (!previousUser) {
+        return previousUser;
+      }
+
+      const mergedUser = { ...previousUser, ...updates };
+      localStorage.setItem('erp_user', JSON.stringify(mergedUser));
+      return mergedUser;
+    });
+  };
+
+  if (isLoading) return <div className="min-h-screen bg-structural-navy"></div>;
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, updateLocalUser }}>
       {children}
     </AuthContext.Provider>
   );

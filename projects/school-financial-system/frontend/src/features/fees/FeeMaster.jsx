@@ -29,7 +29,7 @@ export default function FeeMaster() {
       <div className="flex justify-between items-end mb-8 border-b border-white/10 pb-6">
         <div>
           <h1 className="text-3xl font-extrabold text-white flex items-center gap-3 mb-2">
-            <WalletCards className="text-[#FFC107]" size={28} />
+            <WalletCards className="text-alert-crimson" size={28} />
             Fee Master
           </h1>
           <p className="text-slate-400 font-medium tracking-wide uppercase text-sm">BOM Levies & Cohort Billing Engine</p>
@@ -75,7 +75,7 @@ export default function FeeMaster() {
                 <tr key={fee.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                   <td className="p-4 font-sans text-white font-bold">{fee.name}</td>
                   <td className="p-4 font-sans text-slate-300">
-                    <span className="inline-flex items-center gap-2 bg-[#1A4D5C]/50 text-[#05CD99] px-2.5 py-1 rounded-full text-xs font-bold border border-[#05CD99]/20">
+                    <span className="inline-flex items-center gap-2 bg-text-border/50 text-action-mint px-2.5 py-1 rounded-full text-xs font-bold border border-action-mint/20">
                       <Users size={12} /> {fee.target_cohort}
                     </span>
                   </td>
@@ -99,7 +99,7 @@ export default function FeeMaster() {
                 </tr>
               ))
             ) : (
-              <tr><td colSpan="5" className="p-8 text-center text-slate-500 italic">No active levies found. Click "Define New Levy" to start.</td></tr>
+              <tr><td colSpan="5" className="p-8 text-center text-slate-300 italic">No active levies found. Click "Define New Levy" to start.</td></tr>
             )}
           </tbody>
         </table>

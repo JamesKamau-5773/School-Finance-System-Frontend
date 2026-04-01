@@ -4,12 +4,12 @@ export default {
   theme: {
     extend: {
       colors: {
-        brand: {
-          primary: "#065f46", // Emerald-800 for actions
-          secondary: "#312e81", // Indigo-900 for secondary
-          neutral: "#1c1917", // Stone-900 for text
-          background: "#fafaf9", // Warm white
-        },
+        "app-background": "#F5F5F3",
+        "card-surface": "#FFFFFF",
+        "text-border": "#1C1917",
+        "structural-navy": "#0A0A2A",
+        "action-mint": "#00E98F",
+        "alert-crimson": "#FF3366",
       },
       fontFamily: {
         sans: ['"Inter"', "sans-serif"], // Geometric for UI

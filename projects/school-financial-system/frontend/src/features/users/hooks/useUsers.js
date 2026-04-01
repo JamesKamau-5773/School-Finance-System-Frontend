@@ -7,6 +7,13 @@ export const useUsers = () =>
     queryFn: userApi.getUsers,
   });
 
+export const useCurrentProfile = () =>
+  useQuery({
+    queryKey: ['current-profile'],
+    queryFn: userApi.getCurrentProfile,
+    retry: 0,
+  });
+
 export const useRegisterUser = () =>
   useMutation({
     mutationFn: userApi.registerUser,
@@ -48,3 +55,15 @@ export const useChangePassword = () =>
   useMutation({
     mutationFn: userApi.changePassword,
   });
+
+export const useUpdateCurrentProfile = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: userApi.updateCurrentProfile,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['current-profile'] });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+  });
+};

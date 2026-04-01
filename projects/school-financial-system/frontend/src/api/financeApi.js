@@ -250,6 +250,28 @@ export const financeApi = {
     const response = await apiClient.get("/api/inventory/status");
     return response.data;
   },
+
+  // Fetch append-only transaction ledger with DB-level filtering
+  getInventoryTransactions: async (filters = {}) => {
+    const params = new URLSearchParams();
+
+    if (filters.category) params.append("category", filters.category);
+    if (filters.action) params.append("action", filters.action);
+    if (filters.startDate) params.append("start_date", filters.startDate);
+    if (filters.endDate) params.append("end_date", filters.endDate);
+    if (filters.itemId) params.append("item_id", filters.itemId);
+    if (filters.recordedBy) params.append("recorded_by", filters.recordedBy);
+    if (filters.limit) params.append("limit", filters.limit);
+    if (filters.offset) params.append("offset", filters.offset);
+
+    const queryString = params.toString();
+    const url = queryString
+      ? `/api/inventory/transactions?${queryString}`
+      : "/api/inventory/transactions";
+    const response = await apiClient.get(url);
+    return response.data;
+  },
+
   addStock: async (data) => {
     const response = await apiClient.post("/api/inventory/add-stock", data);
     return response.data;
