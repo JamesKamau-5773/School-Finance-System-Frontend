@@ -46,13 +46,7 @@ export default function LoginPage() {
   return (
     <div className="w-full h-screen bg-gradient-to-br from-[#0A101F] to-[#1C2A4A] text-white flex overflow-hidden relative">
       
-      {/* 1. The Engineering Grid (Pans slowly across the screen) */}
-      <motion.div 
-        animate={{ backgroundPosition: ['0px 0px', '40px 40px'] }}
-        transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
-        className="absolute inset-0 z-0 opacity-10" 
-        style={{ backgroundImage: 'linear-gradient(#1A4D5C 1px, transparent 1px), linear-gradient(90deg, #1A4D5C 1px, transparent 1px)', backgroundSize: '40px 40px' }}
-      />
+      
 
       {/* 2. Ambient Light Orbs (Breathing animation to refract through the glass) */}
       <motion.div 
@@ -71,7 +65,7 @@ export default function LoginPage() {
         initial={{ opacity: 0, x: -100 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ type: "spring", damping: 20, stiffness: 50, duration: 1 }}
-        className="hidden lg:flex flex-col justify-between w-[50%] h-full relative p-16 z-10"
+        className="hidden lg:flex flex-col justify-between w-[50%] h-full relative py-16 pl-32 pr-8 z-10"
       >
         <div className="relative z-10 flex flex-col items-start gap-12">
           <Link to="/" className="text-slate-400 hover:text-[#05CD99] flex items-center gap-3 text-sm font-bold uppercase tracking-widest transition-colors bg-white/5 backdrop-blur-md px-5 py-2.5 border border-white/10 hover:border-[#05CD99]/50 rounded-lg group">
@@ -106,9 +100,14 @@ export default function LoginPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1, duration: 0.5 }}
-              className="text-cyan-200/70 max-w-sm text-lg"
+              className="font-mono text-cyan-200/70 max-w-sm text-lg border-l-2 border-[#05CD99] pl-4"
             >
-              Terminal access restricted to authorized financial officers and administrative personnel.
+              Terminal access<br/>
+              restricted to<br/>
+              authorized financial<br/>
+              officers and<br/>
+              administrative<br/>
+              personnel.
             </motion.p>
           </div>
         </div>
@@ -134,6 +133,13 @@ export default function LoginPage() {
         transition={{ type: "spring", damping: 25, stiffness: 60, delay: 0.3 }}
         className="w-full lg:w-[50%] h-full flex flex-col justify-center items-center px-4 sm:px-8 relative z-20"
       >
+        {/* 1. The Engineering Grid (Pans slowly across the screen) */}
+        <motion.div 
+          animate={{ backgroundPosition: ['0px 0px', '40px 40px'] }}
+          transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
+          className="absolute inset-0 z-0 opacity-10" 
+          style={{ backgroundImage: 'linear-gradient(#1A4D5C 1px, transparent 1px), linear-gradient(90deg, #1A4D5C 1px, transparent 1px)', backgroundSize: '40px 40px' }}
+        />
         <div className="w-full max-w-md bg-gradient-to-br from-[rgba(11,20,34,0.5)] to-[rgba(11,20,34,0.2)] backdrop-blur-lg border border-cyan-300/20 p-8 sm:p-12 shadow-2xl shadow-black/40 rounded-2xl relative overflow-hidden group/card">
           
           <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#05CD99]/50 to-transparent group-hover/card:via-[#05CD99] transition-colors duration-700"></div>
