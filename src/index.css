@@ -1,0 +1,139 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --color-app-background: #f5f5f3;
+  --color-card-surface: #ffffff;
+  --color-text-border: #1c1917;
+  --color-structural-navy: #0a0a2a;
+  --color-action-mint: #00e98f;
+  --color-alert-crimson: #ff3366;
+  --font-sans: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
+@layer base {
+  body {
+    background-color: #0a0a2a;
+    color: #f5f5f3;
+    font-family: "Inter", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    padding: 0;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-extrabold tracking-tight;
+    color: inherit;
+  }
+
+  *:focus-visible {
+    outline: 2px solid #00e98f;
+    outline-offset: 2px;
+  }
+
+  select option {
+    color: #1c1917;
+    background-color: #ffffff;
+  }
+
+  select optgroup {
+    color: #1c1917;
+    background-color: #ffffff;
+  }
+
+  select {
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 0.95rem;
+    padding-right: 2.25rem;
+  }
+}
+
+@layer components {
+  .financial-data,
+  .tabular-numbers,
+  input[type="number"],
+  table {
+    font-family: "JetBrains Mono", monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .edtech-card {
+    @apply border rounded-3xl p-6;
+    background-color: rgba(245, 245, 243, 0.14);
+    color: #f5f5f3;
+    border-color: rgba(245, 245, 243, 0.35);
+    backdrop-filter: blur(24px);
+    box-shadow: 0 12px 40px rgba(7, 18, 40, 0.35);
+  }
+
+  .edtech-btn {
+    @apply font-bold py-3 px-8 rounded-full inline-flex items-center justify-center gap-2 cursor-pointer transition-all duration-300;
+    background-color: #00e98f;
+    color: #0a0a2a;
+  }
+
+  .edtech-btn:hover {
+    @apply -translate-y-0.5;
+    box-shadow: 0 6px 20px rgba(0, 233, 143, 0.5);
+  }
+
+  .btn-secondary {
+    @apply text-white font-bold py-3 px-8 rounded-full inline-flex items-center justify-center gap-2 cursor-pointer transition-all duration-300;
+    background-color: #ff3366;
+  }
+
+  .btn-secondary:hover {
+    @apply -translate-y-0.5;
+    box-shadow: 0 6px 20px rgba(255, 51, 102, 0.5);
+  }
+
+  .edtech-btn-secondary {
+    @apply bg-transparent border py-3 px-8 rounded-full transition-all duration-300;
+    color: #f5f5f3;
+    border-color: rgba(245, 245, 243, 0.35);
+    box-shadow: none;
+  }
+
+  .edtech-btn-secondary:hover {
+    background-color: rgba(245, 245, 243, 0.12);
+    border-color: rgba(245, 245, 243, 0.55);
+  }
+
+  .edtech-input {
+    @apply border rounded-xl py-3 px-4 w-full transition-all duration-200;
+    background-color: #ffffff;
+    border-color: rgba(28, 25, 23, 0.2);
+    color: #1c1917;
+  }
+
+  .edtech-input::placeholder {
+    color: rgba(28, 25, 23, 0.5);
+  }
+
+  .edtech-input:focus {
+    border-color: #00e98f;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 233, 143, 0.2);
+  }
+
+  .date-input-visible {
+    color-scheme: dark;
+  }
+
+  .date-input-visible::-webkit-calendar-picker-indicator {
+    filter: invert(1) brightness(1.2);
+    opacity: 0.85;
+    cursor: pointer;
+  }
+}
