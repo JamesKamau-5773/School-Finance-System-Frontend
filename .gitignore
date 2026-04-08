@@ -1,0 +1,6 @@
+*
+!.gitignore
+!projects/
+!projects/school-financial-system/
+!projects/school-financial-system/frontend/
+!projects/school-financial-system/frontend/**
