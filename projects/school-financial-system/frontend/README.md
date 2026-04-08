@@ -57,17 +57,17 @@ npm run lint
 
 All documentation is organized by topic for easy reference:
 
-- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - Technical architecture, component organization, data flow
-- **[BUILD.md](./BUILD.md)** - Build process, optimization, performance metrics
-- **[ENVIRONMENT_SETUP.md](./ENVIRONMENT_SETUP.md)** - Environment variables, configuration
-- **[FEATURES.md](./FEATURES.md)** - Feature documentation and workflows
-- **[RBAC.md](./RBAC.md)** - Role-based access control matrix
-- **[API_INTEGRATION.md](./API_INTEGRATION.md)** - API endpoints, authentication, error handling
-- **[AUTHENTICATION.md](./AUTHENTICATION.md)** - JWT auth, password workflows, security
-- **[MOBILE.md](./MOBILE.md)** - Mobile design, hamburger menu, responsive breakpoints
-- **[TESTING.md](./TESTING.md)** - Testing procedures, utilities, coverage
-- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Deployment guides, CI/CD, production considerations
-- **[TROUBLESHOOTING.md](./TROUBLESHOOTING.md)** - Common issues and solutions
+- **[ARCHITECTURE.md](./documentation/ARCHITECTURE.md)** - Technical architecture, component organization, data flow
+- **[BUILD.md](./documentation/BUILD.md)** - Build process, optimization, performance metrics
+- **[ENVIRONMENT_SETUP.md](./documentation/ENVIRONMENT_SETUP.md)** - Environment variables, configuration
+- **[FEATURES.md](./documentation/FEATURES.md)** - Feature documentation and workflows
+- **[RBAC.md](./documentation/RBAC.md)** - Role-based access control matrix
+- **[API_INTEGRATION.md](./documentation/API_INTEGRATION.md)** - API endpoints, authentication, error handling
+- **[AUTHENTICATION.md](./documentation/AUTHENTICATION.md)** - JWT auth, password workflows, security
+- **[MOBILE.md](./documentation/MOBILE.md)** - Mobile design, hamburger menu, responsive breakpoints
+- **[TESTING.md](./documentation/TESTING.md)** - Testing procedures, utilities, coverage
+- **[DEPLOYMENT.md](./documentation/DEPLOYMENT.md)** - Deployment guides, CI/CD, production considerations
+- **[TROUBLESHOOTING.md](./documentation/TROUBLESHOOTING.md)** - Common issues and solutions
 
 ## Technology Stack
 
@@ -93,18 +93,18 @@ All documentation is organized by topic for easy reference:
 
 ```
 src/
-  api/                 - HTTP client and API integrations
-  auth/                - Authentication and RBAC
-  components/          - Reusable UI components
-  context/             - React context (global state)
-  features/            - Feature-specific pages and workflows
-  layout/              - Layout components (MainLayout)
-  utils/               - Utility functions
-  test/                - Test setup and fixtures
-  App.jsx              - Root component
-  main.jsx             - Entry point
-  index.css            - Global styles
-  App.css              - App-level styles
+	api/                 - HTTP client and API integrations
+	auth/                - Authentication and RBAC
+	components/          - Reusable UI components
+	context/             - React context (global state)
+	features/            - Feature-specific pages and workflows
+	layout/              - Layout components (MainLayout)
+	utils/               - Utility functions
+	test/                - Test setup and fixtures
+	App.jsx              - Root component
+	main.jsx             - Entry point
+	index.css            - Global styles
+	App.css              - App-level styles
 ```
 
 ## Performance
@@ -123,7 +123,7 @@ src/
 
 ## Contributing
 
-Follow the patterns and standards documented in [ARCHITECTURE.md](./ARCHITECTURE.md).
+Follow the patterns and standards documented in [ARCHITECTURE.md](./documentation/ARCHITECTURE.md).
 
 ## License
 
@@ -132,7 +132,7 @@ Internal Project - St. Gerald High School
 ## Support
 
 For issues:
-1. Check [TROUBLESHOOTING.md](./TROUBLESHOOTING.md)
+1. Check [TROUBLESHOOTING.md](./documentation/TROUBLESHOOTING.md)
 2. Review relevant feature documentation
 3. Check git history for context: `git log --oneline`
 4. Examine browser console for errors
