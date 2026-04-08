@@ -350,20 +350,20 @@ Caches dependencies between CI/CD runs:
 
 ### DO
 
-✅ Use React Query for **server state**  
-✅ Use IndexedDB for **large local datasets**  
-✅ Use Service Worker for **asset caching**  
-✅ Invalidate caches after **mutations**  
-✅ Set **context-appropriate stale times**  
-✅ Monitor cache with **React Query DevTools**  
+- Use React Query for **server state**  
+- Use IndexedDB for **large local datasets**  
+- Use Service Worker for **asset caching**  
+- Invalidate caches after **mutations**  
+- Set **context-appropriate stale times**  
+- Monitor cache with **React Query DevTools**  
 
 ### DON'T
 
-❌ Don't over-cache sensitive data (auth tokens in Service Worker)  
-❌ Don't set staleTime too low (defeats caching purpose)  
-❌ Don't set staleTime too high (stale data issues)  
-❌ Don't cache user-specific data globally  
-❌ Don't manually manage cache if React Query can do it  
+- Don't over-cache sensitive data (auth tokens in Service Worker)  
+- Don't set staleTime too low (defeats caching purpose)  
+- Don't set staleTime too high (stale data issues)  
+- Don't cache user-specific data globally  
+- Don't manually manage cache if React Query can do it  
 
 ---
 
@@ -425,7 +425,7 @@ Chrome DevTools:
 - Dashboard load: **~800ms** (first visit), **~50ms** (cached)
 - Student search: **~50ms** (IndexedDB)
 - Repeat visits: **Instant** (Service Worker + React Query)
-- **Offline access:** ✅ Fully functional
+- **Offline access:** Fully functional
 
 ---
 
