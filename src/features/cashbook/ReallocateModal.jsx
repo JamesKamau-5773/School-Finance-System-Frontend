@@ -1,14 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X, ArrowRightLeft, FileText, Loader2 } from "lucide-react";
-import { useReallocateFunds } from "./hooks/useCashbook";
+import { useReallocateFunds, useVoteHeads } from "./hooks/useCashbook";
 
 export default function ReallocateModal({ isOpen, onClose }) {
   const [formData, setFormData] = useState({
-    sourceVoteHead: "Activity",
-    destinationVoteHead: "RMI",
+    sourceVoteHead: "",
+    destinationVoteHead: "",
     amount: "",
     reason: "",
   });
+  const { data: voteHeadsData = [], isLoading: isLoadingVoteHeads } = useVoteHeads();
   const {
     mutate: reallocateFunds,
     isPending,
@@ -16,16 +17,21 @@ export default function ReallocateModal({ isOpen, onClose }) {
     error,
   } = useReallocateFunds();
 
-  if (!isOpen) return null;
+  const voteHeads = Array.isArray(voteHeadsData) ? voteHeadsData : voteHeadsData?.data || [];
 
-  const VOTE_HEADS = [
-    "Tuition",
-    "RMI",
-    "Activity",
-    "Admin",
-    "SMASSE",
-    "Medical",
-  ];
+  // Initialize form data when vote heads are loaded
+  useEffect(() => {
+    if (voteHeads.length > 0 && !formData.sourceVoteHead) {
+      setFormData({
+        sourceVoteHead: voteHeads[0].name || voteHeads[0].id,
+        destinationVoteHead: voteHeads[1]?.name || voteHeads[1]?.id || voteHeads[0].name || voteHeads[0].id,
+        amount: "",
+        reason: "",
+      });
+    }
+  }, [voteHeads]);
+
+  if (!isOpen || !voteHeads.length) return null;
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -81,9 +87,9 @@ export default function ReallocateModal({ isOpen, onClose }) {
                   setFormData({ ...formData, sourceVoteHead: e.target.value })
                 }
               >
-                {VOTE_HEADS.map((vh) => (
-                  <option key={`src-${vh}`} value={vh}>
-                    {vh}
+                {voteHeads.map((vh) => (
+                  <option key={`src-${vh.id}`} value={vh.name}>
+                    {vh.name} ({vh.percentage}%)
                   </option>
                 ))}
               </select>
@@ -103,9 +109,9 @@ export default function ReallocateModal({ isOpen, onClose }) {
                   })
                 }
               >
-                {VOTE_HEADS.map((vh) => (
-                  <option key={`dst-${vh}`} value={vh}>
-                    {vh}
+                {voteHeads.map((vh) => (
+                  <option key={`dst-${vh.id}`} value={vh.name}>
+                    {vh.name} ({vh.percentage}%)
                   </option>
                 ))}
               </select>

@@ -97,6 +97,24 @@ export const financeApi = {
     return response.data;
   },
 
+  // 6a. Create a new vote head
+  createVoteHead: async (data) => {
+    const response = await apiClient.post("/api/finance/vote-heads", data);
+    return response.data;
+  },
+
+  // 6b. Update vote head percentage
+  updateVoteHead: async ({ id, data }) => {
+    const response = await apiClient.put(`/api/finance/vote-heads/${id}`, data);
+    return response.data;
+  },
+
+  // 6c. Delete vote head
+  deleteVoteHead: async (id) => {
+    const response = await apiClient.delete(`/api/finance/vote-heads/${id}`);
+    return response.data;
+  },
+
   // 7. Fetch dashboard summary totals
   getSummary: async () => {
     const response = await apiClient.get("/api/finance/summary");
