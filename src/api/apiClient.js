@@ -43,7 +43,20 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
+    const requestUrl = error?.config?.url || '';
+    const isAuthLoginRequest =
+      requestUrl.includes('/api/auth/login') ||
+      requestUrl.includes('/api/auth/register');
+
+    console.error('[apiClient] Request failed', {
+      url: requestUrl,
+      method: error?.config?.method,
+      status: error?.response?.status,
+      statusText: error?.response?.statusText,
+      responseData: error?.response?.data,
+    });
+
+    if (error.response && error.response.status === 401 && !isAuthLoginRequest) {
       // If the backend rejects the token (expired or invalid), force a logout
       localStorage.removeItem('erp_token');
       localStorage.removeItem('erp_user');
