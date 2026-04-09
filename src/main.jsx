@@ -22,19 +22,6 @@ const queryClient = new QueryClient({
   },
 })
 
-// Register service worker for PWA and offline support
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register(new URL('./sw.js', import.meta.url), { type: 'module' })
-      .then((registration) => {
-        console.log('Service Worker registered:', registration)
-      })
-      .catch((error) => {
-        console.warn('Service Worker registration failed:', error)
-      })
-  })
-}
-
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
