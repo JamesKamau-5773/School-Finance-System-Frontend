@@ -39,7 +39,11 @@ export default function LoginPage() {
       if (result.role === 'storekeeper') navigate('/inventory');
       else navigate('/cashbook');
     } catch (err) {
+      console.error('[LoginPage] Submit failed', {
+        message: err?.message,
+      });
       setError(err.message);
+    } finally {
       setIsLoading(false);
     }
   };

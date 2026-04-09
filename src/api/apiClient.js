@@ -17,6 +17,7 @@ if (import.meta.env.PROD && !normalizedBaseUrl) {
 // In production, set VITE_API_BASE_URL (or VITE_API_URL) to your backend origin.
 const apiClient = axios.create({
   baseURL: normalizedBaseUrl,
+  timeout: 15000,
   headers: {
     'Content-Type': 'application/json'
   }

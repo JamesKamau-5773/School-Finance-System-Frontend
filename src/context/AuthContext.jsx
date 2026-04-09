@@ -56,6 +56,8 @@ export const AuthProvider = ({ children }) => {
       });
 
       throw new Error(error.response?.data?.message || error.response?.data?.error || 'Authentication failed. Server unreachable.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
