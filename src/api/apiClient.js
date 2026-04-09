@@ -1,8 +1,22 @@
 import axios from 'axios';
 
-// Use same-origin base URL so Vite can proxy /api/* to Flask in development.
+const configuredBaseUrl =
+  import.meta.env.VITE_API_BASE_URL ||
+  import.meta.env.VITE_API_URL ||
+  '';
+
+const normalizedBaseUrl = configuredBaseUrl.replace(/\/$/, '');
+
+if (import.meta.env.PROD && !normalizedBaseUrl) {
+  console.warn(
+    '[apiClient] Missing VITE_API_BASE_URL (or VITE_API_URL). API calls will use same-origin and may 404 in production.',
+  );
+}
+
+// In development, leaving baseURL empty allows Vite proxy (/api/*) to work.
+// In production, set VITE_API_BASE_URL (or VITE_API_URL) to your backend origin.
 const apiClient = axios.create({
-  baseURL: '',
+  baseURL: normalizedBaseUrl,
   headers: {
     'Content-Type': 'application/json'
   }
