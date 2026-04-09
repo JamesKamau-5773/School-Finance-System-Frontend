@@ -11,7 +11,7 @@ export default function Settings() {
   const { mutate: deleteVoteHead, isPending: isDeletingVoteHead } = useDeleteVoteHead();
   
   const [editingVoteHeadId, setEditingVoteHeadId] = useState(null);
-  const [newVoteHead, setNewVoteHead] = useState({ name: '', percentage: '' });
+  const [newVoteHead, setNewVoteHead] = useState({ code: '', name: '', percentage: '' });
   const [voteHeadError, setVoteHeadError] = useState('');
   
   const voteHeads = Array.isArray(voteHeadsData) ? voteHeadsData : voteHeadsData?.data || [];
@@ -48,6 +48,12 @@ export default function Settings() {
     e.preventDefault();
     setVoteHeadError('');
 
+    const normalizedCode = newVoteHead.code.trim().toUpperCase();
+    if (!normalizedCode) {
+      setVoteHeadError('Vote Head code is required.');
+      return;
+    }
+
     if (!newVoteHead.name.trim()) {
       setVoteHeadError('Vote Head name is required.');
       return;
@@ -61,31 +67,46 @@ export default function Settings() {
 
     if (editingVoteHeadId) {
       updateVoteHead(
-        { id: editingVoteHeadId, data: { name: newVoteHead.name.trim(), percentage } },
+        {
+          id: editingVoteHeadId,
+          data: { code: normalizedCode, name: newVoteHead.name.trim(), percentage },
+        },
         {
           onSuccess: () => {
-            setNewVoteHead({ name: '', percentage: '' });
+            setNewVoteHead({ code: '', name: '', percentage: '' });
             setEditingVoteHeadId(null);
           },
-          onError: () => setVoteHeadError('Failed to update vote head.'),
+          onError: (error) => {
+            const message =
+              error?.response?.data?.message ||
+              error?.response?.data?.msg ||
+              'Failed to update vote head.';
+            setVoteHeadError(message);
+          },
         }
       );
     } else {
       createVoteHead(
-        { name: newVoteHead.name.trim(), percentage },
+        { code: normalizedCode, name: newVoteHead.name.trim(), percentage },
         {
           onSuccess: () => {
-            setNewVoteHead({ name: '', percentage: '' });
+            setNewVoteHead({ code: '', name: '', percentage: '' });
           },
-          onError: () => setVoteHeadError('Failed to create vote head.'),
+          onError: (error) => {
+            const message =
+              error?.response?.data?.message ||
+              error?.response?.data?.msg ||
+              'Failed to create vote head.';
+            setVoteHeadError(message);
+          },
         }
       );
     }
   };
 
   const handleEditVoteHead = (vh) => {
-    setNewVoteHead({ name: vh.name, percentage: vh.percentage });
-    setEditingVoteHeadId(vh.id);
+    setNewVoteHead({ code: vh.code || '', name: vh.name, percentage: vh.percentage });
+    setEditingVoteHeadId(vh.id || vh.code);
     setVoteHeadError('');
   };
 
@@ -99,7 +120,7 @@ export default function Settings() {
 
   const handleCancelEdit = () => {
     setEditingVoteHeadId(null);
-    setNewVoteHead({ name: '', percentage: '' });
+    setNewVoteHead({ code: '', name: '', percentage: '' });
     setVoteHeadError('');
   };
 
@@ -291,10 +312,13 @@ export default function Settings() {
                   <div className="text-center text-slate-400 py-8">No vote heads configured yet. Add one below.</div>
                 ) : (
                   <div className="bg-structural-navy/50 rounded-lg overflow-hidden border border-white/10">
-                    {voteHeads.map((vh) => (
-                      <div key={vh.id} className="flex items-center justify-between p-4 border-b border-white/5 last:border-b-0 hover:bg-white/5 transition-colors">
+                    {voteHeads.map((vh) => {
+                      const voteHeadIdentifier = vh.id || vh.code;
+                      return (
+                      <div key={voteHeadIdentifier} className="flex items-center justify-between p-4 border-b border-white/5 last:border-b-0 hover:bg-white/5 transition-colors">
                         <div className="flex-1">
                           <div className="text-sm font-bold text-white">{vh.name}</div>
+                          <div className="text-xs text-slate-500 mt-1 font-mono">Code: {vh.code || '-'}</div>
                           <div className="text-xs text-slate-400 mt-1">Allocation: {vh.percentage}%</div>
                         </div>
                         <div className="flex gap-2">
@@ -307,7 +331,7 @@ export default function Settings() {
                             <Edit2 size={16} />
                           </button>
                           <button
-                            onClick={() => handleDeleteVoteHead(vh.id)}
+                            onClick={() => handleDeleteVoteHead(voteHeadIdentifier)}
                             disabled={isDeletingVoteHead || isUpdatingVoteHead}
                             className="p-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-lg transition-colors disabled:opacity-50"
                             title="Delete"
@@ -316,7 +340,8 @@ export default function Settings() {
                           </button>
                         </div>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -345,7 +370,18 @@ export default function Settings() {
                   </div>
                 )}
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Vote Head Code</label>
+                    <input
+                      type="text"
+                      className="w-full bg-structural-navy border border-text-border text-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-action-mint rounded-lg font-mono uppercase"
+                      placeholder="e.g. TUITION"
+                      value={newVoteHead.code}
+                      onChange={(e) => setNewVoteHead({ ...newVoteHead, code: e.target.value.toUpperCase() })}
+                      required
+                    />
+                  </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Vote Head Name</label>
                     <input
