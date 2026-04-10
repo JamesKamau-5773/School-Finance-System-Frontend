@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Plus, ArrowDownRight, Activity, Landmark, ArrowRightLeft } from "lucide-react";
+import { Plus, ArrowDownRight, Activity, Landmark, ArrowRightLeft, TrendingUp } from "lucide-react";
 import PaymentModal from './PaymentModal';
 import ExpenseModal from './ExpenseModal';
 import CapitationModal from './CapitationModal';
@@ -69,13 +69,15 @@ export default function CashbookDashboard() {
     );
   }
 
-  const totalIncome = summary?.total_income ?? summary?.total_collections ?? 0;
+  const schoolCollections = summary?.school_collections ?? 0;
+  const governmentCollections = summary?.government_collections ?? 0;
+  const totalCollections = summary?.total_collections ?? schoolCollections + governmentCollections;
   const totalExpenses = summary?.total_expenses ?? 0;
-  const netPosition = totalIncome - totalExpenses;
+  const netPosition = totalCollections - totalExpenses;
 
   // Calculate percentages for health bar
-  const totalAmount = totalIncome + totalExpenses;
-  const inflowPercent = totalAmount === 0 ? 0 : Math.round((totalIncome / totalAmount) * 100);
+  const totalAmount = totalCollections + totalExpenses;
+  const inflowPercent = totalAmount === 0 ? 0 : Math.round((totalCollections / totalAmount) * 100);
   const outflowPercent = totalAmount === 0 ? 0 : Math.round((totalExpenses / totalAmount) * 100);
 
   return (
@@ -146,26 +148,58 @@ export default function CashbookDashboard() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+        {/* School Collections */}
+        <div className={`relative overflow-hidden group p-6 ${glassPanelClass}`}>
+          <div className="absolute top-0 left-0 w-1 h-full bg-sky-400 opacity-70 group-hover:opacity-100 transition-opacity"></div>
+          <h3 className="text-app-background/85 text-xs font-bold uppercase tracking-widest mb-3">School Collections</h3>
+          <p className="text-4xl financial-data text-sky-300">
+            {schoolCollections.toLocaleString('en-KE', { minimumFractionDigits: 2 })}
+          </p>
+          <p className="text-xs text-app-background/60 mt-2">Student fees & payments</p>
+        </div>
+
+        {/* Government Collections */}
+        <div className={`relative overflow-hidden group p-6 ${glassPanelClass}`}>
+          <div className="absolute top-0 left-0 w-1 h-full bg-amber-400 opacity-70 group-hover:opacity-100 transition-opacity"></div>
+          <h3 className="text-app-background/85 text-xs font-bold uppercase tracking-widest mb-3">Government Collections</h3>
+          <p className="text-4xl financial-data text-amber-300">
+            {governmentCollections.toLocaleString('en-KE', { minimumFractionDigits: 2 })}
+          </p>
+          <p className="text-xs text-app-background/60 mt-2">MoE capitation</p>
+        </div>
+
+        {/* Total Collections */}
         <div className={`relative overflow-hidden group p-6 ${glassPanelClass}`}>
           <div className="absolute top-0 left-0 w-1 h-full bg-action-mint opacity-70 group-hover:opacity-100 transition-opacity"></div>
           <h3 className="text-app-background/85 text-xs font-bold uppercase tracking-widest mb-3">Total Collections</h3>
-          <p className="text-4xl financial-data text-app-background">
-            {summary?.total_collections?.toLocaleString('en-KE', { minimumFractionDigits: 2 }) || '0.00'}
+          <p className="text-4xl financial-data text-action-mint">
+            {totalCollections.toLocaleString('en-KE', { minimumFractionDigits: 2 })}
           </p>
+          <p className="text-xs text-app-background/60 mt-2">Combined inflow</p>
         </div>
+
+        {/* Total Expenses */}
         <div className={`relative overflow-hidden group p-6 ${glassPanelClass}`}>
           <div className="absolute top-0 left-0 w-1 h-full bg-alert-crimson opacity-70 group-hover:opacity-100 transition-opacity"></div>
           <h3 className="text-app-background/85 text-xs font-bold uppercase tracking-widest mb-3">Total Expenses</h3>
-          <p className="text-4xl financial-data text-app-background">
-            {summary?.total_expenses?.toLocaleString('en-KE', { minimumFractionDigits: 2 }) || '0.00'}
+          <p className="text-4xl financial-data text-alert-crimson">
+            {totalExpenses.toLocaleString('en-KE', { minimumFractionDigits: 2 })}
           </p>
+          <p className="text-xs text-app-background/60 mt-2">All outflows</p>
         </div>
+      </div>
+
+      {/* Net Position - Full Width Below */}
+      <div className="grid grid-cols-1 gap-6 mb-10">
         <div className={`relative overflow-hidden p-6 ${glassPanelClass}`}>
           <h3 className="text-app-background text-xs font-bold uppercase tracking-widest mb-3">Net Position</h3>
-          <p className="text-4xl financial-data text-app-background">
-            {summary?.net_position?.toLocaleString('en-KE', { minimumFractionDigits: 2 }) || '0.00'}
+          <p className={`text-5xl financial-data font-extrabold ${
+            netPosition >= 0 ? 'text-action-mint' : 'text-alert-crimson'
+          }`}>
+            {netPosition.toLocaleString('en-KE', { minimumFractionDigits: 2 })}
           </p>
+          <p className="text-xs text-app-background/60 mt-2">{netPosition >= 0 ? 'Surplus' : 'Deficit'}</p>
         </div>
       </div>
 
