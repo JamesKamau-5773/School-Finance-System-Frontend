@@ -67,9 +67,9 @@ The multi-stage build:
 2. **Stage 2 (Runtime):** Copies only the built files into Nginx
 
 This approach:
-- ✅ Reduces final image size (excludes node_modules, source code)
-- ✅ Improves security (no build tools in production)
-- ✅ Optimizes boot time
+- Reduces final image size (excludes node_modules, source code)
+- Improves security (no build tools in production)
+- Optimizes boot time
 
 ### Nginx Configuration
 
