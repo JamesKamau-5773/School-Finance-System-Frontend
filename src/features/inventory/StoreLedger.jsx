@@ -147,6 +147,42 @@ export default function StoreLedger() {
     );
   };
 
+  // Extract recipient/supplier info based on action type
+  const getPartyInfo = (txn) => {
+    if (txn.action === "issued") {
+      // Extract "Issued to: X" from remarks
+      if (txn.remarks && txn.remarks.includes("Issued to:")) {
+        const match = txn.remarks.match(/Issued to:\s*([^.]+)/);
+        return match ? match[1].trim() : "-";
+      }
+      return "-";
+    } else {
+      // For received, show supplier name
+      return txn.supplier || "-";
+    }
+  };
+
+  // Get reference/tracking info
+  const getReferenceInfo = (txn) => {
+    if (txn.action === "issued") {
+      return "-"; // No reference for issued
+    } else {
+      // For received, show reference number
+      return txn.reference_no || "-";
+    }
+  };
+
+  // Get recorded by - try multiple field names
+  const getRecordedBy = (txn) => {
+    return (
+      txn.recorded_by_username ||
+      txn.created_by_username ||
+      txn.user_name ||
+      txn.recorded_by ||
+      "-"
+    );
+  };
+
   return (
     <div className="p-8 max-w-7xl mx-auto w-full text-white">
       {/* Header */}
@@ -312,6 +348,12 @@ export default function StoreLedger() {
                       Quantity
                     </th>
                     <th className="p-4 text-xs font-bold text-slate-300 uppercase tracking-widest">
+                      Supplier / Issued To
+                    </th>
+                    <th className="p-4 text-xs font-bold text-slate-300 uppercase tracking-widest">
+                      Ref No
+                    </th>
+                    <th className="p-4 text-xs font-bold text-slate-300 uppercase tracking-widest">
                       Recorded By
                     </th>
                   </tr>
@@ -358,8 +400,14 @@ export default function StoreLedger() {
                           {txn.quantity.toLocaleString("en-KE")}
                         </span>
                       </td>
+                      <td className="p-4 text-slate-300 font-sans">
+                        {getPartyInfo(txn)}
+                      </td>
+                      <td className="p-4 text-slate-300 font-mono">
+                        {getReferenceInfo(txn)}
+                      </td>
                       <td className="p-4 text-slate-300">
-                        {txn.recorded_by_username || "-"}
+                        {getRecordedBy(txn)}
                       </td>
                     </tr>
                   ))}
