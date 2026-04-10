@@ -147,33 +147,18 @@ export default function StoreLedger() {
     );
   };
 
-  // Extract recipient/supplier info based on action type
-  const getPartyInfo = (txn) => {
-    if (txn.action === "issued") {
-      // Extract "Issued to: X" from remarks
-      if (txn.remarks && txn.remarks.includes("Issued to:")) {
-        const match = txn.remarks.match(/Issued to:\s*([^.]+)/);
-        return match ? match[1].trim() : "-";
-      }
-      return "-";
-    } else {
-      // For received, show supplier name
-      return txn.supplier || "-";
-    }
-  };
-
-  // Get reference/tracking info
-  const getReferenceInfo = (txn) => {
-    if (txn.action === "issued") {
-      return "-"; // No reference for issued
-    } else {
-      // For received, show reference number
-      return txn.reference_no || "-";
-    }
-  };
-
-  // Get recorded by - try multiple field names
+  // Get recorded by user name - check nested user object first
   const getRecordedBy = (txn) => {
+    // Check if recorded_by_user exists and has a name or profile_name
+    if (txn.recorded_by_user) {
+      return (
+        txn.recorded_by_user.profile_name ||
+        txn.recorded_by_user.full_name ||
+        txn.recorded_by_user.username ||
+        txn.recorded_by_user.email
+      );
+    }
+    // Fallback to direct fields if relationship not populated
     return (
       txn.recorded_by_username ||
       txn.created_by_username ||
@@ -348,12 +333,6 @@ export default function StoreLedger() {
                       Quantity
                     </th>
                     <th className="p-4 text-xs font-bold text-slate-300 uppercase tracking-widest">
-                      Supplier / Issued To
-                    </th>
-                    <th className="p-4 text-xs font-bold text-slate-300 uppercase tracking-widest">
-                      Ref No
-                    </th>
-                    <th className="p-4 text-xs font-bold text-slate-300 uppercase tracking-widest">
                       Recorded By
                     </th>
                   </tr>
@@ -401,12 +380,6 @@ export default function StoreLedger() {
                         </span>
                       </td>
                       <td className="p-4 text-slate-300 font-sans">
-                        {getPartyInfo(txn)}
-                      </td>
-                      <td className="p-4 text-slate-300 font-mono">
-                        {getReferenceInfo(txn)}
-                      </td>
-                      <td className="p-4 text-slate-300">
                         {getRecordedBy(txn)}
                       </td>
                     </tr>
