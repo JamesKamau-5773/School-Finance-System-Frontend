@@ -1,5 +1,6 @@
 import React from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import { useAuth } from './context/AuthContext';
 import MainLayout from './layout/MainLayout';
 import LandingPage from './features/public/LandingPage';
@@ -22,18 +23,22 @@ function App() {
   // Public routes (no auth required - accessible to everyone)
   if (!user) {
     return (
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+        <Analytics />
+      </>
     );
   }
 
   // Protected routes (auth required + role-based access)
   return (
-    <MainLayout>
-      <Routes>
+    <>
+      <MainLayout>
+        <Routes>
         {/* Default redirect based on user role */}
         <Route 
           path="/" 
@@ -127,8 +132,10 @@ function App() {
 
         {/* Catch-all for undefined routes */}
         <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </MainLayout>
+        </Routes>
+      </MainLayout>
+      <Analytics />
+    </>
   );
 }
 
