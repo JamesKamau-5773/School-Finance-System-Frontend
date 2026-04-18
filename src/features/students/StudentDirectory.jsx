@@ -245,32 +245,32 @@ export default function StudentDirectory() {
     `;
 
     try {
-      const printWindow = window.open("", "", "height=600,width=800");
+      const printWindow = window.open("", "PrintWindow", "width=900,height=700");
       if (!printWindow) {
         alert("Please disable pop-up blocker for this site to print.");
         return;
       }
       
-      // Write HTML content to new window
+      // Write complete HTML document to new window
       printWindow.document.write(printContent);
       printWindow.document.close();
       
-      // Wait for content to render before printing
-      printWindow.onload = () => {
-        printWindow.print();
-        // Close window after printing
-        setTimeout(() => printWindow.close(), 1000);
-      };
-      
-      // Fallback if onload doesn't fire
+      // Give the window time to render, then print
+      printWindow.focus();
       setTimeout(() => {
-        if (printWindow) {
-          printWindow.print();
-          setTimeout(() => printWindow.close(), 1000);
-        }
-      }, 500);
+        printWindow.print();
+        // Close after a short delay to allow print dialog to open
+        setTimeout(() => {
+          try {
+            printWindow.close();
+          } catch (e) {
+            // Window might have been closed manually
+          }
+        }, 500);
+      }, 300);
     } catch (error) {
       console.error("Print error:", error);
+      alert("Error opening print preview. Please try again.");
     }
   };
 
