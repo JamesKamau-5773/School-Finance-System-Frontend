@@ -12,41 +12,41 @@ const PrintableReceipt = forwardRef(({ data }, ref) => {
 
       {/* HEADER */}
       <div className="text-center border-b-2 border-black pb-2 mb-4">
-        <h1 className="text-xl font-bold uppercase tracking-wide">St Gerald High School</h1>
-        <p className="text-xs italic">P.O. Box 4484 - 20100, Nakuru.</p>
+        <h1 className="text-xl font-bold uppercase tracking-wider">St Gerald High School</h1>
+        <p className="text-xs">P.O. Box 4484 - 20100, Nakuru.</p>
         <h2 className="text-sm font-bold uppercase mt-2 underline decoration-double">School Official Receipt</h2>
       </div>
 
       {/* META DATA */}
       <div className="flex justify-between items-end mb-4 text-sm">
-        <div className="font-bold">No. <span className="text-red-600 font-mono text-lg">{data.receipt_no}</span></div>
-        <div className="flex items-end gap-1">
+        <div className="font-bold">No. <span className="text-red-600 font-mono text-base">{data.receipt_no}</span></div>
+        <div className="flex items-baseline gap-1">
           <span>Date:</span>
-          <span className="border-b border-black border-dashed px-2 pb-0.5 min-w-[140px]">{data.date}</span>
+          <span className="border-b border-dotted border-black px-2 pb-0.5 min-w-[120px] text-center">{data.date}</span>
         </div>
       </div>
 
       <div className="space-y-2 mb-4 text-sm">
         <div className="flex items-baseline">
-          <span className="whitespace-nowrap mr-1">RECEIVED from</span>
-          <span className="border-b border-black border-dashed flex-grow font-bold px-2 pb-0.5">{data.student.name}</span>
+          <span className="whitespace-nowrap mr-2">RECEIVED from</span>
+          <span className="border-b border-dotted border-black flex-grow font-bold px-2 pb-0.5 capitalize">{data.student.name}</span>
         </div>
-        <div className="flex items-baseline gap-4">
+        <div className="flex items-baseline justify-between gap-4">
           <div className="flex items-baseline gap-1">
             <span className="whitespace-nowrap">Form</span>
-            <span className="border-b border-black border-dashed w-12 text-center pb-0.5">{data.student?.form || data.student?.gradeLevel || '-'}</span>
+            <span className="border-b border-dotted border-black w-20 text-center pb-0.5">{data.student?.form || data.student?.gradeLevel || '-'}</span>
           </div>
           <div className="flex items-baseline gap-1">
             <span className="whitespace-nowrap">Term</span>
-            <span className="border-b border-black border-dashed w-12 text-center pb-0.5">{data.student?.term || '-'}</span>
+            <span className="border-b border-dotted border-black w-12 text-center pb-0.5">{data.student?.term || '-'}</span>
           </div>
           <div className="flex items-baseline gap-1">
             <span className="whitespace-nowrap">Year</span>
-            <span className="border-b border-black border-dashed w-12 text-center pb-0.5">{data.student?.year || '--'}</span>
+            <span className="border-b border-dotted border-black w-16 text-center pb-0.5">{data.student?.year || '--'}</span>
           </div>
           <div className="flex items-baseline gap-1">
             <span className="whitespace-nowrap">Adm. No.</span>
-            <span className="border-b border-black border-dashed flex-grow font-bold px-1 pb-0.5">{data.student?.admissionNumber || '-'}</span>
+            <span className="border-b border-dotted border-black flex-grow font-bold px-1 pb-0.5">{data.student?.admissionNumber || '-'}</span>
           </div>
         </div>
       </div>
@@ -55,9 +55,9 @@ const PrintableReceipt = forwardRef(({ data }, ref) => {
       <table className="w-full border-collapse border-2 border-black mb-4 text-sm">
         <thead>
           <tr className="border-b-2 border-black">
-            <th className="border-r border-black p-1 text-left italic font-normal">Being payment of</th>~
-            <th className="border-r border-black p-1 w-20 text-center font-bold">Kshs</th>
-            <th className="p-1 w-10 text-center font-bold">Cts</th>
+            <th className="border-r border-black p-1 text-left font-normal flex justify-between items-center"><span>Being payment of</span><span>~</span></th>
+            <th className="border-r border-black p-1 w-24 text-center font-bold">Kshs</th>
+            <th className="p-1 w-16 text-center font-bold">Cts</th>
           </tr>
         </thead>
         <tbody>
@@ -80,6 +80,7 @@ const PrintableReceipt = forwardRef(({ data }, ref) => {
             
             // Special handling for Fees Arrears - use student balance
             if (category.key === 'arrears') {
+              // Use the balance from the receipt data if available, otherwise default to 0
               allocation = { amount: data.student?.balance || 0 };
             } else {
               allocation = data.allocations?.find((a) =>
@@ -88,18 +89,18 @@ const PrintableReceipt = forwardRef(({ data }, ref) => {
             }
 
             return (
-              <tr key={idx} className="border-b border-black">
+              <tr key={idx} className="border-b border-black h-7">
                 <td className="border-r border-black p-1 px-2">{category.label}</td>
-                <td className="border-r border-black p-1 text-right font-mono pr-2">
+                <td className="border-r border-black p-1 text-right font-mono pr-4">
                   {allocation.amount > 0 ? allocation.amount.toLocaleString() : ''}
                 </td>
                 <td className="p-1 text-center font-mono">{allocation.amount > 0 ? '00' : ''}</td>
               </tr>
             );
           })}
-          <tr className="border-t-2 border-black font-bold">
+          <tr className="border-t-2 border-black font-bold h-8">
             <td className="border-r border-black p-1 px-2 text-right">TOTAL Kshs.</td>
-            <td className="border-r border-black p-1 text-right font-mono pr-2">
+            <td className="border-r border-black p-1 text-right font-mono pr-4">
               {data.totals.amount ? data.totals.amount.toLocaleString() : '0'}
             </td>
             <td className="p-1 text-center font-mono">00</td>
@@ -109,27 +110,27 @@ const PrintableReceipt = forwardRef(({ data }, ref) => {
 
       {/* FOOTER & SIGNATURES */}
       <div className="space-y-3 text-sm mt-6">
-        <div className="flex">
+        <div className="flex items-baseline">
           <span className="whitespace-nowrap mr-2">Amount in Kshs (words):</span>
-          <span className="border-b border-black border-dashed flex-grow italic px-2 font-serif">
+          <span className="border-b border-dotted border-black flex-grow italic px-2 pb-0.5 capitalize">
             {amountInWordsShort(data.totals.amount || 0)}
           </span>
         </div>
 
-        <div className="flex">
+        <div className="flex items-baseline">
           <span className="whitespace-nowrap mr-2">Receiving Officer's Name:</span>
-          <span className="border-b border-black border-dashed flex-grow font-bold px-2">{data.meta?.receivedBy || ''}</span>
+          <span className="border-b border-dotted border-black flex-grow font-bold px-2 pb-0.5">{data.meta?.receivedBy || ''}</span>
         </div>
 
-        <div className="flex">
+        <div className="flex items-baseline">
           <span className="whitespace-nowrap mr-2">Cheque No/ Cash / Mpesa / Bank Slip Ref. No:</span>
-          <span className="border-b border-black border-dashed flex-grow font-mono px-2">{data.meta?.reference || ''}</span>
+          <span className="border-b border-dotted border-black flex-grow font-mono px-2 pb-0.5">{data.meta?.reference || ''}</span>
         </div>
 
-        <div className="flex justify-between items-end mt-10">
-          <div className="font-bold italic text-lg tracking-widest">RECEIVED WITH THANKS</div>
+        <div className="flex justify-between items-end mt-8">
+          <div className="font-bold italic text-base tracking-wider">RECEIVED WITH THANKS</div>
           <div className="text-center">
-            <div className="border-b border-black w-32 mb-2 mt-4"></div>
+            <div className="border-b border-black w-32 mb-1 mt-4"></div>
             <div className="text-xs">A/C Clerk</div>
           </div>
         </div>
