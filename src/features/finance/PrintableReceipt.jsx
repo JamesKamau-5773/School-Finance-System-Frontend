@@ -89,7 +89,7 @@ const PrintableReceipt = forwardRef(({ data }, ref) => {
             }
 
             return (
-              <tr key={idx} className="border-b border-black h-7">
+              <tr key={idx} className="border-b border-gray-400 h-7">
                 <td className="border-r border-black p-1 px-2">{category.label}</td>
                 <td className="border-r border-black p-1 text-right font-mono pr-4">
                   {allocation.amount > 0 ? allocation.amount.toLocaleString() : ''}
