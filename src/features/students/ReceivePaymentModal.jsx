@@ -44,10 +44,10 @@ export default function ReceivePaymentModal({ isOpen, onClose, student }) {
             // Use allocations from API if available
             allocations = response.allocations;
           } else {
-            // Fallback: Create allocation for the full amount
+            // Fallback: Create allocation for the full amount to Lunch Programme
             allocations = [
               {
-                vote_head: "Tuition Programme",
+                vote_head: "Lunch Programme",
                 amount: amount,
               },
             ];
@@ -66,7 +66,8 @@ export default function ReceivePaymentModal({ isOpen, onClose, student }) {
             student: {
               name: student.full_name,
               admissionNumber: student.admission_number,
-              form: student.form || "",
+              form: student.form || student.grade_level || "",
+              gradeLevel: student.form || student.grade_level || "",
               term: student.term || "",
               year: today.getFullYear().toString(),
               balance: student.balance || 0,

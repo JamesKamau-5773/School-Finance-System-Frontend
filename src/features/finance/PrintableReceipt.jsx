@@ -34,15 +34,15 @@ const PrintableReceipt = forwardRef(({ data }, ref) => {
         <div className="flex items-baseline gap-4">
           <div className="flex items-baseline gap-1">
             <span className="whitespace-nowrap">Form</span>
-            <span className="border-b border-black border-dashed w-12 text-center pb-0.5">{data.student?.form || '-'}</span>
+            <span className="border-b border-black border-dashed w-12 text-center pb-0.5">{data.student?.form || data.student?.gradeLevel || '-'}</span>
           </div>
           <div className="flex items-baseline gap-1">
             <span className="whitespace-nowrap">Term</span>
             <span className="border-b border-black border-dashed w-12 text-center pb-0.5">{data.student?.term || '-'}</span>
           </div>
           <div className="flex items-baseline gap-1">
-            <span className="whitespace-nowrap">20</span>
-            <span className="border-b border-black border-dashed w-10 text-center pb-0.5">{data.student?.year ? data.student.year.slice(-2) : '--'}</span>
+            <span className="whitespace-nowrap">Year</span>
+            <span className="border-b border-black border-dashed w-12 text-center pb-0.5">{data.student?.year || '--'}</span>
           </div>
           <div className="flex items-baseline gap-1">
             <span className="whitespace-nowrap">Adm. No.</span>

@@ -204,6 +204,25 @@ export default function StudentDirectory() {
           tr:nth-child(even) {
             background-color: #f9f9f9;
           }
+          /* Print-specific styles */
+          * {
+            print-color-adjust: exact !important;
+            -webkit-print-color-adjust: exact !important;
+          }
+          body {
+            background-color: white !important;
+            color-scheme: light !important;
+          }
+          table {
+            background-color: white !important;
+          }
+          th, td {
+            background-color: white !important;
+            color: #333 !important;
+          }
+          tr:nth-child(even) {
+            background-color: #f9f9f9 !important;
+          }
         </style>
       </head>
       <body>
