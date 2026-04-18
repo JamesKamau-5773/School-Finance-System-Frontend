@@ -132,55 +132,6 @@ export default function PaymentModal({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
-  // Receipt Success View
-  if (showReceipt && receiptData) {
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-structural-navy/80 backdrop-blur-sm p-4">
-        <div className="w-full max-w-2xl bg-text-border/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden transform transition-all">
-          {/* Receipt Header */}
-          <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center bg-white/5">
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <Receipt className="text-action-mint" size={20} />
-              Payment Receipt
-            </h2>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handlePrint}
-                className="edtech-btn bg-action-mint hover:bg-action-mint/80 !text-structural-navy px-4 py-2 text-sm flex items-center gap-2 shadow-[0_4px_14px_0_rgba(5,205,153,0.39)]"
-              >
-                <Printer size={16} />
-                Print
-              </button>
-              <button
-                onClick={handleDone}
-                className="text-slate-400 hover:text-white transition-colors p-1 rounded-full hover:bg-white/10"
-              >
-                <X size={20} />
-              </button>
-            </div>
-          </div>
-
-          {/* Receipt Component (Print View) */}
-          <div className="p-6 max-h-[70vh] overflow-y-auto">
-            <PrintableReceipt ref={receiptRef} data={receiptData} />
-          </div>
-
-          {/* Receipt Footer / Actions */}
-          <div className="px-6 py-4 flex justify-end gap-3 border-t border-white/10 bg-white/5">
-            <button
-              onClick={handleDone}
-              className="edtech-btn-secondary px-4 py-2 rounded-full text-sm font-bold"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isOpen) return null;
-
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!confirmedStudent) {
@@ -257,6 +208,57 @@ export default function PaymentModal({ isOpen, onClose }) {
     onClose();
   };
 
+  // Receipt Success View - Show alongside form
+  if (showReceipt && receiptData) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-structural-navy/80 backdrop-blur-sm p-4">
+        <div className="w-full max-w-3xl bg-text-border/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden transform transition-all">
+          {/* Modal Header with Print Button */}
+          <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center bg-white/5">
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <Receipt className="text-action-mint" size={20} />
+              Payment Receipt
+            </h2>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handlePrint}
+                className="edtech-btn bg-action-mint hover:bg-action-mint/80 !text-structural-navy px-4 py-2 text-sm flex items-center gap-2 shadow-[0_4px_14px_0_rgba(5,205,153,0.39)]"
+              >
+                <Printer size={16} />
+                Print
+              </button>
+              <button
+                onClick={handleDone}
+                className="text-slate-400 hover:text-white transition-colors p-1 rounded-full hover:bg-white/10"
+              >
+                <X size={20} />
+              </button>
+            </div>
+          </div>
+
+          {/* Receipt Component (Print View) */}
+          <div className="p-6 max-h-[70vh] overflow-y-auto">
+            <PrintableReceipt ref={receiptRef} data={receiptData} />
+          </div>
+
+          {/* Receipt Footer / Actions */}
+          <div className="px-6 py-4 flex justify-end gap-3 border-t border-white/10 bg-white/5">
+            <button
+              onClick={handleDone}
+              className="edtech-btn-secondary px-4 py-2 rounded-full text-sm font-bold"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isOpen) return null;
+
+  // Payment Form View
+
   return (
     /* Modal Backdrop - Dark and Blurred */
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-structural-navy/80 backdrop-blur-sm p-4">
@@ -269,13 +271,13 @@ export default function PaymentModal({ isOpen, onClose }) {
           </h2>
           <div className="flex items-center gap-2">
             <button
-              type="submit"
-              form="payment-form"
-              disabled={isPending || !confirmedStudent || !formData.amount}
-              className="edtech-btn bg-action-mint hover:bg-action-mint/80 !text-structural-navy px-6 py-2 text-sm flex items-center gap-2 disabled:opacity-50 shadow-[0_4px_14px_0_rgba(5,205,153,0.39)]"
+              onClick={handlePrint}
+              disabled={!receiptData}
+              className="edtech-btn bg-action-mint hover:bg-action-mint/80 !text-structural-navy px-4 py-2 text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_4px_14px_0_rgba(5,205,153,0.39)]"
+              title={receiptData ? "Print receipt" : "Complete a payment first"}
             >
-              {isPending && <Loader2 size={16} className="animate-spin" />}
-              {isPending ? "Processing..." : "Confirm"}
+              <Printer size={16} />
+              Print
             </button>
             <button
               onClick={onClose}
@@ -442,6 +444,26 @@ export default function PaymentModal({ isOpen, onClose }) {
                   required
                 />
               </div>
+            </div>
+
+            {/* Modal Footer / Actions */}
+            <div className="pt-4 flex justify-end gap-3 border-t border-white/10 mt-6">
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={isPending}
+                className="edtech-btn-secondary px-4 py-2 rounded-full text-sm font-bold disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isPending || !confirmedStudent || !formData.amount}
+                className="edtech-btn bg-action-mint hover:bg-action-mint/80 !text-structural-navy px-6 py-2 text-sm flex items-center gap-2 disabled:opacity-50 shadow-[0_4px_14px_0_rgba(5,205,153,0.39)]"
+              >
+                {isPending && <Loader2 size={16} className="animate-spin" />}
+                {isPending ? "Processing..." : "Confirm Payment"}
+              </button>
             </div>
           </div>
         </form>
