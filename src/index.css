@@ -307,6 +307,18 @@
     display: none !important;
   }
 
+  .student-directory-form-no-print {
+    display: none !important;
+  }
+
+  body:has(.print-container) .student-directory-print-root {
+    display: none !important;
+  }
+
+  body:has(.print-container) .student-directory-modal-layer {
+    display: block !important;
+  }
+
   .student-directory-print-root .bg-text-border,
   .student-directory-print-root .bg-structural-navy,
   .student-directory-print-root .border-text-border {

@@ -282,7 +282,8 @@ export default function StudentDirectory() {
   };
 
   return (
-    <div className="student-directory-print-root p-8 max-w-7xl mx-auto w-full text-white">
+    <>
+      <div className="student-directory-print-root p-8 max-w-7xl mx-auto w-full text-white">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 border-b border-text-border/50 pb-6 gap-4">
         <div>
@@ -479,19 +480,23 @@ export default function StudentDirectory() {
       </div>
 
       {/* Render the Modals */}
-      <div className="student-directory-no-print">
+      </div>
+
+      <div className="student-directory-modal-layer">
         <StudentProfileModal
           isOpen={!!selectedStudentForProfile}
           onClose={() => setSelectedStudentForProfile(null)}
           student={selectedStudentForProfile}
         />
+      </div>
 
+      <div className="student-directory-form-no-print">
         <StudentFormModal
           isOpen={isFormModalOpen}
           onClose={() => setIsFormModalOpen(false)}
           initialData={studentToEdit}
         />
       </div>
-    </div>
+    </>
   );
 }
