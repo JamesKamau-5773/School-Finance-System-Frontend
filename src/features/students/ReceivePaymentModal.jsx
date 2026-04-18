@@ -53,19 +53,23 @@ export default function ReceivePaymentModal({ isOpen, onClose, student }) {
             ];
           }
           
+          const today = new Date();
+          const dateFormatter = new Intl.DateTimeFormat("en-KE", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          });
+          
           const receiptInfo = {
             receipt_no: response?.receipt_id || response?.id || "N/A",
-            date: new Date().toLocaleDateString("en-KE", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            }),
+            date: dateFormatter.format(today),
             student: {
               name: student.full_name,
               admissionNumber: student.admission_number,
               form: student.form || "",
               term: student.term || "",
-              year: new Date().getFullYear().toString(),
+              year: today.getFullYear().toString(),
+              balance: student.balance || 0,
             },
             allocations: allocations,
             totals: {
@@ -128,7 +132,7 @@ export default function ReceivePaymentModal({ isOpen, onClose, student }) {
           </div>
 
           {/* Receipt Component (Print View) */}
-          <div className="p-6 max-h-[70vh] overflow-y-auto">
+          <div className="p-6 max-h-[70vh] overflow-y-auto print:p-0 print:max-h-none print:overflow-visible">
             <PrintableReceipt ref={receiptRef} data={receiptData} />
           </div>
 

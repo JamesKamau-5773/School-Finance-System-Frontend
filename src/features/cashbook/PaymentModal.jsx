@@ -111,6 +111,8 @@ export default function PaymentModal({ isOpen, onClose }) {
           name: student.full_name || student.name,
           admissionNumber: student.admission_number,
           balance: student.balance || 0,
+          form: student.form || student.grade_level || "",
+          term: student.term || "",
         });
       } catch (err) {
         if (isCancelled) return;
@@ -168,19 +170,23 @@ export default function PaymentModal({ isOpen, onClose }) {
             ];
           }
           
+          const today = new Date();
+          const dateFormatter = new Intl.DateTimeFormat("en-KE", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          });
+          
           const receiptInfo = {
             receipt_no: response?.receipt_id || response?.id || "N/A",
-            date: new Date().toLocaleDateString("en-KE", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            }),
+            date: dateFormatter.format(today),
             student: {
               name: confirmedStudent.name,
               admissionNumber: confirmedStudent.admissionNumber,
               form: confirmedStudent.form || "",
               term: confirmedStudent.term || "",
-              year: new Date().getFullYear().toString(),
+              year: today.getFullYear().toString(),
+              balance: confirmedStudent.balance || 0,
             },
             allocations: allocations,
             totals: {
@@ -249,7 +255,7 @@ export default function PaymentModal({ isOpen, onClose }) {
           </div>
 
           {/* Receipt Component (Print View) */}
-          <div className="p-6 max-h-[70vh] overflow-y-auto">
+          <div className="p-6 max-h-[70vh] overflow-y-auto print:p-0 print:max-h-none print:overflow-visible">
             <PrintableReceipt ref={receiptRef} data={receiptData} />
           </div>
 

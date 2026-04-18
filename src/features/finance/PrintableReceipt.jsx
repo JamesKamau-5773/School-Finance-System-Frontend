@@ -8,7 +8,7 @@ const PrintableReceipt = forwardRef(({ data }, ref) => {
 
   return (
     // Visible in modal, with print-only styles for printing
-    <div ref={ref} className="w-full max-w-[148mm] mx-auto bg-white text-black p-6 font-serif print:p-0 print:bg-white">
+    <div ref={ref} className="print-container w-full max-w-[148mm] mx-auto bg-white text-black p-6 font-serif print:p-0 print:bg-white">
 
       {/* HEADER */}
       <div className="text-center border-b-2 border-black pb-2 mb-4">
@@ -20,19 +20,34 @@ const PrintableReceipt = forwardRef(({ data }, ref) => {
       {/* META DATA */}
       <div className="flex justify-between items-end mb-4 text-sm">
         <div className="font-bold">No. <span className="text-red-600 font-mono text-lg">{data.receipt_no}</span></div>
-        <div>Date: <span className="border-b border-black border-dashed px-4">{data.date}</span></div>
+        <div className="flex items-end gap-1">
+          <span>Date:</span>
+          <span className="border-b border-black border-dashed px-2 pb-0.5 min-w-[140px]">{data.date}</span>
+        </div>
       </div>
 
-      <div className="space-y-3 mb-4 text-sm">
-        <div className="flex">
-          <span className="whitespace-nowrap mr-2">RECEIVED from</span>
-          <span className="border-b border-black border-dashed flex-grow font-bold px-2">{data.student.name}</span>
+      <div className="space-y-2 mb-4 text-sm">
+        <div className="flex items-baseline">
+          <span className="whitespace-nowrap mr-1">RECEIVED from</span>
+          <span className="border-b border-black border-dashed flex-grow font-bold px-2 pb-0.5">{data.student.name}</span>
         </div>
-        <div className="flex justify-between gap-2">
-          <div className="flex-1 flex"><span className="mr-2">Form</span><span className="border-b border-black border-dashed flex-grow text-center">{data.student?.form || '-'}</span></div>
-          <div className="flex-1 flex"><span className="mr-2">Term</span><span className="border-b border-black border-dashed flex-grow text-center">{data.student?.term || '-'}</span></div>
-          <div className="flex-1 flex"><span className="mr-2">20</span><span className="border-b border-black border-dashed flex-grow text-center">{data.student?.year ? data.student.year.slice(-2) : '--'}</span></div>
-          <div className="flex-1 flex"><span className="mr-2">Adm. No.</span><span className="border-b border-black border-dashed flex-grow font-bold text-center">{data.student?.admissionNumber || '-'}</span></div>
+        <div className="flex items-baseline gap-4">
+          <div className="flex items-baseline gap-1">
+            <span className="whitespace-nowrap">Form</span>
+            <span className="border-b border-black border-dashed w-12 text-center pb-0.5">{data.student?.form || '-'}</span>
+          </div>
+          <div className="flex items-baseline gap-1">
+            <span className="whitespace-nowrap">Term</span>
+            <span className="border-b border-black border-dashed w-12 text-center pb-0.5">{data.student?.term || '-'}</span>
+          </div>
+          <div className="flex items-baseline gap-1">
+            <span className="whitespace-nowrap">20</span>
+            <span className="border-b border-black border-dashed w-10 text-center pb-0.5">{data.student?.year ? data.student.year.slice(-2) : '--'}</span>
+          </div>
+          <div className="flex items-baseline gap-1">
+            <span className="whitespace-nowrap">Adm. No.</span>
+            <span className="border-b border-black border-dashed flex-grow font-bold px-1 pb-0.5">{data.student?.admissionNumber || '-'}</span>
+          </div>
         </div>
       </div>
 
@@ -40,7 +55,7 @@ const PrintableReceipt = forwardRef(({ data }, ref) => {
       <table className="w-full border-collapse border-2 border-black mb-4 text-sm">
         <thead>
           <tr className="border-b-2 border-black">
-            <th className="border-r border-black p-1 text-left italic font-normal">Being payment of</th>
+            <th className="border-r border-black p-1 text-left italic font-normal">Being payment of</th>~
             <th className="border-r border-black p-1 w-20 text-center font-bold">Kshs</th>
             <th className="p-1 w-10 text-center font-bold">Cts</th>
           </tr>
@@ -48,23 +63,29 @@ const PrintableReceipt = forwardRef(({ data }, ref) => {
         <tbody>
           {/* Standard fee categories - show allocations where they apply */}
           {[
-            { label: 'Tuition Programme', key: 'tuition' },
+            { label: 'Lunch Programme', key: 'lunch' },
             { label: 'Repair, Maintenance & Improvement (PMI)', key: 'maintenance' },
             { label: 'Local Traveling & Transport', key: 'transport' },
             { label: 'Administrative Costs', key: 'admin' },
-            { label: 'Moral', key: 'moral' },
+            { label: 'Medical Fees', key: 'medical' },
             { label: 'Electricity, Water & Conservancy (EWSC)', key: 'utilities' },
             { label: 'Activity Fund', key: 'activity' },
             { label: 'Personal Enrolment', key: 'enrolment' },
             { label: 'Insurance', key: 'insurance' },
-            { label: 'Library Card', key: 'library' },
-            { label: 'Tuition Waiver', key: 'waiver' },
+            { label: 'Student ID', key: 'student id' },
             { label: 'Fees Arrears', key: 'arrears' },
             { label: 'Others (Specify)', key: 'others' },
           ].map((category, idx) => {
-            const allocation = data.allocations?.find((a) =>
-              a.vote_head?.toLowerCase().includes(category.label.split('(')[0].toLowerCase().trim())
-            ) || { voteHead: category.label, amount: 0 };
+            let allocation = { amount: 0 };
+            
+            // Special handling for Fees Arrears - use student balance
+            if (category.key === 'arrears') {
+              allocation = { amount: data.student?.balance || 0 };
+            } else {
+              allocation = data.allocations?.find((a) =>
+                a.vote_head?.toLowerCase().includes(category.label.split('(')[0].toLowerCase().trim())
+              ) || { voteHead: category.label, amount: 0 };
+            }
 
             return (
               <tr key={idx} className="border-b border-black">
