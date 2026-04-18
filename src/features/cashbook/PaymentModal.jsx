@@ -151,6 +151,23 @@ export default function PaymentModal({ isOpen, onClose }) {
           // Transform API response to receipt data structure matching PrintableReceipt expectations
           const amount = parseFloat(formData.amount);
           
+          // Map allocations from API response or create default GOK vote heads structure
+          let allocations = [];
+          
+          if (response?.allocations && Array.isArray(response.allocations) && response.allocations.length > 0) {
+            // Use allocations from API if available
+            allocations = response.allocations;
+          } else {
+            // Fallback: Create allocation for the full amount
+            // In a real scenario, you'd want to split this across specific vote heads
+            allocations = [
+              {
+                vote_head: "Tuition Programme",
+                amount: amount,
+              },
+            ];
+          }
+          
           const receiptInfo = {
             receipt_no: response?.receipt_id || response?.id || "N/A",
             date: new Date().toLocaleDateString("en-KE", {
@@ -165,12 +182,7 @@ export default function PaymentModal({ isOpen, onClose }) {
               term: confirmedStudent.term || "",
               year: new Date().getFullYear().toString(),
             },
-            allocations: response?.allocations || [
-              {
-                vote_head: `Payment received via ${formData.method}`,
-                amount: amount,
-              },
-            ],
+            allocations: allocations,
             totals: {
               amount: amount,
             },

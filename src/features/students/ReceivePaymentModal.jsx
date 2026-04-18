@@ -1,6 +1,7 @@
-import React, { useState } from "react";
-import { X, WalletCards, Receipt, Building2, Loader2 } from "lucide-react";
+import React, { useState, useRef } from "react";
+import { X, WalletCards, Receipt, Building2, Loader2, Printer } from "lucide-react";
 import { useReceivePayment } from "./hooks/useStudents";
+import PrintableReceipt from "../finance/PrintableReceipt";
 
 export default function ReceivePaymentModal({ isOpen, onClose, student }) {
   const [formData, setFormData] = useState({
@@ -8,6 +9,10 @@ export default function ReceivePaymentModal({ isOpen, onClose, student }) {
     method: "Bank Slip",
     reference: "",
   });
+
+  const [showReceipt, setShowReceipt] = useState(false);
+  const [receiptData, setReceiptData] = useState(null);
+  const receiptRef = useRef(null);
 
   const {
     mutate: processPayment,
@@ -28,13 +33,120 @@ export default function ReceivePaymentModal({ isOpen, onClose, student }) {
         reference: formData.reference,
       },
       {
-        onSuccess: () => {
-          setFormData({ amount: "", method: "Bank Slip", reference: "" });
-          onClose();
+        onSuccess: (response) => {
+          // Transform API response to receipt data structure
+          const amount = parseFloat(formData.amount);
+          
+          // Map allocations from API response or create default GOK vote heads structure
+          let allocations = [];
+          
+          if (response?.allocations && Array.isArray(response.allocations) && response.allocations.length > 0) {
+            // Use allocations from API if available
+            allocations = response.allocations;
+          } else {
+            // Fallback: Create allocation for the full amount
+            allocations = [
+              {
+                vote_head: "Tuition Programme",
+                amount: amount,
+              },
+            ];
+          }
+          
+          const receiptInfo = {
+            receipt_no: response?.receipt_id || response?.id || "N/A",
+            date: new Date().toLocaleDateString("en-KE", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            }),
+            student: {
+              name: student.full_name,
+              admissionNumber: student.admission_number,
+              form: student.form || "",
+              term: student.term || "",
+              year: new Date().getFullYear().toString(),
+            },
+            allocations: allocations,
+            totals: {
+              amount: amount,
+            },
+            meta: {
+              paymentMethod: formData.method,
+              reference: formData.reference,
+              receivedBy: response?.recorded_by || "School Officer",
+            },
+          };
+
+          setReceiptData(receiptInfo);
+          setShowReceipt(true);
         },
       },
     );
   };
+
+  const handlePrint = () => {
+    if (receiptRef.current) {
+      window.print();
+    }
+  };
+
+  const handleDone = () => {
+    // Reset state and close modal
+    setFormData({ amount: "", method: "Bank Slip", reference: "" });
+    setShowReceipt(false);
+    setReceiptData(null);
+    onClose();
+  };
+
+  // Receipt Success View
+  if (showReceipt && receiptData) {
+    return (
+      <div className="fixed inset-0 z-[60] flex items-center justify-center bg-structural-navy/90 backdrop-blur-md p-4">
+        <div className="w-full max-w-3xl edtech-card border border-action-mint/30 !bg-text-border p-0 overflow-hidden shadow-2xl shadow-[#00E98F]/10">
+          {/* Header with Print Button */}
+          <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center bg-action-mint/10">
+            <h2 className="text-lg font-bold text-action-mint flex items-center gap-2">
+              <Receipt size={20} />
+              Payment Receipt
+            </h2>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handlePrint}
+                className="edtech-btn bg-action-mint hover:bg-action-mint/80 !text-structural-navy px-4 py-2 text-sm flex items-center gap-2 shadow-[0_4px_14px_0_rgba(5,205,153,0.39)]"
+              >
+                <Printer size={16} />
+                Print
+              </button>
+              <button
+                onClick={handleDone}
+                className="text-action-mint/70 hover:text-action-mint transition-colors p-1"
+              >
+                <X size={20} />
+              </button>
+            </div>
+          </div>
+
+          {/* Receipt Component (Print View) */}
+          <div className="p-6 max-h-[70vh] overflow-y-auto">
+            <PrintableReceipt ref={receiptRef} data={receiptData} />
+          </div>
+
+          {/* Receipt Footer / Actions */}
+          <div className="px-6 py-4 flex justify-end gap-3 border-t border-white/10 bg-action-mint/5">
+            <button
+              onClick={handleDone}
+              className="edtech-btn-secondary !px-6 !py-2 text-sm"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isOpen || !student) return null;
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-structural-navy/90 backdrop-blur-md p-4">
@@ -45,12 +157,23 @@ export default function ReceivePaymentModal({ isOpen, onClose, student }) {
             <WalletCards size={20} />
             Receive Fee Payment
           </h2>
-          <button
-            onClick={onClose}
-            className="text-action-mint/70 hover:text-action-mint transition-colors p-1"
-          >
-            <X size={20} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handlePrint}
+              disabled={!receiptData}
+              className="edtech-btn bg-action-mint hover:bg-action-mint/80 !text-structural-navy px-4 py-2 text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_4px_14px_0_rgba(5,205,153,0.39)]"
+              title={receiptData ? "Print receipt" : "Complete a payment first"}
+            >
+              <Printer size={16} />
+              Print
+            </button>
+            <button
+              onClick={onClose}
+              className="text-action-mint/70 hover:text-action-mint transition-colors p-1"
+            >
+              <X size={20} />
+            </button>
+          </div>
         </div>
 
         {/* Student Target Banner */}

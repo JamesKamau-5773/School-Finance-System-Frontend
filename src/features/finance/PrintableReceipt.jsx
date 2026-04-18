@@ -7,9 +7,8 @@ const PrintableReceipt = forwardRef(({ data }, ref) => {
   if (!data) return null;
 
   return (
-    // The 'print:' classes activate ONLY when the browser's print dialog is opened.
-    // We enforce an A5 sizing constraint (approx max-w-[148mm]) and a white background.
-    <div ref={ref} className="hidden print:block print:w-[148mm] print:mx-auto print:bg-white print:text-black print:p-6 print:font-serif">
+    // Visible in modal, with print-only styles for printing
+    <div ref={ref} className="w-full max-w-[148mm] mx-auto bg-white text-black p-6 font-serif print:p-0 print:bg-white">
 
       {/* HEADER */}
       <div className="text-center border-b-2 border-black pb-2 mb-4">
