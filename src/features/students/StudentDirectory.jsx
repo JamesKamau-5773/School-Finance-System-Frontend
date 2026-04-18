@@ -244,10 +244,34 @@ export default function StudentDirectory() {
       </html>
     `;
 
-    const printWindow = window.open("", "", "height=600,width=800");
-    printWindow.document.write(printContent);
-    printWindow.document.close();
-    setTimeout(() => printWindow.print(), 250);
+    try {
+      const printWindow = window.open("", "", "height=600,width=800");
+      if (!printWindow) {
+        alert("Please disable pop-up blocker for this site to print.");
+        return;
+      }
+      
+      // Write HTML content to new window
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+      
+      // Wait for content to render before printing
+      printWindow.onload = () => {
+        printWindow.print();
+        // Close window after printing
+        setTimeout(() => printWindow.close(), 1000);
+      };
+      
+      // Fallback if onload doesn't fire
+      setTimeout(() => {
+        if (printWindow) {
+          printWindow.print();
+          setTimeout(() => printWindow.close(), 1000);
+        }
+      }, 500);
+    } catch (error) {
+      console.error("Print error:", error);
+    }
   };
 
   return (
