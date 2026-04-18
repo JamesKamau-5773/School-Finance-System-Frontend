@@ -137,3 +137,42 @@
     cursor: pointer;
   }
 }
+
+/* Print media queries for receipt printing */
+@media print {
+  /* Hide the main application wrapper, only show print container */
+  #root > div:not(.print-container) {
+    display: none !important;
+  }
+
+  /* Strip all background colors from the body so it prints pure white */
+  body {
+    background-color: white !important;
+    background-image: none !important;
+    color: black !important;
+  }
+
+  /* Ensure page margins are set for A5/A4 */
+  @page {
+    margin: 10mm;
+  }
+
+  /* Optimize print layout */
+  * {
+    background-image: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Preserve text colors and borders for receipt */
+  .print\:block {
+    display: block !important;
+  }
+
+  .print\:text-black {
+    color: black !important;
+  }
+
+  .print\:bg-white {
+    background-color: white !important;
+  }
+}

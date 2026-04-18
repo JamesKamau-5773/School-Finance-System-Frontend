@@ -1,0 +1,110 @@
+import React, { forwardRef } from 'react';
+import { amountInWordsShort } from '../../utils/numberToWords';
+
+// We use forwardRef so a parent component can trigger a print on this specific DOM node if needed,
+// though standard window.print() with CSS hiding also works perfectly.
+const PrintableReceipt = forwardRef(({ data }, ref) => {
+  if (!data) return null;
+
+  return (
+    // The 'print:' classes activate ONLY when the browser's print dialog is opened.
+    // We enforce an A5 sizing constraint (approx max-w-[148mm]) and a white background.
+    <div ref={ref} className="hidden print:block print:w-[148mm] print:mx-auto print:bg-white print:text-black print:p-6 print:font-serif">
+
+      {/* HEADER */}
+      <div className="text-center border-b-2 border-black pb-2 mb-4">
+        <h1 className="text-xl font-bold uppercase tracking-wide">St Gerald High School</h1>
+        <p className="text-xs italic">P.O. Box 4484 - 20100, Nakuru.</p>
+        <h2 className="text-sm font-bold uppercase mt-2 underline decoration-double">School Official Receipt</h2>
+      </div>
+
+      {/* META DATA */}
+      <div className="flex justify-between items-end mb-4 text-sm">
+        <div className="font-bold">No. <span className="text-red-600 font-mono text-lg">{data.receipt_no}</span></div>
+        <div>Date: <span className="border-b border-black border-dashed px-4">{data.date}</span></div>
+      </div>
+
+      <div className="space-y-3 mb-4 text-sm">
+        <div className="flex">
+          <span className="whitespace-nowrap mr-2">RECEIVED from</span>
+          <span className="border-b border-black border-dashed flex-grow font-bold px-2">{data.student.name}</span>
+        </div>
+        <div className="flex justify-between gap-2">
+          <div className="flex-1 flex"><span className="mr-2">Form</span><span className="border-b border-black border-dashed flex-grow text-center">{data.student.form}</span></div>
+          <div className="flex-1 flex"><span className="mr-2">Term</span><span className="border-b border-black border-dashed flex-grow text-center">{data.student.term}</span></div>
+          <div className="flex-1 flex"><span className="mr-2">20</span><span className="border-b border-black border-dashed flex-grow text-center">{data.student.year.slice(-2)}</span></div>
+          <div className="flex-1 flex"><span className="mr-2">Adm. No.</span><span className="border-b border-black border-dashed flex-grow font-bold text-center">{data.student.adm_no}</span></div>
+        </div>
+      </div>
+
+      {/* THE ALLOCATIONS TABLE */}
+      <table className="w-full border-collapse border-2 border-black mb-4 text-sm">
+        <thead>
+          <tr className="border-b-2 border-black">
+            <th className="border-r border-black p-1 text-left italic font-normal">Being payment of</th>
+            <th className="border-r border-black p-1 w-20 text-center font-bold">Kshs</th>
+            <th className="p-1 w-10 text-center font-bold">Cts</th>
+          </tr>
+        </thead>
+        <tbody>
+          {/* We map the actual paid vote heads */}
+          {data.allocations.map((item, idx) => (
+            <tr key={idx} className="border-b border-black">
+              <td className="border-r border-black p-1 px-2">{item.vote_head}</td>
+              <td className="border-r border-black p-1 text-right font-mono pr-2">{item.amount.toLocaleString()}</td>
+              <td className="p-1 text-center font-mono">00</td>
+            </tr>
+          ))}
+          {/* Fill empty rows to maintain layout if few items were paid */}
+          {Array.from({ length: Math.max(0, 8 - data.allocations.length) }).map((_, idx) => (
+            <tr key={`empty-${idx}`} className="border-b border-black h-7">
+              <td className="border-r border-black"></td><td className="border-r border-black"></td><td></td>
+            </tr>
+          ))}
+          <tr className="border-t-2 border-black font-bold">
+            <td className="border-r border-black p-1 px-2 text-right">TOTAL Kshs.</td>
+            <td className="border-r border-black p-1 text-right font-mono pr-2">{data.totals.paid_amount.toLocaleString()}</td>
+            <td className="p-1 text-center font-mono">00</td>
+          </tr>
+        </tbody>
+      </table>
+
+      {/* FOOTER & SIGNATURES */}
+      <div className="space-y-4 text-sm">
+        <div className="flex">
+          <span className="whitespace-nowrap mr-2">Amount in Kshs (words):</span>
+          <span className="border-b border-black border-dashed flex-grow italic bg-gray-100 px-2 print:bg-transparent">
+            {amountInWordsShort(data.totals.paid_amount)}
+          </span>
+        </div>
+
+        <div className="flex justify-end mt-2">
+          <span className="mr-2">Fees Balance:</span>
+          <span className="border-b border-black border-dashed w-32 text-right font-mono font-bold pr-2">{data.totals.fees_balance.toLocaleString()}</span>
+        </div>
+
+        <div className="flex">
+          <span className="whitespace-nowrap mr-2">Receiving Officer's Name:</span>
+          <span className="border-b border-black border-dashed flex-grow font-bold px-2">{data.meta.receiving_officer}</span>
+        </div>
+
+        <div className="flex">
+          <span className="whitespace-nowrap mr-2">Cheque No/ Cash / Mpesa / Bank Slip Ref. No:</span>
+          <span className="border-b border-black border-dashed flex-grow font-mono px-2">{data.meta.reference_no}</span>
+        </div>
+
+        <div className="flex justify-between items-end mt-8">
+          <div className="font-bold italic text-lg tracking-widest">RECEIVED WITH THANKS</div>
+          <div className="text-center">
+            <div className="border-b border-black w-32 mb-1"></div>
+            <div className="text-xs">Sign: A/C Clerk</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+PrintableReceipt.displayName = 'PrintableReceipt';
+
+export default PrintableReceipt;
