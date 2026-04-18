@@ -138,214 +138,44 @@
   }
 }
 
-/* Print media queries for receipt printing */
 @media print {
-  /* Reset page/document */
-  html, body {
-    width: 100% !important;
-    height: auto !important;
-    background: white !important;
-    margin: 0 !important;
-    padding: 0 !important;
+  body * {
+    visibility: hidden;
   }
 
-  /* Page sizing for A5 landscape (typical receipt) */
-  @page {
-    size: A5 landscape;
-    margin: 5mm;
-  }
-
-  /* Reposition fixed modal wrapper out of the way but keep children visible */
-  .fixed.inset-0 {
-    position: static !important;
-    inset: auto !important;
-    display: block !important;
-    width: auto !important;
-    height: auto !important;
-    background: transparent !important;
-    backdrop-filter: none !important;
-  }
-
-  /* Hide non-printing elements */
-  body > .modal-backdrop,
-  body > .fade-background {
-    display: none !important;
-  }
-
-  /* Modal inner wrapper should be visible */
-  .backdrop-blur-xl,
-  .w-full.max-w-3xl,
-  .max-w-3xl {
-    display: block !important;
-    overflow: visible !important;
-    max-width: 100% !important;
-    width: auto !important;
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-  }
-
-  /* Remove modal dimming and overlays */
-  div[class*="bg-structural-navy"],
-  div[class*="backdrop-blur"],
-  div[class*="rgba"] {
-    background-color: transparent !important;
-    background-image: none !important;
-    opacity: 1 !important;
-    color: black !important;
-  }
-
-  /* Global element reset */
-  * {
-    background-image: none !important;
-    box-shadow: none !important;
-    text-shadow: none !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-
-  /* Print container styling - ensure it's always visible */
-  .print-container {
-    width: 148mm !important;
-    max-width: 148mm !important;
-    height: auto !important;
-    background-color: white !important;
-    background-image: none !important;
-    color: black !important;
-    border: none !important;
-    padding: 8mm !important;
-    margin: 0 auto !important;
-    display: block !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    position: static !important;
-    inset: auto !important;
-  }
-
-  /* Ensure modal content divs are visible during print */
-  .max-h-\[70vh\].overflow-y-auto,
-  .w-full.max-w-3xl {
-    display: block !important;
-    overflow: visible !important;
-    max-height: none !important;
-    position: static !important;
-  }
-
-  /* Ensure text is readable */
-  .print-container, 
-  .print-container * {
-    color: black !important;
-    background-color: transparent !important;
-    border-color: black !important;
-  }
-
-  /* Typography fixes */
-  .text-white, .text-slate-400, .text-action-mint,
-  .text-alert-crimson, .text-red-600 {
-    color: black !important;
-  }
-
-  /* Modal container display */
-  .overflow-y-auto, .overflow-hidden,
-  .max-h-\[70vh\] {
-    overflow: visible !important;
-    max-height: none !important;
-  }
-
-  /* Border and separator fixes */
-  .border-white\/10,
-  .border-dashed,
-  .border-black {
-    border-color: black !important;
-  }
-
-  /* Table formatting */
-  table {
-    width: 100% !important;
-    border-collapse: collapse !important;
-    page-break-inside: avoid;
-  }
-
-  table, thead, tbody, tr, td, th {
-    border: 1px solid black !important;
-    page-break-inside: avoid;
-  }
-
-  thead {
-    display: table-header-group;
-  }
-
-  tfoot {
-    display: table-footer-group;
-  }
-
-  tr {
-    page-break-inside: avoid;
-  }
-
-  /* Font families */
-  .font-serif {
-    font-family: Georgia, 'Times New Roman', serif !important;
-  }
-
-  .font-mono, .tabular-nums {
-    font-family: 'Courier New', Courier, monospace !important;
-    font-variant-numeric: tabular-nums;
+  .student-directory-print-root, .student-directory-print-root * {
+    visibility: visible;
   }
 
   .student-directory-print-root {
-    max-width: none !important;
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    color: black !important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 20px;
     background: white !important;
+    color: black !important;
   }
 
   .student-directory-print-root .student-directory-no-print {
     display: none !important;
   }
 
-  .student-directory-form-no-print {
-    display: none !important;
-  }
-
-  body:has(.print-container) .student-directory-print-root {
-    display: none !important;
-  }
-
-  body:has(.print-container) .student-directory-modal-layer {
-    display: block !important;
-  }
-
-  body.printing-receipt .student-directory-print-root {
-    display: none !important;
-  }
-
-  body.printing-receipt .student-directory-modal-layer {
-    display: block !important;
-  }
-
-  body.printing-receipt .backdrop-blur-sm,
-  body.printing-receipt .backdrop-blur-md {
-    display: block !important;
-    backdrop-filter: none !important;
-    background: transparent !important;
-  }
-
-  .student-directory-print-root .bg-text-border,
-  .student-directory-print-root .bg-structural-navy,
-  .student-directory-print-root .border-text-border {
-    background: white !important;
-    border-color: black !important;
-    box-shadow: none !important;
+  .student-directory-print-root table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    color: black !important;
   }
 
   .student-directory-print-root th,
-  .student-directory-print-root td,
-  .student-directory-print-root span,
-  .student-directory-print-root div,
-  .student-directory-print-root p,
+  .student-directory-print-root td {
+    border: 1px solid black !important;
+    padding: 8px !important;
+    color: black !important;
+    background: white !important;
+  }
+
   .student-directory-print-root h1 {
     color: black !important;
   }

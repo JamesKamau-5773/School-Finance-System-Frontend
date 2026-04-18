@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import { X, WalletCards, Receipt, Building2, Loader2, Printer } from "lucide-react";
 import { useReceivePayment } from "./hooks/useStudents";
 import PrintableReceipt from "../finance/PrintableReceipt";
+import ReactDOMServer from "react-dom/server";
 
 export default function ReceivePaymentModal({ isOpen, onClose, student }) {
   const [formData, setFormData] = useState({
@@ -92,14 +93,115 @@ export default function ReceivePaymentModal({ isOpen, onClose, student }) {
 
   const handlePrint = () => {
     if (receiptRef.current) {
-      const cleanupPrintMode = () => {
-        document.body.classList.remove("printing-receipt");
-      };
+      const printContent = ReactDOMServer.renderToString(
+        <PrintableReceipt data={receiptData} ref={receiptRef} />
+      );
+      
+      const iframe = document.createElement("iframe");
+      iframe.style.position = "absolute";
+      iframe.style.width = "0";
+      iframe.style.height = "0";
+      iframe.style.border = "none";
+      document.body.appendChild(iframe);
 
-      document.body.classList.add("printing-receipt");
-      window.addEventListener("afterprint", cleanupPrintMode, { once: true });
-      window.print();
-      setTimeout(cleanupPrintMode, 1500);
+      const doc = iframe.contentWindow.document;
+      doc.open();
+      doc.write(`
+        <html>
+          <head>
+            <title>Print Receipt</title>
+            <style>
+              @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+              body { 
+                font-family: 'Inter', sans-serif;
+                margin: 0;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+              }
+              .receipt-container {
+                width: 100%;
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #1A202C; /* Assuming a dark theme base */
+                color: #E2E8F0;
+              }
+              /* Add all necessary styles from PrintableReceipt.jsx and tailwind here */
+              /* This is a simplified example. You'd need to replicate the full styling. */
+              .header {
+                text-align: center;
+                margin-bottom: 20px;
+                border-bottom: 1px solid #4A5568;
+                padding-bottom: 10px;
+              }
+              .school-name {
+                font-size: 24px;
+                font-weight: bold;
+                color: white;
+              }
+              .school-details {
+                font-size: 12px;
+                color: #A0AEC0;
+              }
+              .receipt-title {
+                font-size: 20px;
+                font-weight: bold;
+                text-transform: uppercase;
+                margin: 20px 0;
+                color: white;
+              }
+              .student-info, .receipt-details {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 20px;
+                font-size: 14px;
+              }
+              .info-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 20px;
+              }
+              .info-table th, .info-table td {
+                border: 1px solid #4A5568;
+                padding: 8px;
+                text-align: left;
+              }
+              .info-table th {
+                background-color: #2D3748;
+                color: white;
+                font-weight: bold;
+              }
+              .totals-section {
+                text-align: right;
+                margin-top: 20px;
+              }
+              .total-amount {
+                font-size: 18px;
+                font-weight: bold;
+                color: white;
+              }
+              .footer {
+                margin-top: 30px;
+                font-size: 12px;
+                color: #A0AEC0;
+                text-align: center;
+              }
+            </style>
+          </head>
+          <body>
+            ${printContent}
+          </body>
+        </html>
+      `);
+      doc.close();
+
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+      
+      // Clean up
+      setTimeout(() => {
+        document.body.removeChild(iframe);
+      }, 500);
     }
   };
 
