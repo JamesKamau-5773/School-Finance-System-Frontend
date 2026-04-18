@@ -30,10 +30,10 @@ const PrintableReceipt = forwardRef(({ data }, ref) => {
           <span className="border-b border-black border-dashed flex-grow font-bold px-2">{data.student.name}</span>
         </div>
         <div className="flex justify-between gap-2">
-          <div className="flex-1 flex"><span className="mr-2">Form</span><span className="border-b border-black border-dashed flex-grow text-center">{data.student.form}</span></div>
-          <div className="flex-1 flex"><span className="mr-2">Term</span><span className="border-b border-black border-dashed flex-grow text-center">{data.student.term}</span></div>
-          <div className="flex-1 flex"><span className="mr-2">20</span><span className="border-b border-black border-dashed flex-grow text-center">{data.student.year.slice(-2)}</span></div>
-          <div className="flex-1 flex"><span className="mr-2">Adm. No.</span><span className="border-b border-black border-dashed flex-grow font-bold text-center">{data.student.adm_no}</span></div>
+          <div className="flex-1 flex"><span className="mr-2">Form</span><span className="border-b border-black border-dashed flex-grow text-center">{data.student?.form || '-'}</span></div>
+          <div className="flex-1 flex"><span className="mr-2">Term</span><span className="border-b border-black border-dashed flex-grow text-center">{data.student?.term || '-'}</span></div>
+          <div className="flex-1 flex"><span className="mr-2">20</span><span className="border-b border-black border-dashed flex-grow text-center">{data.student?.year ? data.student.year.slice(-2) : '--'}</span></div>
+          <div className="flex-1 flex"><span className="mr-2">Adm. No.</span><span className="border-b border-black border-dashed flex-grow font-bold text-center">{data.student?.admissionNumber || '-'}</span></div>
         </div>
       </div>
 
@@ -47,57 +47,70 @@ const PrintableReceipt = forwardRef(({ data }, ref) => {
           </tr>
         </thead>
         <tbody>
-          {/* We map the actual paid vote heads */}
-          {data.allocations.map((item, idx) => (
-            <tr key={idx} className="border-b border-black">
-              <td className="border-r border-black p-1 px-2">{item.vote_head}</td>
-              <td className="border-r border-black p-1 text-right font-mono pr-2">{item.amount.toLocaleString()}</td>
-              <td className="p-1 text-center font-mono">00</td>
-            </tr>
-          ))}
-          {/* Fill empty rows to maintain layout if few items were paid */}
-          {Array.from({ length: Math.max(0, 8 - data.allocations.length) }).map((_, idx) => (
-            <tr key={`empty-${idx}`} className="border-b border-black h-7">
-              <td className="border-r border-black"></td><td className="border-r border-black"></td><td></td>
-            </tr>
-          ))}
+          {/* Standard fee categories - show allocations where they apply */}
+          {[
+            { label: 'Tuition Programme', key: 'tuition' },
+            { label: 'Repair, Maintenance & Improvement (PMI)', key: 'maintenance' },
+            { label: 'Local Traveling & Transport', key: 'transport' },
+            { label: 'Administrative Costs', key: 'admin' },
+            { label: 'Moral', key: 'moral' },
+            { label: 'Electricity, Water & Conservancy (EWSC)', key: 'utilities' },
+            { label: 'Activity Fund', key: 'activity' },
+            { label: 'Personal Enrolment', key: 'enrolment' },
+            { label: 'Insurance', key: 'insurance' },
+            { label: 'Library Card', key: 'library' },
+            { label: 'Tuition Waiver', key: 'waiver' },
+            { label: 'Fees Arrears', key: 'arrears' },
+            { label: 'Others (Specify)', key: 'others' },
+          ].map((category, idx) => {
+            const allocation = data.allocations?.find((a) =>
+              a.vote_head?.toLowerCase().includes(category.label.split('(')[0].toLowerCase().trim())
+            ) || { voteHead: category.label, amount: 0 };
+
+            return (
+              <tr key={idx} className="border-b border-black">
+                <td className="border-r border-black p-1 px-2">{category.label}</td>
+                <td className="border-r border-black p-1 text-right font-mono pr-2">
+                  {allocation.amount > 0 ? allocation.amount.toLocaleString() : ''}
+                </td>
+                <td className="p-1 text-center font-mono">{allocation.amount > 0 ? '00' : ''}</td>
+              </tr>
+            );
+          })}
           <tr className="border-t-2 border-black font-bold">
             <td className="border-r border-black p-1 px-2 text-right">TOTAL Kshs.</td>
-            <td className="border-r border-black p-1 text-right font-mono pr-2">{data.totals.paid_amount.toLocaleString()}</td>
+            <td className="border-r border-black p-1 text-right font-mono pr-2">
+              {data.totals.amount ? data.totals.amount.toLocaleString() : '0'}
+            </td>
             <td className="p-1 text-center font-mono">00</td>
           </tr>
         </tbody>
       </table>
 
       {/* FOOTER & SIGNATURES */}
-      <div className="space-y-4 text-sm">
+      <div className="space-y-3 text-sm mt-6">
         <div className="flex">
           <span className="whitespace-nowrap mr-2">Amount in Kshs (words):</span>
-          <span className="border-b border-black border-dashed flex-grow italic bg-gray-100 px-2 print:bg-transparent">
-            {amountInWordsShort(data.totals.paid_amount)}
+          <span className="border-b border-black border-dashed flex-grow italic px-2 font-serif">
+            {amountInWordsShort(data.totals.amount || 0)}
           </span>
-        </div>
-
-        <div className="flex justify-end mt-2">
-          <span className="mr-2">Fees Balance:</span>
-          <span className="border-b border-black border-dashed w-32 text-right font-mono font-bold pr-2">{data.totals.fees_balance.toLocaleString()}</span>
         </div>
 
         <div className="flex">
           <span className="whitespace-nowrap mr-2">Receiving Officer's Name:</span>
-          <span className="border-b border-black border-dashed flex-grow font-bold px-2">{data.meta.receiving_officer}</span>
+          <span className="border-b border-black border-dashed flex-grow font-bold px-2">{data.meta?.receivedBy || ''}</span>
         </div>
 
         <div className="flex">
           <span className="whitespace-nowrap mr-2">Cheque No/ Cash / Mpesa / Bank Slip Ref. No:</span>
-          <span className="border-b border-black border-dashed flex-grow font-mono px-2">{data.meta.reference_no}</span>
+          <span className="border-b border-black border-dashed flex-grow font-mono px-2">{data.meta?.reference || ''}</span>
         </div>
 
-        <div className="flex justify-between items-end mt-8">
+        <div className="flex justify-between items-end mt-10">
           <div className="font-bold italic text-lg tracking-widest">RECEIVED WITH THANKS</div>
           <div className="text-center">
-            <div className="border-b border-black w-32 mb-1"></div>
-            <div className="text-xs">Sign: A/C Clerk</div>
+            <div className="border-b border-black w-32 mb-2 mt-4"></div>
+            <div className="text-xs">A/C Clerk</div>
           </div>
         </div>
       </div>

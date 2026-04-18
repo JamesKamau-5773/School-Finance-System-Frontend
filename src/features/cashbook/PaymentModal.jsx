@@ -143,12 +143,21 @@ export default function PaymentModal({ isOpen, onClose }) {
               <Receipt className="text-action-mint" size={20} />
               Payment Receipt
             </h2>
-            <button
-              onClick={handleDone}
-              className="text-slate-400 hover:text-white transition-colors p-1 rounded-full hover:bg-white/10"
-            >
-              <X size={20} />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handlePrint}
+                className="edtech-btn bg-action-mint hover:bg-action-mint/80 !text-structural-navy px-4 py-2 text-sm flex items-center gap-2 shadow-[0_4px_14px_0_rgba(5,205,153,0.39)]"
+              >
+                <Printer size={16} />
+                Print
+              </button>
+              <button
+                onClick={handleDone}
+                className="text-slate-400 hover:text-white transition-colors p-1 rounded-full hover:bg-white/10"
+              >
+                <X size={20} />
+              </button>
+            </div>
           </div>
 
           {/* Receipt Component (Print View) */}
@@ -162,14 +171,7 @@ export default function PaymentModal({ isOpen, onClose }) {
               onClick={handleDone}
               className="edtech-btn-secondary px-4 py-2 rounded-full text-sm font-bold"
             >
-              Done
-            </button>
-            <button
-              onClick={handlePrint}
-              className="edtech-btn bg-action-mint hover:bg-action-mint/80 !text-structural-navy px-6 py-2 text-sm flex items-center gap-2 shadow-[0_4px_14px_0_rgba(5,205,153,0.39)]"
-            >
-              <Printer size={16} />
-              Print Receipt
+              Close
             </button>
           </div>
         </div>
@@ -195,7 +197,9 @@ export default function PaymentModal({ isOpen, onClose }) {
       },
       {
         onSuccess: (response) => {
-          // Transform API response to receipt data structure
+          // Transform API response to receipt data structure matching PrintableReceipt expectations
+          const amount = parseFloat(formData.amount);
+          
           const receiptInfo = {
             receipt_no: response?.receipt_id || response?.id || "N/A",
             date: new Date().toLocaleDateString("en-KE", {
@@ -206,25 +210,23 @@ export default function PaymentModal({ isOpen, onClose }) {
             student: {
               name: confirmedStudent.name,
               admissionNumber: confirmedStudent.admissionNumber,
+              form: confirmedStudent.form || "",
+              term: confirmedStudent.term || "",
+              year: new Date().getFullYear().toString(),
             },
             allocations: response?.allocations || [
               {
-                voteHead: "Payment",
-                description: `Payment received via ${formData.method}`,
-                amount: parseFloat(formData.amount),
+                vote_head: `Payment received via ${formData.method}`,
+                amount: amount,
               },
             ],
             totals: {
-              amount: parseFloat(formData.amount),
-              amountInWords:
-                formData.amount && parseFloat(formData.amount) > 0
-                  ? `KES ${parseFloat(formData.amount).toLocaleString("en-KE")}`
-                  : "KES 0.00",
+              amount: amount,
             },
             meta: {
               paymentMethod: formData.method,
               reference: formData.reference,
-              receivedBy: response?.recorded_by || "System",
+              receivedBy: response?.recorded_by || "School Officer",
             },
           };
 
@@ -265,16 +267,28 @@ export default function PaymentModal({ isOpen, onClose }) {
             <Receipt className="text-alert-crimson" size={20} />
             Record Payment
           </h2>
-          <button
-            onClick={onClose}
-            className="text-slate-400 hover:text-white transition-colors p-1 rounded-full hover:bg-white/10"
-          >
-            <X size={20} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="submit"
+              form="payment-form"
+              disabled={isPending || !confirmedStudent || !formData.amount}
+              className="edtech-btn bg-action-mint hover:bg-action-mint/80 !text-structural-navy px-6 py-2 text-sm flex items-center gap-2 disabled:opacity-50 shadow-[0_4px_14px_0_rgba(5,205,153,0.39)]"
+            >
+              {isPending && <Loader2 size={16} className="animate-spin" />}
+              {isPending ? "Processing..." : "Confirm"}
+            </button>
+            <button
+              onClick={onClose}
+              disabled={isPending}
+              className="text-slate-400 hover:text-white transition-colors p-1 rounded-full hover:bg-white/10 disabled:opacity-50"
+            >
+              <X size={20} />
+            </button>
+          </div>
         </div>
 
         {/* Modal Body / Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+        <form id="payment-form" onSubmit={handleSubmit} className="p-6 space-y-5">
           {searchError && (
             <div className="p-3 bg-rose-500/20 border border-rose-500/50 rounded-lg text-rose-400 text-sm font-bold">
               {searchError}
@@ -429,26 +443,6 @@ export default function PaymentModal({ isOpen, onClose }) {
                 />
               </div>
             </div>
-          </div>
-
-          {/* Modal Footer / Actions */}
-          <div className="pt-4 flex justify-end gap-3 border-t border-white/10 mt-6">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={isPending}
-              className="edtech-btn-secondary px-4 py-2 rounded-full text-sm font-bold disabled:opacity-50"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isPending || !confirmedStudent || !formData.amount}
-              className="edtech-btn bg-action-mint hover:bg-action-mint/80 !text-structural-navy px-6 py-2 text-sm flex items-center gap-2 disabled:opacity-50 shadow-[0_4px_14px_0_rgba(5,205,153,0.39)]"
-            >
-              {isPending && <Loader2 size={16} className="animate-spin" />}
-              {isPending ? "Processing..." : "Confirm Payment"}
-            </button>
           </div>
         </form>
       </div>
