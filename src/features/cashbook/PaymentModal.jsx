@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { X, User, Receipt, CreditCard, Hash, Loader2, Check } from "lucide-react";
+import React, { useEffect, useState, useRef } from "react";
+import { X, User, Receipt, CreditCard, Hash, Loader2, Check, Printer } from "lucide-react";
 import { useSubmitPayment } from "./hooks/useCashbook";
 import { financeApi } from "../../api/financeApi";
+import PrintableReceipt from "../finance/PrintableReceipt";
 
 export default function PaymentModal({ isOpen, onClose }) {
   const [formData, setFormData] = useState({
@@ -14,6 +15,9 @@ export default function PaymentModal({ isOpen, onClose }) {
   const [confirmedStudent, setConfirmedStudent] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState(null);
+  const [showReceipt, setShowReceipt] = useState(false);
+  const [receiptData, setReceiptData] = useState(null);
+  const receiptRef = useRef(null);
 
   const {
     mutate: submitPayment,
@@ -128,6 +132,53 @@ export default function PaymentModal({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
+  // Receipt Success View
+  if (showReceipt && receiptData) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-structural-navy/80 backdrop-blur-sm p-4">
+        <div className="w-full max-w-2xl bg-text-border/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden transform transition-all">
+          {/* Receipt Header */}
+          <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center bg-white/5">
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <Receipt className="text-action-mint" size={20} />
+              Payment Receipt
+            </h2>
+            <button
+              onClick={handleDone}
+              className="text-slate-400 hover:text-white transition-colors p-1 rounded-full hover:bg-white/10"
+            >
+              <X size={20} />
+            </button>
+          </div>
+
+          {/* Receipt Component (Print View) */}
+          <div className="p-6 max-h-[70vh] overflow-y-auto">
+            <PrintableReceipt ref={receiptRef} data={receiptData} />
+          </div>
+
+          {/* Receipt Footer / Actions */}
+          <div className="px-6 py-4 flex justify-end gap-3 border-t border-white/10 bg-white/5">
+            <button
+              onClick={handleDone}
+              className="edtech-btn-secondary px-4 py-2 rounded-full text-sm font-bold"
+            >
+              Done
+            </button>
+            <button
+              onClick={handlePrint}
+              className="edtech-btn bg-action-mint hover:bg-action-mint/80 !text-structural-navy px-6 py-2 text-sm flex items-center gap-2 shadow-[0_4px_14px_0_rgba(5,205,153,0.39)]"
+            >
+              <Printer size={16} />
+              Print Receipt
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isOpen) return null;
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!confirmedStudent) {
@@ -143,18 +194,65 @@ export default function PaymentModal({ isOpen, onClose }) {
         reference: formData.reference,
       },
       {
-        onSuccess: () => {
-          setFormData({
-            studentId: "",
-            amount: "",
-            method: "MPESA",
-            reference: "",
-          });
-          setConfirmedStudent(null);
-          onClose();
+        onSuccess: (response) => {
+          // Transform API response to receipt data structure
+          const receiptInfo = {
+            receipt_no: response?.receipt_id || response?.id || "N/A",
+            date: new Date().toLocaleDateString("en-KE", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            }),
+            student: {
+              name: confirmedStudent.name,
+              admissionNumber: confirmedStudent.admissionNumber,
+            },
+            allocations: response?.allocations || [
+              {
+                voteHead: "Payment",
+                description: `Payment received via ${formData.method}`,
+                amount: parseFloat(formData.amount),
+              },
+            ],
+            totals: {
+              amount: parseFloat(formData.amount),
+              amountInWords:
+                formData.amount && parseFloat(formData.amount) > 0
+                  ? `KES ${parseFloat(formData.amount).toLocaleString("en-KE")}`
+                  : "KES 0.00",
+            },
+            meta: {
+              paymentMethod: formData.method,
+              reference: formData.reference,
+              receivedBy: response?.recorded_by || "System",
+            },
+          };
+
+          setReceiptData(receiptInfo);
+          setShowReceipt(true);
         },
       }
     );
+  };
+
+  const handlePrint = () => {
+    if (receiptRef.current) {
+      window.print();
+    }
+  };
+
+  const handleDone = () => {
+    // Reset state and close modal
+    setFormData({
+      studentId: "",
+      amount: "",
+      method: "MPESA",
+      reference: "",
+    });
+    setConfirmedStudent(null);
+    setShowReceipt(false);
+    setReceiptData(null);
+    onClose();
   };
 
   return (
