@@ -208,7 +208,14 @@ export default function PaymentModal({ isOpen, onClose }) {
 
   const handlePrint = () => {
     if (receiptRef.current) {
+      const cleanupPrintMode = () => {
+        document.body.classList.remove("printing-receipt");
+      };
+
+      document.body.classList.add("printing-receipt");
+      window.addEventListener("afterprint", cleanupPrintMode, { once: true });
       window.print();
+      setTimeout(cleanupPrintMode, 1500);
     }
   };
 

@@ -168,8 +168,7 @@
 
   /* Hide non-printing elements */
   body > .modal-backdrop,
-  body > .fade-background,
-  .backdrop-blur-sm {
+  body > .fade-background {
     display: none !important;
   }
 
@@ -317,6 +316,21 @@
 
   body:has(.print-container) .student-directory-modal-layer {
     display: block !important;
+  }
+
+  body.printing-receipt .student-directory-print-root {
+    display: none !important;
+  }
+
+  body.printing-receipt .student-directory-modal-layer {
+    display: block !important;
+  }
+
+  body.printing-receipt .backdrop-blur-sm,
+  body.printing-receipt .backdrop-blur-md {
+    display: block !important;
+    backdrop-filter: none !important;
+    background: transparent !important;
   }
 
   .student-directory-print-root .bg-text-border,
