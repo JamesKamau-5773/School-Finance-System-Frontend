@@ -245,37 +245,44 @@ export default function StudentDirectory() {
     `;
 
     try {
-      const printWindow = window.open("", "PrintWindow", "width=900,height=700");
-      if (!printWindow) {
-        alert("Please disable pop-up blocker for this site to print.");
-        return;
-      }
-      
-      // Write complete HTML document to new window
-      printWindow.document.write(printContent);
-      printWindow.document.close();
-      
-      // Give the window time to render, then print
-      printWindow.focus();
-      setTimeout(() => {
-        printWindow.print();
-        // Close after a short delay to allow print dialog to open
-        setTimeout(() => {
-          try {
-            printWindow.close();
-          } catch (e) {
-            // Window might have been closed manually
-          }
-        }, 500);
-      }, 300);
+      const printFrame = document.createElement("iframe");
+      printFrame.style.position = "fixed";
+      printFrame.style.right = "0";
+      printFrame.style.bottom = "0";
+      printFrame.style.width = "0";
+      printFrame.style.height = "0";
+      printFrame.style.border = "0";
+      printFrame.setAttribute("aria-hidden", "true");
+
+      const cleanup = () => {
+        if (printFrame.parentNode) {
+          printFrame.parentNode.removeChild(printFrame);
+        }
+      };
+
+      printFrame.onload = () => {
+        const frameWindow = printFrame.contentWindow;
+        if (!frameWindow) {
+          cleanup();
+          return;
+        }
+
+        frameWindow.focus();
+        frameWindow.print();
+
+        setTimeout(cleanup, 1000);
+      };
+
+      document.body.appendChild(printFrame);
+      printFrame.srcdoc = printContent;
     } catch (error) {
       console.error("Print error:", error);
-      alert("Error opening print preview. Please try again.");
+      alert("Error preparing print preview. Please try again.");
     }
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto w-full text-white">
+    <div className="student-directory-print-root p-8 max-w-7xl mx-auto w-full text-white">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 border-b border-text-border/50 pb-6 gap-4">
         <div>
@@ -289,7 +296,7 @@ export default function StudentDirectory() {
         </div>
 
         {/* Search, Filters & Add Button */}
-        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+        <div className="student-directory-no-print flex flex-wrap items-center gap-3 w-full md:w-auto">
           <div className="relative w-full sm:w-64">
             <Search
               size={16}
@@ -365,7 +372,7 @@ export default function StudentDirectory() {
                 <th className="p-4 text-xs font-bold text-slate-300 uppercase tracking-widest text-right">
                   Balance (KES)
                 </th>
-                <th className="p-4 text-xs font-bold text-slate-300 uppercase tracking-widest text-right">
+                <th className="student-directory-no-print p-4 text-xs font-bold text-slate-300 uppercase tracking-widest text-right">
                   Actions
                 </th>
               </tr>
@@ -419,7 +426,7 @@ export default function StudentDirectory() {
                         </span>
                       )}
                     </td>
-                    <td className="p-4 text-right">
+                    <td className="student-directory-no-print p-4 text-right">
                       <div className="flex items-center justify-end gap-2 opacity-50 group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={() => handleEditClick(student)}
@@ -472,17 +479,19 @@ export default function StudentDirectory() {
       </div>
 
       {/* Render the Modals */}
-      <StudentProfileModal
-        isOpen={!!selectedStudentForProfile}
-        onClose={() => setSelectedStudentForProfile(null)}
-        student={selectedStudentForProfile}
-      />
+      <div className="student-directory-no-print">
+        <StudentProfileModal
+          isOpen={!!selectedStudentForProfile}
+          onClose={() => setSelectedStudentForProfile(null)}
+          student={selectedStudentForProfile}
+        />
 
-      <StudentFormModal
-        isOpen={isFormModalOpen}
-        onClose={() => setIsFormModalOpen(false)}
-        initialData={studentToEdit}
-      />
+        <StudentFormModal
+          isOpen={isFormModalOpen}
+          onClose={() => setIsFormModalOpen(false)}
+          initialData={studentToEdit}
+        />
+      </div>
     </div>
   );
 }

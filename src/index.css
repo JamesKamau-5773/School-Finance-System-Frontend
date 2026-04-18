@@ -293,4 +293,34 @@
     font-family: 'Courier New', Courier, monospace !important;
     font-variant-numeric: tabular-nums;
   }
+
+  .student-directory-print-root {
+    max-width: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    color: black !important;
+    background: white !important;
+  }
+
+  .student-directory-print-root .student-directory-no-print {
+    display: none !important;
+  }
+
+  .student-directory-print-root .bg-text-border,
+  .student-directory-print-root .bg-structural-navy,
+  .student-directory-print-root .border-text-border {
+    background: white !important;
+    border-color: black !important;
+    box-shadow: none !important;
+  }
+
+  .student-directory-print-root th,
+  .student-directory-print-root td,
+  .student-directory-print-root span,
+  .student-directory-print-root div,
+  .student-directory-print-root p,
+  .student-directory-print-root h1 {
+    color: black !important;
+  }
 }
