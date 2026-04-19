@@ -118,9 +118,9 @@ const PrintableReceipt = forwardRef(({ data }, ref) => {
 
             return (
               <tr key={idx} className="border-b border-black last:border-b-[1.5px]">
-                <td className="p-2 font-mono text-sm">{item?.vote_head || ''}</td>
+                <td className="p-2 font-mono text-sm">{category.label}</td>
                 <td className="border-l-[1.5px] border-black p-2 text-right font-mono">
-                  {amount ? amount.toLocaleString() : ''}
+                  {allocation.amount ? Number(allocation.amount).toLocaleString() : ''}
                 </td>
                 <td className="border-l-[1.5px] border-black p-2 text-center font-mono">00</td>
               </tr>
