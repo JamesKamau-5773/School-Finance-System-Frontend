@@ -1,149 +1,133 @@
 import React, { forwardRef } from 'react';
-import { amountInWordsShort } from '../../utils/numberToWords';
 
-// We use forwardRef so a parent component can trigger a print on this specific DOM node if needed,
-// though standard window.print() with CSS hiding also works perfectly.
 const PrintableReceipt = forwardRef(({ data }, ref) => {
   if (!data) return null;
 
-  const printStyles = {
-    printColorAdjust: 'exact',
-    WebkitPrintColorAdjust: 'exact',
-  };
-
   return (
-    // Visible in modal, with print-only styles for printing
-    <div ref={ref} style={printStyles} className="print-container w-full max-w-[148mm] mx-auto bg-white text-black p-6 font-serif print:p-0 print:bg-white">
-
+    // The outer container enforces the thick black border and serif font
+    <div ref={ref} className="hidden print:block print:w-[148mm] print:mx-auto print:bg-white print:text-black print:p-8 print:border-[3px] print:border-black print:font-serif">
+      
       {/* HEADER */}
-      <div className="text-center border-b-2 border-black pb-2 mb-4">
-        <h1 className="text-xl font-bold uppercase tracking-wider">St Gerald High School</h1>
-        <p className="text-xs">P.O. Box 4484 - 20100, Nakuru.</p>
-        <h2 className="text-sm font-bold uppercase mt-2 underline decoration-double">School Official Receipt</h2>
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold tracking-wide">ST GERALD HIGH SCHOOL</h1>
+        <p className="text-sm mt-1">P.O. Box 4484 - 20100, Nakuru.</p>
+        <h2 className="text-lg font-bold mt-4 underline decoration-2 underline-offset-4 uppercase">School Official Receipt</h2>
       </div>
+
+      {/* Top Thick Separator */}
+      <hr className="border-t-[3px] border-black mb-4" />
 
       {/* META DATA */}
-      <div className="flex justify-between items-end mb-4 text-sm">
-        <div className="font-bold">No. <span className="text-red-600 font-mono text-base">{data.receipt_no}</span></div>
-        <div className="flex items-baseline gap-1">
-          <span>Date:</span>
-          <span className="border-b border-dotted border-black px-2 pb-0.5 min-w-[120px] text-center">{data.date}</span>
+      <div className="flex justify-between items-end mb-6">
+        <div className="font-bold">
+          No. <span className="text-red-600 font-bold ml-1">{data.receipt_no || "N/A"}</span>
+        </div>
+        <div className="flex items-end">
+          <span className="mr-2">Date:</span>
+          {/* The dotted underline stretches */}
+          <span className="border-b-[1.5px] border-dotted border-black px-8 pb-1 text-center min-w-[150px]">
+            {data.date}
+          </span>
         </div>
       </div>
 
-      <div className="space-y-2 mb-4 text-sm">
-        <div className="flex items-baseline">
-          <span className="whitespace-nowrap mr-2">RECEIVED from</span>
-          <span className="border-b border-dotted border-black flex-grow font-bold px-2 pb-0.5 capitalize">{data.student.name}</span>
+      {/* STUDENT INFO LINES */}
+      <div className="flex items-end mb-6">
+        <span className="mr-3">RECEIVED from</span>
+        <span className="border-b-[1.5px] border-dotted border-black flex-grow pb-1 font-bold px-2">
+          {data.student.name}
+        </span>
+      </div>
+
+      <div className="flex justify-between items-end mb-6 space-x-4">
+        <div className="flex items-end flex-1">
+          <span className="mr-2">Form</span>
+          <span className="border-b-[1.5px] border-dotted border-black flex-grow pb-1 text-center">{data.student.form}</span>
         </div>
-        <div className="flex items-baseline justify-between gap-4">
-          <div className="flex items-baseline gap-1">
-            <span className="whitespace-nowrap">Form</span>
-            <span className="border-b border-dotted border-black w-20 text-center pb-0.5">{data.student?.form || data.student?.gradeLevel || '-'}</span>
-          </div>
-          <div className="flex items-baseline gap-1">
-            <span className="whitespace-nowrap">Term</span>
-            <span className="border-b border-dotted border-black w-12 text-center pb-0.5">{data.student?.term || '-'}</span>
-          </div>
-          <div className="flex items-baseline gap-1">
-            <span className="whitespace-nowrap">Year</span>
-            <span className="border-b border-dotted border-black w-16 text-center pb-0.5">{data.student?.year || '--'}</span>
-          </div>
-          <div className="flex items-baseline gap-1">
-            <span className="whitespace-nowrap">Adm. No.</span>
-            <span className="border-b border-dotted border-black flex-grow font-bold px-1 pb-0.5">{data.student?.admissionNumber || '-'}</span>
-          </div>
+        <div className="flex items-end flex-1">
+          <span className="mr-2">Term</span>
+          <span className="border-b-[1.5px] border-dotted border-black flex-grow pb-1 text-center">{data.student.term || "-"}</span>
+        </div>
+        <div className="flex items-end flex-1">
+          <span className="mr-2">Year</span>
+          <span className="border-b-[1.5px] border-dotted border-black flex-grow pb-1 text-center">{data.student.year}</span>
+        </div>
+        <div className="flex items-end flex-1">
+          <span className="mr-2 whitespace-nowrap">Adm. No.</span>
+          <span className="border-b-[1.5px] border-dotted border-black flex-grow pb-1 text-center font-bold">{data.student.adm_no}</span>
         </div>
       </div>
 
       {/* THE ALLOCATIONS TABLE */}
-      <table className="w-full border-collapse border-2 border-black mb-4 text-sm">
+      <table className="w-full border-collapse border-[1.5px] border-black mb-6">
         <thead>
-          <tr className="border-b-2 border-black">
-            <th className="border-r border-black p-1 text-left font-normal flex justify-between items-center"><span>Being payment of</span><span>~</span></th>
-            <th className="border-r border-black p-1 w-24 text-center font-bold">Kshs</th>
-            <th className="p-1 w-16 text-center font-bold">Cts</th>
+          <tr className="border-b-[1.5px] border-black">
+            <th className="text-left p-2 font-mono text-sm font-normal">Being payment of <span className="float-right">~</span></th>
+            <th className="border-l-[1.5px] border-black p-2 w-24 font-bold text-center">Kshs</th>
+            <th className="border-l-[1.5px] border-black p-2 w-16 font-bold text-center">Cts</th>
           </tr>
         </thead>
         <tbody>
-          {/* Standard fee categories - show allocations where they apply */}
-          {[
-            { label: 'Lunch Programme', key: 'lunch' },
-            { label: 'Repair, Maintenance & Improvement (PMI)', key: 'maintenance' },
-            { label: 'Local Traveling & Transport', key: 'transport' },
-            { label: 'Administrative Costs', key: 'admin' },
-            { label: 'Medical Fees', key: 'medical' },
-            { label: 'Electricity, Water & Conservancy (EWSC)', key: 'utilities' },
-            { label: 'Activity Fund', key: 'activity' },
-            { label: 'Personal Enrolment', key: 'enrolment' },
-            { label: 'Insurance', key: 'insurance' },
-            { label: 'Student ID', key: 'student id' },
-            { label: 'Fees Arrears', key: 'arrears' },
-            { label: 'Others (Specify)', key: 'others' },
-          ].map((category, idx) => {
-            let allocation = { amount: 0 };
-            
-            // Special handling for Fees Arrears - use student balance
-            if (category.key === 'arrears') {
-              // Use the balance from the receipt data if available, otherwise default to 0
-              allocation = { amount: data.student?.balance || 0 };
-            } else {
-              allocation = data.allocations?.find((a) =>
-                a.vote_head?.toLowerCase().includes(category.label.split('(')[0].toLowerCase().trim())
-              ) || { voteHead: category.label, amount: 0 };
-            }
-
-            return (
-              <tr key={idx} className="border-b border-gray-400 h-7">
-                <td className="border-r border-black p-1 px-2">{category.label}</td>
-                <td className="border-r border-black p-1 text-right font-mono pr-4">
-                  {allocation.amount > 0 ? allocation.amount.toLocaleString() : ''}
-                </td>
-                <td className="p-1 text-center font-mono">{allocation.amount > 0 ? '00' : ''}</td>
-              </tr>
-            );
-          })}
-          <tr className="border-t-2 border-black font-bold h-8">
-            <td className="border-r border-black p-1 px-2 text-right">TOTAL Kshs.</td>
-            <td className="border-r border-black p-1 text-right font-mono pr-4">
-              {data.totals.amount ? data.totals.amount.toLocaleString() : '0'}
-            </td>
-            <td className="p-1 text-center font-mono">00</td>
+          {data.allocations.map((item, idx) => (
+            <tr key={idx} className="border-b border-black last:border-b-[1.5px]">
+              <td className="p-2 font-mono text-sm">{item.vote_head}</td>
+              <td className="border-l-[1.5px] border-black p-2 text-right font-mono">{item.amount.toLocaleString()}</td>
+              <td className="border-l-[1.5px] border-black p-2 text-center font-mono">00</td>
+            </tr>
+          ))}
+          {/* Fill empty rows to maintain layout if few items were paid */}
+          {Array.from({ length: Math.max(0, 10 - data.allocations.length) }).map((_, idx) => (
+            <tr key={`empty-${idx}`} className="border-b border-black h-9">
+              <td className="p-2 font-mono text-sm"></td>
+              <td className="border-l-[1.5px] border-black p-2"></td>
+              <td className="border-l-[1.5px] border-black p-2"></td>
+            </tr>
+          ))}
+          <tr className="border-t-[1.5px] border-black font-bold">
+            <td className="p-2 text-right font-mono text-sm font-bold">TOTAL Kshs.</td>
+            <td className="border-l-[1.5px] border-black p-2 text-right font-mono font-bold">{data.totals.paid_amount.toLocaleString()}</td>
+            <td className="border-l-[1.5px] border-black p-2 text-center font-mono font-bold">00</td>
           </tr>
         </tbody>
       </table>
 
       {/* FOOTER & SIGNATURES */}
-      <div className="space-y-3 text-sm mt-6">
-        <div className="flex items-baseline">
-          <span className="whitespace-nowrap mr-2">Amount in Kshs (words):</span>
-          <span className="border-b border-dotted border-black flex-grow italic px-2 pb-0.5 capitalize">
-            {amountInWordsShort(data.totals.amount || 0)}
+      <div className="space-y-6">
+        <div className="flex items-end">
+          <span className="mr-3 whitespace-nowrap">Amount in Kshs (words):</span>
+          <span className="border-b-[1.5px] border-dotted border-black flex-grow pb-1 italic px-2">
+             {data.totals.amount_in_words}
+          </span>
+        </div>
+        
+        <div className="flex items-end">
+          <span className="mr-3 whitespace-nowrap">Receiving Officer's Name:</span>
+          <span className="border-b-[1.5px] border-dotted border-black flex-grow pb-1 font-bold px-2">
+            {data.meta.receiving_officer}
           </span>
         </div>
 
-        <div className="flex items-baseline">
-          <span className="whitespace-nowrap mr-2">Receiving Officer's Name:</span>
-          <span className="border-b border-dotted border-black flex-grow font-bold px-2 pb-0.5">{data.meta?.receivedBy || ''}</span>
-        </div>
-
-        <div className="flex items-baseline">
-          <span className="whitespace-nowrap mr-2">Cheque No/ Cash / Mpesa / Bank Slip Ref. No:</span>
-          <span className="border-b border-dotted border-black flex-grow font-mono px-2 pb-0.5">{data.meta?.reference || ''}</span>
-        </div>
-
-        <div className="flex justify-between items-end mt-8">
-          <div className="font-bold italic text-base tracking-wider">RECEIVED WITH THANKS</div>
-          <div className="text-center">
-            <div className="border-b border-black w-32 mb-1 mt-4"></div>
-            <div className="text-xs">A/C Clerk</div>
-          </div>
+        <div className="flex items-end">
+          <span className="mr-3 whitespace-nowrap">Cheque No/ Cash / Mpesa / Bank Slip Ref. No:</span>
+          <span className="border-b-[1.5px] border-dotted border-black flex-grow pb-1 font-bold px-2">
+            {data.meta.reference_no}
+          </span>
         </div>
       </div>
+
+      {/* Bottom Signoff */}
+      <div className="flex justify-between items-end mt-12">
+        <div className="font-bold italic text-lg tracking-widest uppercase">
+          RECEIVED WITH THANKS
+        </div>
+        <div className="w-48 text-center">
+          <div className="border-b-[1.5px] border-black mb-1"></div>
+          <div className="text-xs">A/C Clerk</div>
+        </div>
+      </div>
+
     </div>
   );
 });
-
-PrintableReceipt.displayName = 'PrintableReceipt';
 
 export default PrintableReceipt;
