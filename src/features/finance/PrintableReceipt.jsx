@@ -6,13 +6,13 @@ const PrintableReceipt = React.forwardRef(({ data }, ref) => {
     printColorAdjust: 'exact',
   };
 
-  const allocations = data?.allocations || [];
+  const allocations = Array.isArray(data?.allocations) ? data.allocations : [];
   const student = data?.student || {};
   const totals = data?.totals || {};
   const meta = data?.meta || {};
 
   const totalRows = 10;
-  const emptyRows = totalRows - allocations.length;
+  const emptyRows = Math.max(0, totalRows - allocations.length);
 
   return (
     <div ref={ref} className="hidden print:block font-serif" style={printStyles}>
@@ -72,7 +72,7 @@ const PrintableReceipt = React.forwardRef(({ data }, ref) => {
             {allocations.map((alloc, index) => (
               <tr key={index} className="border-b-2 border-black">
                 <td className="border-r-2 border-black p-1">{alloc.vote_head || ''}</td>
-                <td className="p-1 text-right font-mono">{(alloc.amount || 0).toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                <td className="p-1 text-right font-mono">{Number(alloc?.amount || 0).toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
               </tr>
             ))}
             {emptyRows > 0 && Array.from({ length: emptyRows }).map((_, index) => (
@@ -85,7 +85,7 @@ const PrintableReceipt = React.forwardRef(({ data }, ref) => {
           <tfoot>
             <tr className="border-t-4 border-black font-bold">
               <td className="border-r-2 border-black p-1 text-right">TOTAL</td>
-              <td className="p-1 text-right font-mono">{(totals.paid_amount || 0).toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+              <td className="p-1 text-right font-mono">{Number(totals?.paid_amount || 0).toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
             </tr>
           </tfoot>
         </table>
