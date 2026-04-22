@@ -68,7 +68,7 @@ export default function PasswordResetModal({
             </div>
 
             <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3 text-sm text-emerald-300 mt-3">
-              • User must log in with this temporary password and change it immediately.
+              ✓ User must log in with this temporary password and change it immediately.
             </div>
           </div>
 

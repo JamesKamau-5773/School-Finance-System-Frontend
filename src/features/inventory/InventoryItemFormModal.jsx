@@ -36,7 +36,22 @@ const STANDARD_CATEGORY_OPTIONS = [
   "Other",
 ];
 
+const parseUnitOfMeasure = (value) => {
+  const normalized = (value || "").trim();
+  const match = normalized.match(/^(\d+)\s+(.+)$/);
 
+  if (match) {
+    return {
+      quantity: match[1],
+      unit: match[2],
+    };
+  }
+
+  return {
+    quantity: "1",
+    unit: normalized || "KGs",
+  };
+};
 
 export default function InventoryItemFormModal({
   isOpen,
@@ -50,6 +65,7 @@ export default function InventoryItemFormModal({
     name: "",
     category: "Foodstuff",
     custom_category: "",
+    unit_quantity: "1",
     unit_of_measure: "KGs",
     reorder_level: 0,
   });
@@ -68,12 +84,14 @@ export default function InventoryItemFormModal({
     if (initialData && isOpen) {
       const incomingCategory = initialData.category;
       const isStandardCategory = STANDARD_CATEGORY_OPTIONS.includes(incomingCategory);
+      const parsedUom = parseUnitOfMeasure(initialData.unit_of_measure);
       setFormData({
         item_code: initialData.item_code,
         name: initialData.name,
         category: isStandardCategory ? incomingCategory : "Other",
         custom_category: isStandardCategory ? "" : incomingCategory,
-        unit_of_measure: initialData.unit_of_measure,
+        unit_quantity: parsedUom.quantity,
+        unit_of_measure: parsedUom.unit,
         reorder_level: initialData.reorder_level,
       });
     } else if (isOpen) {
@@ -82,6 +100,7 @@ export default function InventoryItemFormModal({
         name: "",
         category: "Foodstuff",
         custom_category: "",
+        unit_quantity: "1",
         unit_of_measure: "KGs",
         reorder_level: 0,
       });
@@ -104,17 +123,29 @@ export default function InventoryItemFormModal({
       return;
     }
 
+    const normalizedQuantity = formData.unit_quantity.trim() || "1";
+    const numericQuantity = Number(normalizedQuantity);
+    if (!Number.isInteger(numericQuantity) || numericQuantity <= 0) {
+      setSubmitError("Unit quantity must be a whole number greater than zero.");
+      return;
+    }
+
     const numericReorderLevel = Number(formData.reorder_level);
     if (!Number.isInteger(numericReorderLevel) || numericReorderLevel < 0) {
       setSubmitError("Reorder level must be a whole number (0 or greater).");
       return;
     }
 
+    const resolvedUnitOfMeasure =
+      numericQuantity === 1
+        ? formData.unit_of_measure
+        : `${normalizedQuantity} ${formData.unit_of_measure}`;
+
     const payload = {
       item_code: formData.item_code,
       name: formData.name,
       category: resolvedCategory,
-      unit_of_measure: formData.unit_of_measure,
+      unit_of_measure: resolvedUnitOfMeasure,
       reorder_level: numericReorderLevel,
     };
 
@@ -254,11 +285,26 @@ export default function InventoryItemFormModal({
               <label className="block text-xs font-bold text-slate-300 uppercase tracking-widest mb-2">
                 Unit of Measure
               </label>
-              <div className="relative">
-                <Scale
-                  size={14}
-                  className="absolute left-3 top-3 text-action-mint"
+              <div className="grid grid-cols-[110px_1fr] gap-2">
+                <input
+                  type="number"
+                  min="1"
+                  step="1"
+                  className="w-full bg-structural-navy border border-text-border text-white px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-action-mint rounded-lg font-mono"
+                  value={formData.unit_quantity}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      unit_quantity: e.target.value,
+                    })
+                  }
+                  required
                 />
+                <div className="relative">
+                  <Scale
+                    size={14}
+                    className="absolute left-3 top-3 text-action-mint"
+                  />
                 <select
                   className="w-full bg-structural-navy border border-text-border text-white pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-action-mint rounded-lg appearance-none"
                   value={formData.unit_of_measure}
@@ -276,6 +322,7 @@ export default function InventoryItemFormModal({
                     </option>
                   ))}
                 </select>
+                </div>
               </div>
             </div>
             <div>

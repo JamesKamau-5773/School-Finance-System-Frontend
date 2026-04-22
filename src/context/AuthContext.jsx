@@ -27,7 +27,6 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (identifier, password) => {
     try {
-      console.info('[AuthContext] Login attempt started', { identifier });
       const response = await apiClient.post('/api/auth/login', { identifier, password });
       const { access_token, user: userData } = response.data;
 
@@ -47,17 +46,7 @@ export const AuthProvider = ({ children }) => {
 
       return { success: true, role: userData.role, mustChangePassword };
     } catch (error) {
-      console.error('[AuthContext] Login failed', {
-        identifier,
-        status: error?.response?.status,
-        statusText: error?.response?.statusText,
-        responseData: error?.response?.data,
-        message: error?.message,
-      });
-
       throw new Error(error.response?.data?.message || error.response?.data?.error || 'Authentication failed. Server unreachable.');
-    } finally {
-      setIsLoading(false);
     }
   };
 

@@ -147,27 +147,6 @@ export default function StoreLedger() {
     );
   };
 
-  // Get recorded by user name - check nested user object first
-  const getRecordedBy = (txn) => {
-    // Check if recorded_by_user exists and has a name or profile_name
-    if (txn.recorded_by_user) {
-      return (
-        txn.recorded_by_user.profile_name ||
-        txn.recorded_by_user.full_name ||
-        txn.recorded_by_user.username ||
-        txn.recorded_by_user.email
-      );
-    }
-    // Fallback to direct fields if relationship not populated
-    return (
-      txn.recorded_by_username ||
-      txn.created_by_username ||
-      txn.user_name ||
-      txn.recorded_by ||
-      "-"
-    );
-  };
-
   return (
     <div className="p-8 max-w-7xl mx-auto w-full text-white">
       {/* Header */}
@@ -379,8 +358,8 @@ export default function StoreLedger() {
                           {txn.quantity.toLocaleString("en-KE")}
                         </span>
                       </td>
-                      <td className="p-4 text-slate-300 font-sans">
-                        {getRecordedBy(txn)}
+                      <td className="p-4 text-slate-300">
+                        {txn.recorded_by_username || "-"}
                       </td>
                     </tr>
                   ))}

@@ -1,23 +1,8 @@
 import axios from 'axios';
 
-const configuredBaseUrl =
-  import.meta.env.VITE_API_BASE_URL ||
-  import.meta.env.VITE_API_URL ||
-  '';
-
-const normalizedBaseUrl = configuredBaseUrl.replace(/\/$/, '');
-
-if (import.meta.env.PROD && !normalizedBaseUrl) {
-  console.warn(
-    '[apiClient] Missing VITE_API_BASE_URL (or VITE_API_URL). API calls will use same-origin and may 404 in production.',
-  );
-}
-
-// In development, leaving baseURL empty allows Vite proxy (/api/*) to work.
-// In production, set VITE_API_BASE_URL (or VITE_API_URL) to your backend origin.
+// Use same-origin base URL so Vite can proxy /api/* to Flask in development.
 const apiClient = axios.create({
-  baseURL: normalizedBaseUrl,
-  timeout: 15000,
+  baseURL: '',
   headers: {
     'Content-Type': 'application/json'
   }
@@ -44,20 +29,7 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    const requestUrl = error?.config?.url || '';
-    const isAuthLoginRequest =
-      requestUrl.includes('/api/auth/login') ||
-      requestUrl.includes('/api/auth/register');
-
-    console.error('[apiClient] Request failed', {
-      url: requestUrl,
-      method: error?.config?.method,
-      status: error?.response?.status,
-      statusText: error?.response?.statusText,
-      responseData: error?.response?.data,
-    });
-
-    if (error.response && error.response.status === 401 && !isAuthLoginRequest) {
+    if (error.response && error.response.status === 401) {
       // If the backend rejects the token (expired or invalid), force a logout
       localStorage.removeItem('erp_token');
       localStorage.removeItem('erp_user');

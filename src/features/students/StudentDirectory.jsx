@@ -204,25 +204,6 @@ export default function StudentDirectory() {
           tr:nth-child(even) {
             background-color: #f9f9f9;
           }
-          /* Print-specific styles */
-          * {
-            print-color-adjust: exact !important;
-            -webkit-print-color-adjust: exact !important;
-          }
-          body {
-            background-color: white !important;
-            color-scheme: light !important;
-          }
-          table {
-            background-color: white !important;
-          }
-          th, td {
-            background-color: white !important;
-            color: #333 !important;
-          }
-          tr:nth-child(even) {
-            background-color: #f9f9f9 !important;
-          }
         </style>
       </head>
       <body>
@@ -244,46 +225,14 @@ export default function StudentDirectory() {
       </html>
     `;
 
-    try {
-      const printFrame = document.createElement("iframe");
-      printFrame.style.position = "fixed";
-      printFrame.style.right = "0";
-      printFrame.style.bottom = "0";
-      printFrame.style.width = "0";
-      printFrame.style.height = "0";
-      printFrame.style.border = "0";
-      printFrame.setAttribute("aria-hidden", "true");
-
-      const cleanup = () => {
-        if (printFrame.parentNode) {
-          printFrame.parentNode.removeChild(printFrame);
-        }
-      };
-
-      printFrame.onload = () => {
-        const frameWindow = printFrame.contentWindow;
-        if (!frameWindow) {
-          cleanup();
-          return;
-        }
-
-        frameWindow.focus();
-        frameWindow.print();
-
-        setTimeout(cleanup, 1000);
-      };
-
-      document.body.appendChild(printFrame);
-      printFrame.srcdoc = printContent;
-    } catch (error) {
-      console.error("Print error:", error);
-      alert("Error preparing print preview. Please try again.");
-    }
+    const printWindow = window.open("", "", "height=600,width=800");
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+    setTimeout(() => printWindow.print(), 250);
   };
 
   return (
-    <>
-      <div className="student-directory-print-root p-8 max-w-7xl mx-auto w-full text-white">
+    <div className="p-8 max-w-7xl mx-auto w-full text-white">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 border-b border-text-border/50 pb-6 gap-4">
         <div>
@@ -297,7 +246,7 @@ export default function StudentDirectory() {
         </div>
 
         {/* Search, Filters & Add Button */}
-        <div className="student-directory-no-print flex flex-wrap items-center gap-3 w-full md:w-auto">
+        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
           <div className="relative w-full sm:w-64">
             <Search
               size={16}
@@ -373,7 +322,7 @@ export default function StudentDirectory() {
                 <th className="p-4 text-xs font-bold text-slate-300 uppercase tracking-widest text-right">
                   Balance (KES)
                 </th>
-                <th className="student-directory-no-print p-4 text-xs font-bold text-slate-300 uppercase tracking-widest text-right">
+                <th className="p-4 text-xs font-bold text-slate-300 uppercase tracking-widest text-right">
                   Actions
                 </th>
               </tr>
@@ -427,7 +376,7 @@ export default function StudentDirectory() {
                         </span>
                       )}
                     </td>
-                    <td className="student-directory-no-print p-4 text-right">
+                    <td className="p-4 text-right">
                       <div className="flex items-center justify-end gap-2 opacity-50 group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={() => handleEditClick(student)}
@@ -480,23 +429,17 @@ export default function StudentDirectory() {
       </div>
 
       {/* Render the Modals */}
-      </div>
+      <StudentProfileModal
+        isOpen={!!selectedStudentForProfile}
+        onClose={() => setSelectedStudentForProfile(null)}
+        student={selectedStudentForProfile}
+      />
 
-      <div className="student-directory-modal-layer">
-        <StudentProfileModal
-          isOpen={!!selectedStudentForProfile}
-          onClose={() => setSelectedStudentForProfile(null)}
-          student={selectedStudentForProfile}
-        />
-      </div>
-
-      <div className="student-directory-form-no-print">
-        <StudentFormModal
-          isOpen={isFormModalOpen}
-          onClose={() => setIsFormModalOpen(false)}
-          initialData={studentToEdit}
-        />
-      </div>
-    </>
+      <StudentFormModal
+        isOpen={isFormModalOpen}
+        onClose={() => setIsFormModalOpen(false)}
+        initialData={studentToEdit}
+      />
+    </div>
   );
 }

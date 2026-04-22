@@ -58,7 +58,6 @@ npm run lint
 All documentation is organized by topic for easy reference:
 
 - **[ARCHITECTURE.md](./documentation/ARCHITECTURE.md)** - Technical architecture, component organization, data flow
-- **[CACHING.md](./documentation/CACHING.md)** - Caching strategies (React Query, Service Worker, IndexedDB)
 - **[BUILD.md](./documentation/BUILD.md)** - Build process, optimization, performance metrics
 - **[ENVIRONMENT_SETUP.md](./documentation/ENVIRONMENT_SETUP.md)** - Environment variables, configuration
 - **[FEATURES.md](./documentation/FEATURES.md)** - Feature documentation and workflows

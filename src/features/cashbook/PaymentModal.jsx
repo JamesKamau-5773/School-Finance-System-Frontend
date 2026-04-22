@@ -1,9 +1,7 @@
-import React, { useEffect, useState, useRef } from "react";
-import { X, User, Receipt, CreditCard, Hash, Loader2, Check, Printer } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { X, User, Receipt, CreditCard, Hash, Loader2, Check } from "lucide-react";
 import { useSubmitPayment } from "./hooks/useCashbook";
 import { financeApi } from "../../api/financeApi";
-import PrintableReceipt from "../finance/PrintableReceipt";
-import ReactDOMServer from "react-dom/server";
 
 export default function PaymentModal({ isOpen, onClose }) {
   const [formData, setFormData] = useState({
@@ -16,9 +14,6 @@ export default function PaymentModal({ isOpen, onClose }) {
   const [confirmedStudent, setConfirmedStudent] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState(null);
-  const [showReceipt, setShowReceipt] = useState(false);
-  const [receiptData, setReceiptData] = useState(null);
-  const receiptRef = useRef(null);
 
   const {
     mutate: submitPayment,
@@ -112,8 +107,6 @@ export default function PaymentModal({ isOpen, onClose }) {
           name: student.full_name || student.name,
           admissionNumber: student.admission_number,
           balance: student.balance || 0,
-          form: student.form || student.grade_level || "",
-          term: student.term || "",
         });
       } catch (err) {
         if (isCancelled) return;
@@ -150,241 +143,19 @@ export default function PaymentModal({ isOpen, onClose }) {
         reference: formData.reference,
       },
       {
-        onSuccess: (response) => {
-          // Transform API response to receipt data structure matching PrintableReceipt expectations
-          const amount = parseFloat(formData.amount);
-          
-          // Map allocations from API response or create default GOK vote heads structure
-          let allocations = [];
-          
-          if (response?.allocations && Array.isArray(response.allocations) && response.allocations.length > 0) {
-            // Use allocations from API if available
-            allocations = response.allocations;
-          } else {
-            // Fallback: Create allocation for the full amount to Lunch Programme
-            allocations = [
-              {
-                vote_head: "Lunch Programme",
-                amount: amount,
-              },
-            ];
-          }
-          
-          const today = new Date();
-          const dateFormatter = new Intl.DateTimeFormat("en-KE", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
+        onSuccess: () => {
+          setFormData({
+            studentId: "",
+            amount: "",
+            method: "MPESA",
+            reference: "",
           });
-          
-          const receiptInfo = {
-            receipt_no: response?.receipt_id || response?.id || "N/A",
-            date: dateFormatter.format(today),
-            student: {
-              name: confirmedStudent.name,
-              admissionNumber: confirmedStudent.admissionNumber,
-              form: confirmedStudent.form || "",
-              gradeLevel: confirmedStudent.form || "",
-              term: confirmedStudent.term || "",
-              year: today.getFullYear().toString(),
-              balance: confirmedStudent.balance || 0,
-            },
-            allocations: allocations,
-            totals: {
-              amount: amount,
-            },
-            meta: {
-              paymentMethod: formData.method,
-              reference: formData.reference,
-              receivedBy: response?.recorded_by || "School Officer",
-            },
-          };
-
-          setReceiptData(receiptInfo);
-          setShowReceipt(true);
+          setConfirmedStudent(null);
+          onClose();
         },
       }
     );
   };
-
-  const handlePrint = () => {
-    if (receiptRef.current) {
-      const printContent = ReactDOMServer.renderToString(
-        <PrintableReceipt data={receiptData} ref={receiptRef} />
-      );
-      
-      const iframe = document.createElement("iframe");
-      iframe.style.position = "absolute";
-      iframe.style.width = "0";
-      iframe.style.height = "0";
-      iframe.style.border = "none";
-      document.body.appendChild(iframe);
-
-      const doc = iframe.contentWindow.document;
-      doc.open();
-      doc.write(`
-        <html>
-          <head>
-            <title>Print Receipt</title>
-            <style>
-              @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
-              body { 
-                font-family: 'Inter', sans-serif;
-                margin: 0;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-              }
-              .receipt-container {
-                width: 100%;
-                max-width: 800px;
-                margin: 0 auto;
-                padding: 20px;
-                background-color: #1A202C; /* Assuming a dark theme base */
-                color: #E2E8F0;
-              }
-              /* Add all necessary styles from PrintableReceipt.jsx and tailwind here */
-              /* This is a simplified example. You'd need to replicate the full styling. */
-              .header {
-                text-align: center;
-                margin-bottom: 20px;
-                border-bottom: 1px solid #4A5568;
-                padding-bottom: 10px;
-              }
-              .school-name {
-                font-size: 24px;
-                font-weight: bold;
-                color: white;
-              }
-              .school-details {
-                font-size: 12px;
-                color: #A0AEC0;
-              }
-              .receipt-title {
-                font-size: 20px;
-                font-weight: bold;
-                text-transform: uppercase;
-                margin: 20px 0;
-                color: white;
-              }
-              .student-info, .receipt-details {
-                display: flex;
-                justify-content: space-between;
-                margin-bottom: 20px;
-                font-size: 14px;
-              }
-              .info-table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-bottom: 20px;
-              }
-              .info-table th, .info-table td {
-                border: 1px solid #4A5568;
-                padding: 8px;
-                text-align: left;
-              }
-              .info-table th {
-                background-color: #2D3748;
-                color: white;
-                font-weight: bold;
-              }
-              .totals-section {
-                text-align: right;
-                margin-top: 20px;
-              }
-              .total-amount {
-                font-size: 18px;
-                font-weight: bold;
-                color: white;
-              }
-              .footer {
-                margin-top: 30px;
-                font-size: 12px;
-                color: #A0AEC0;
-                text-align: center;
-              }
-            </style>
-          </head>
-          <body>
-            ${printContent}
-          </body>
-        </html>
-      `);
-      doc.close();
-
-      iframe.contentWindow.focus();
-      iframe.contentWindow.print();
-      
-      // Clean up
-      setTimeout(() => {
-        document.body.removeChild(iframe);
-      }, 500);
-    }
-  };
-
-  const handleDone = () => {
-    // Reset state and close modal
-    setFormData({
-      studentId: "",
-      amount: "",
-      method: "MPESA",
-      reference: "",
-    });
-    setConfirmedStudent(null);
-    setShowReceipt(false);
-    setReceiptData(null);
-    onClose();
-  };
-
-  // Receipt Success View - Show alongside form
-  if (showReceipt && receiptData) {
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-structural-navy/80 backdrop-blur-sm p-4">
-        <div className="w-full max-w-3xl bg-text-border/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden transform transition-all">
-          {/* Modal Header with Print Button */}
-          <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center bg-white/5">
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <Receipt className="text-action-mint" size={20} />
-              Payment Receipt
-            </h2>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handlePrint}
-                className="edtech-btn bg-action-mint hover:bg-action-mint/80 !text-structural-navy px-4 py-2 text-sm flex items-center gap-2 shadow-[0_4px_14px_0_rgba(5,205,153,0.39)]"
-              >
-                <Printer size={16} />
-                Print
-              </button>
-              <button
-                onClick={handleDone}
-                className="text-slate-400 hover:text-white transition-colors p-1 rounded-full hover:bg-white/10"
-              >
-                <X size={20} />
-              </button>
-            </div>
-          </div>
-
-          {/* Receipt Component (Print View) */}
-          <div className="p-6 max-h-[70vh] overflow-y-auto print:p-0 print:max-h-none print:overflow-visible">
-            <PrintableReceipt ref={receiptRef} data={receiptData} />
-          </div>
-
-          {/* Receipt Footer / Actions */}
-          <div className="px-6 py-4 flex justify-end gap-3 border-t border-white/10 bg-white/5">
-            <button
-              onClick={handleDone}
-              className="edtech-btn-secondary px-4 py-2 rounded-full text-sm font-bold"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isOpen) return null;
-
-  // Payment Form View
 
   return (
     /* Modal Backdrop - Dark and Blurred */
@@ -396,28 +167,16 @@ export default function PaymentModal({ isOpen, onClose }) {
             <Receipt className="text-alert-crimson" size={20} />
             Record Payment
           </h2>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handlePrint}
-              disabled={!receiptData}
-              className="edtech-btn bg-action-mint hover:bg-action-mint/80 !text-structural-navy px-4 py-2 text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_4px_14px_0_rgba(5,205,153,0.39)]"
-              title={receiptData ? "Print receipt" : "Complete a payment first"}
-            >
-              <Printer size={16} />
-              Print
-            </button>
-            <button
-              onClick={onClose}
-              disabled={isPending}
-              className="text-slate-400 hover:text-white transition-colors p-1 rounded-full hover:bg-white/10 disabled:opacity-50"
-            >
-              <X size={20} />
-            </button>
-          </div>
+          <button
+            onClick={onClose}
+            className="text-slate-400 hover:text-white transition-colors p-1 rounded-full hover:bg-white/10"
+          >
+            <X size={20} />
+          </button>
         </div>
 
         {/* Modal Body / Form */}
-        <form id="payment-form" onSubmit={handleSubmit} className="p-6 space-y-5">
+        <form onSubmit={handleSubmit} className="p-6 space-y-5">
           {searchError && (
             <div className="p-3 bg-rose-500/20 border border-rose-500/50 rounded-lg text-rose-400 text-sm font-bold">
               {searchError}
@@ -572,26 +331,26 @@ export default function PaymentModal({ isOpen, onClose }) {
                 />
               </div>
             </div>
+          </div>
 
-            {/* Modal Footer / Actions */}
-            <div className="pt-4 flex justify-end gap-3 border-t border-white/10 mt-6">
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={isPending}
-                className="edtech-btn-secondary px-4 py-2 rounded-full text-sm font-bold disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isPending || !confirmedStudent || !formData.amount}
-                className="edtech-btn bg-action-mint hover:bg-action-mint/80 !text-structural-navy px-6 py-2 text-sm flex items-center gap-2 disabled:opacity-50 shadow-[0_4px_14px_0_rgba(5,205,153,0.39)]"
-              >
-                {isPending && <Loader2 size={16} className="animate-spin" />}
-                {isPending ? "Processing..." : "Confirm Payment"}
-              </button>
-            </div>
+          {/* Modal Footer / Actions */}
+          <div className="pt-4 flex justify-end gap-3 border-t border-white/10 mt-6">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isPending}
+              className="edtech-btn-secondary px-4 py-2 rounded-full text-sm font-bold disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isPending || !confirmedStudent || !formData.amount}
+              className="edtech-btn bg-action-mint hover:bg-action-mint/80 !text-structural-navy px-6 py-2 text-sm flex items-center gap-2 disabled:opacity-50 shadow-[0_4px_14px_0_rgba(5,205,153,0.39)]"
+            >
+              {isPending && <Loader2 size={16} className="animate-spin" />}
+              {isPending ? "Processing..." : "Confirm Payment"}
+            </button>
           </div>
         </form>
       </div>

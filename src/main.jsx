@@ -6,21 +6,7 @@ import './index.css'
 import App from './App.jsx'
 import { AuthProvider } from './context/AuthContext.jsx'
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      // Financial data: 10 min stale, 30 min cache
-      staleTime: 10 * 60 * 1000,
-      gcTime: 30 * 60 * 1000,
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: true,
-      retry: 1,
-    },
-    mutations: {
-      retry: 1,
-    },
-  },
-})
+const queryClient = new QueryClient()
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

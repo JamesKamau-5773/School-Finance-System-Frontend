@@ -1,20 +1,9 @@
 import React, { useState } from 'react';
-import { Settings as SettingsIcon, Building2, Landmark, Calendar, Save, Loader2, Plus, Trash2, Edit2, X, AlertCircle } from 'lucide-react';
-import { useVoteHeads, useCreateVoteHead, useUpdateVoteHead, useDeleteVoteHead } from '../cashbook/hooks/useCashbook';
+import { Settings as SettingsIcon, Building2, Landmark, Calendar, Save, Loader2 } from 'lucide-react';
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState('institution');
   const [isSaving, setIsSaving] = useState(false);
-  const { data: voteHeadsData = [], isLoading: isLoadingVoteHeads } = useVoteHeads();
-  const { mutate: createVoteHead, isPending: isCreatingVoteHead } = useCreateVoteHead();
-  const { mutate: updateVoteHead, isPending: isUpdatingVoteHead } = useUpdateVoteHead();
-  const { mutate: deleteVoteHead, isPending: isDeletingVoteHead } = useDeleteVoteHead();
-  
-  const [editingVoteHeadId, setEditingVoteHeadId] = useState(null);
-  const [newVoteHead, setNewVoteHead] = useState({ code: '', name: '', percentage: '' });
-  const [voteHeadError, setVoteHeadError] = useState('');
-  
-  const voteHeads = Array.isArray(voteHeadsData) ? voteHeadsData : voteHeadsData?.data || [];
 
   // Simulated state for system settings
   const [formData, setFormData] = useState({
@@ -40,88 +29,6 @@ export default function Settings() {
       setIsSaving(false);
       alert('System Settings Updated Successfully.');
     }, 1000);
-  };
-
-  const totalVoteHeadPercentage = voteHeads.reduce((sum, vh) => sum + (vh.percentage || 0), 0);
-
-  const handleAddVoteHead = (e) => {
-    e.preventDefault();
-    setVoteHeadError('');
-
-    const normalizedCode = newVoteHead.code.trim().toUpperCase();
-    if (!normalizedCode) {
-      setVoteHeadError('Vote Head code is required.');
-      return;
-    }
-
-    if (!newVoteHead.name.trim()) {
-      setVoteHeadError('Vote Head name is required.');
-      return;
-    }
-
-    const percentage = Number(newVoteHead.percentage);
-    if (!Number.isFinite(percentage) || percentage <= 0 || percentage > 100) {
-      setVoteHeadError('Percentage must be between 1 and 100.');
-      return;
-    }
-
-    if (editingVoteHeadId) {
-      updateVoteHead(
-        {
-          id: editingVoteHeadId,
-          data: { code: normalizedCode, name: newVoteHead.name.trim(), percentage },
-        },
-        {
-          onSuccess: () => {
-            setNewVoteHead({ code: '', name: '', percentage: '' });
-            setEditingVoteHeadId(null);
-          },
-          onError: (error) => {
-            const message =
-              error?.response?.data?.message ||
-              error?.response?.data?.msg ||
-              'Failed to update vote head.';
-            setVoteHeadError(message);
-          },
-        }
-      );
-    } else {
-      createVoteHead(
-        { code: normalizedCode, name: newVoteHead.name.trim(), percentage },
-        {
-          onSuccess: () => {
-            setNewVoteHead({ code: '', name: '', percentage: '' });
-          },
-          onError: (error) => {
-            const message =
-              error?.response?.data?.message ||
-              error?.response?.data?.msg ||
-              'Failed to create vote head.';
-            setVoteHeadError(message);
-          },
-        }
-      );
-    }
-  };
-
-  const handleEditVoteHead = (vh) => {
-    setNewVoteHead({ code: vh.code || '', name: vh.name, percentage: vh.percentage });
-    setEditingVoteHeadId(vh.id || vh.code);
-    setVoteHeadError('');
-  };
-
-  const handleDeleteVoteHead = (id) => {
-    if (window.confirm('Are you sure you want to delete this vote head? This action cannot be undone.')) {
-      deleteVoteHead(id, {
-        onError: () => setVoteHeadError('Failed to delete vote head.'),
-      });
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setEditingVoteHeadId(null);
-    setNewVoteHead({ code: '', name: '', percentage: '' });
-    setVoteHeadError('');
   };
 
   return (
@@ -178,16 +85,6 @@ export default function Settings() {
             }`}
           >
             <Calendar size={18} /> Academic Cycle
-          </button>
-          <button 
-            onClick={() => setActiveTab('voteheads')}
-            className={`w-full text-left px-4 py-3 rounded-lg text-sm font-bold uppercase tracking-wider flex items-center gap-3 transition-all border ${
-              activeTab === 'voteheads' 
-                ? 'bg-text-border/30 text-action-mint border-action-mint/30' 
-                : 'bg-transparent text-slate-300 border-transparent hover:bg-white/5 hover:text-white'
-            }`}
-          >
-            <Landmark size={18} /> Vote Head Config
           </button>
         </div>
 
@@ -293,151 +190,6 @@ export default function Settings() {
                   </select>
                 </div>
               </div>
-            </div>
-          )}
-
-          {/* TAB: Vote Head Configuration */}
-          {activeTab === 'voteheads' && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-              <h2 className="text-lg font-bold text-white uppercase tracking-widest border-b border-white/10 pb-4 mb-6">Ministry Statutory Vote Heads</h2>
-              <div className="bg-blue-500/10 border border-blue-500/30 p-4 rounded-lg mb-6 text-sm text-blue-200">
-                <strong>Note:</strong> Configure vote head names and their statutory allocation percentages based on the latest Ministry of Education directive. Percentages must total 100%.
-              </div>
-
-              {/* Vote Head List */}
-              <div className="space-y-4 mb-8">
-                {isLoadingVoteHeads ? (
-                  <div className="text-center text-slate-400 py-8">Loading vote heads...</div>
-                ) : voteHeads.length === 0 ? (
-                  <div className="text-center text-slate-400 py-8">No vote heads configured yet. Add one below.</div>
-                ) : (
-                  <div className="bg-structural-navy/50 rounded-lg overflow-hidden border border-white/10">
-                    {voteHeads.map((vh) => {
-                      const voteHeadIdentifier = vh.id || vh.code;
-                      return (
-                      <div key={voteHeadIdentifier} className="flex items-center justify-between p-4 border-b border-white/5 last:border-b-0 hover:bg-white/5 transition-colors">
-                        <div className="flex-1">
-                          <div className="text-sm font-bold text-white">{vh.name}</div>
-                          <div className="text-xs text-slate-500 mt-1 font-mono">Code: {vh.code || '-'}</div>
-                          <div className="text-xs text-slate-400 mt-1">Allocation: {vh.percentage}%</div>
-                        </div>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => handleEditVoteHead(vh)}
-                            disabled={isUpdatingVoteHead || isDeletingVoteHead}
-                            className="p-2 bg-action-mint/10 hover:bg-action-mint/20 text-action-mint rounded-lg transition-colors disabled:opacity-50"
-                            title="Edit"
-                          >
-                            <Edit2 size={16} />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteVoteHead(voteHeadIdentifier)}
-                            disabled={isDeletingVoteHead || isUpdatingVoteHead}
-                            className="p-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-lg transition-colors disabled:opacity-50"
-                            title="Delete"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-
-              {/* Percentage Total Indicator */}
-              <div className={`p-3 rounded-lg border flex items-center gap-2 text-sm font-bold ${ 
-                totalVoteHeadPercentage === 100 
-                  ? 'bg-action-mint/10 border-action-mint/50 text-action-mint' 
-                  : 'bg-yellow-500/10 border-yellow-500/50 text-yellow-300'
-              }`}>
-                <AlertCircle size={16} />
-                Total Allocation: {totalVoteHeadPercentage}% (Must be 100%)
-              </div>
-
-              {/* Add/Edit Vote Head Form */}
-              <form onSubmit={handleAddVoteHead} className="bg-white/5 border border-white/10 p-6 rounded-lg space-y-4">
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                  {editingVoteHeadId ? <Edit2 size={16} /> : <Plus size={16} />}
-                  {editingVoteHeadId ? 'Update Vote Head' : 'Add New Vote Head'}
-                </h3>
-
-                {voteHeadError && (
-                  <div className="flex gap-2 bg-rose-500/10 border border-rose-500/50 text-rose-400 p-3 rounded-lg text-sm">
-                    <AlertCircle size={16} className="shrink-0 mt-0.5" />
-                    <span>{voteHeadError}</span>
-                  </div>
-                )}
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Vote Head Code</label>
-                    <input
-                      type="text"
-                      className="w-full bg-structural-navy border border-text-border text-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-action-mint rounded-lg font-mono uppercase"
-                      placeholder="e.g. TUITION"
-                      value={newVoteHead.code}
-                      onChange={(e) => setNewVoteHead({ ...newVoteHead, code: e.target.value.toUpperCase() })}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Vote Head Name</label>
-                    <input
-                      type="text"
-                      className="w-full bg-structural-navy border border-text-border text-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-action-mint rounded-lg"
-                      placeholder="e.g. Tuition, RMI, Activity"
-                      value={newVoteHead.name}
-                      onChange={(e) => setNewVoteHead({ ...newVoteHead, name: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Allocation %</label>
-                    <input
-                      type="number"
-                      min="0.1"
-                      max="100"
-                      step="0.1"
-                      className="w-full bg-structural-navy border border-text-border text-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-action-mint rounded-lg"
-                      placeholder="e.g. 45"
-                      value={newVoteHead.percentage}
-                      onChange={(e) => setNewVoteHead({ ...newVoteHead, percentage: e.target.value })}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="flex gap-3 justify-end pt-2">
-                  {editingVoteHeadId && (
-                    <button
-                      type="button"
-                      onClick={handleCancelEdit}
-                      disabled={isCreatingVoteHead || isUpdatingVoteHead}
-                      className="px-4 py-2 text-slate-300 hover:text-white text-sm font-bold uppercase border border-white/10 rounded-lg transition-all disabled:opacity-50"
-                    >
-                      Cancel
-                    </button>
-                  )}
-                  <button
-                    type="submit"
-                    disabled={isCreatingVoteHead || isUpdatingVoteHead}
-                    className="px-4 py-2 bg-action-mint text-structural-navy text-sm font-bold uppercase rounded-lg hover:bg-action-mint/80 transition-all disabled:opacity-50 flex items-center gap-2"
-                  >
-                    {isCreatingVoteHead || isUpdatingVoteHead ? (
-                      <>
-                        <Loader2 size={16} className="animate-spin" />
-                        {editingVoteHeadId ? 'Updating...' : 'Adding...'}
-                      </>
-                    ) : editingVoteHeadId ? (
-                      'Update Vote Head'
-                    ) : (
-                      'Add Vote Head'
-                    )}
-                  </button>
-                </div>
-              </form>
             </div>
           )}
 

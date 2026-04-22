@@ -8,7 +8,6 @@ Create a `.env.development` file in the project root:
 
 ```bash
 VITE_API_URL=http://localhost:5000
-VITE_API_BASE_URL=http://localhost:5000
 VITE_JWT_STORAGE_KEY=school_finance_jwt
 VITE_JWT_HEADER_NAME=Authorization
 VITE_APP_NAME=School Financial System
@@ -18,7 +17,6 @@ VITE_APP_NAME=School Financial System
 
 ```bash
 VITE_API_URL=https://api.school.example.com
-VITE_API_BASE_URL=https://api.school.example.com
 VITE_JWT_STORAGE_KEY=school_finance_jwt
 VITE_JWT_HEADER_NAME=Authorization
 VITE_APP_NAME=School Financial System
@@ -76,7 +74,6 @@ Create `.env.local` for local development overrides:
 
 ```bash
 VITE_API_URL=http://localhost:5000
-VITE_API_BASE_URL=http://localhost:5000
 ```
 
 This file is git-ignored and won't be committed.
@@ -133,20 +130,10 @@ Add to `.vscode/settings.json`:
 
 ### API Endpoint
 
-The frontend expects the backend API at `VITE_API_BASE_URL` (or fallback `VITE_API_URL`):
+The frontend expects the backend API at `VITE_API_URL`:
 
 - Development: `http://localhost:5000`
 - Production: `https://api.school.example.com`
-
-### Vercel Production Configuration
-
-In Vercel Project Settings → Environment Variables, set:
-
-```bash
-VITE_API_BASE_URL=https://your-backend-domain.com
-```
-
-Then redeploy the frontend. Without this variable, `/api/*` requests in production may return 404 from Vercel.
 
 ### CORS Configuration
 

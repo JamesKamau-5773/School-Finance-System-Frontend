@@ -96,42 +96,6 @@ export const useVoteHeads = () => {
   });
 };
 
-// 6a. Hook to create vote head
-export const useCreateVoteHead = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: financeApi.createVoteHead,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.voteHeads });
-    },
-  });
-};
-
-// 6b. Hook to update vote head
-export const useUpdateVoteHead = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: financeApi.updateVoteHead,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.voteHeads });
-    },
-  });
-};
-
-// 6c. Hook to delete vote head
-export const useDeleteVoteHead = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: financeApi.deleteVoteHead,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.voteHeads });
-    },
-  });
-};
-
 // 7. Hook to fetch summary totals
 export const useSummary = () => {
   return useQuery({
