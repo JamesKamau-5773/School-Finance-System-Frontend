@@ -102,23 +102,31 @@ const PrintableReceipt = React.forwardRef(({ data }, ref) => {
         </div>
 
         <div className="mb-1.5 text-[10px] space-y-1 leading-none">
-          <div className="flex items-end">
-            <span className="font-semibold">Received From:</span>
-            <span className="flex-grow border-b border-dotted border-black mx-1.5"></span>
-            <span>{student.name || '____________________'}</span>
+          <div className="flex items-end gap-1">
+            <span className="font-semibold shrink-0">Received From:</span>
+            <span className="flex-1 min-w-0 border-b border-dotted border-black px-1 pb-[1px] text-right">
+              {student.name || ''}
+            </span>
           </div>
-          <div className="flex items-end gap-1 whitespace-nowrap overflow-hidden">
+
+          <div className="grid grid-cols-[auto,1fr,auto,1fr,auto,1fr,auto,auto] items-end gap-x-1">
             <span className="font-semibold">Form/Class:</span>
-            <span className="flex-1 min-w-0 border-b border-dotted border-black mx-1"></span>
-            <span>{student.form || '____'}</span>
-            <span className="font-semibold ml-2">Term:</span>
-            <span className="flex-1 min-w-0 border-b border-dotted border-black mx-1"></span>
-            <span>{student.term || '__'}</span>
-            <span className="font-semibold ml-2">Adm. No:</span>
-            <span className="flex-1 min-w-0 border-b border-dotted border-black mx-1"></span>
-            <span>{student.adm_no || '______'}</span>
-            <span className="font-semibold ml-2">Year:</span>
-            <span className="min-w-[2.6rem] text-right">{student.year || '____'}</span>
+            <span className="border-b border-dotted border-black px-1 pb-[1px] text-center min-w-[56px]">
+              {student.form || ''}
+            </span>
+
+            <span className="font-semibold">Term:</span>
+            <span className="border-b border-dotted border-black px-1 pb-[1px] text-center min-w-[68px] font-semibold">
+              {student.term || ''}
+            </span>
+
+            <span className="font-semibold">Adm. No:</span>
+            <span className="border-b border-dotted border-black px-1 pb-[1px] text-center min-w-[74px]">
+              {student.adm_no || ''}
+            </span>
+
+            <span className="font-semibold">Year:</span>
+            <span className="min-w-[28px] text-right">{student.year || '____'}</span>
           </div>
         </div>
 
