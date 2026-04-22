@@ -40,7 +40,14 @@ export default function VoteHeadDistribution() {
         ) : (
           voteHeads.map((vh, index) => {
             const balance = vh.current_balance || 0;
-            const percentage = !totalIncome || !balance ? 0 : ((balance / totalIncome) * 100);
+            const configuredPercentage = Number(
+              vh?.percentage ?? vh?.allocation_percentage ?? vh?.moe_percentage,
+            );
+            const percentage = Number.isFinite(configuredPercentage)
+              ? configuredPercentage
+              : !totalIncome || !balance
+                ? 0
+                : (balance / totalIncome) * 100;
             const numericPercentage = isNaN(percentage) ? 0 : percentage;
             const displayPercentage = numericPercentage.toFixed(1);
             const widthPercentage = Math.min(Math.max(numericPercentage, 0), 100);

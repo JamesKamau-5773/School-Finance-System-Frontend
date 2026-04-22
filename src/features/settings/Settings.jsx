@@ -1,9 +1,53 @@
-import React, { useState } from 'react';
-import { Settings as SettingsIcon, Building2, Landmark, Calendar, Save, Loader2 } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
+import {
+  Settings as SettingsIcon,
+  Building2,
+  Landmark,
+  Calendar,
+  Save,
+  Loader2,
+  PieChart,
+  Plus,
+  Pencil,
+  Trash2,
+  ShieldCheck,
+} from 'lucide-react';
+import {
+  useVoteHeads,
+  useCreateVoteHead,
+  useUpdateVoteHead,
+  useDeleteVoteHead,
+} from '../cashbook/hooks/useCashbook';
+
+const MOE_STANDARD_VOTE_HEADS = [
+  { name: 'Lunch programme', percentage: 22 },
+  { name: 'Repair, Maintenance & Improvement RMI', percentage: 10 },
+  { name: 'Local Traveling & Transport', percentage: 5 },
+  { name: 'Administrative Cost', percentage: 8 },
+  { name: 'Medical Fees', percentage: 5 },
+  { name: 'Electricity Water & Conservancy EW&C', percentage: 14 },
+  { name: 'Activity fund', percentage: 8 },
+  { name: 'Personal Emolument', percentage: 10 },
+  { name: 'Insurance', percentage: 4 },
+  { name: 'Student ID', percentage: 2 },
+  { name: 'Caution Money', percentage: 3 },
+  { name: 'Fees Arrears', percentage: 7 },
+  { name: 'Others (Specify)', percentage: 2 },
+];
+
+const normalizeVoteHeadName = (value) =>
+  String(value || '')
+    .toLowerCase()
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState('institution');
   const [isSaving, setIsSaving] = useState(false);
+  const [voteHeadForm, setVoteHeadForm] = useState({ name: '', percentage: '' });
+  const [editingVoteHeadId, setEditingVoteHeadId] = useState(null);
+  const [voteHeadFeedback, setVoteHeadFeedback] = useState('');
 
   // Simulated state for system settings
   const [formData, setFormData] = useState({
@@ -21,6 +65,53 @@ export default function Settings() {
     currentTerm: 'Term 1'
   });
 
+  const { data: voteHeadResponse, isLoading: isLoadingVoteHeads } = useVoteHeads();
+  const {
+    mutateAsync: createVoteHead,
+    isPending: isCreatingVoteHead,
+  } = useCreateVoteHead();
+  const {
+    mutateAsync: updateVoteHead,
+    isPending: isUpdatingVoteHead,
+  } = useUpdateVoteHead();
+  const {
+    mutateAsync: deleteVoteHead,
+    isPending: isDeletingVoteHead,
+  } = useDeleteVoteHead();
+
+  const isMutatingVoteHeads =
+    isCreatingVoteHead || isUpdatingVoteHead || isDeletingVoteHead;
+
+  const voteHeads = useMemo(() => {
+    const raw = Array.isArray(voteHeadResponse)
+      ? voteHeadResponse
+      : Array.isArray(voteHeadResponse?.data)
+        ? voteHeadResponse.data
+        : [];
+
+    return raw
+      .map((item) => {
+        const name = item?.name || item?.vote_head || item?.title || item?.label || '';
+        const id = item?.id || item?.vote_head_id || item?.uuid || name;
+        const percentage = Number(
+          item?.percentage ?? item?.allocation_percentage ?? item?.moe_percentage ?? 0,
+        ) || 0;
+
+        return {
+          id,
+          name,
+          percentage,
+          current_balance: Number(item?.current_balance || 0) || 0,
+        };
+      })
+      .filter((item) => item.name);
+  }, [voteHeadResponse]);
+
+  const totalPercentage = voteHeads.reduce(
+    (sum, voteHead) => sum + (Number(voteHead.percentage || 0) || 0),
+    0,
+  );
+
   const handleSave = (e) => {
     e.preventDefault();
     setIsSaving(true);
@@ -29,6 +120,107 @@ export default function Settings() {
       setIsSaving(false);
       alert('System Settings Updated Successfully.');
     }, 1000);
+  };
+
+  const resetVoteHeadForm = () => {
+    setVoteHeadForm({ name: '', percentage: '' });
+    setEditingVoteHeadId(null);
+  };
+
+  const handleVoteHeadSubmit = async (event) => {
+    event.preventDefault();
+
+    const name = voteHeadForm.name.trim();
+    const percentage = Number(voteHeadForm.percentage || 0);
+
+    if (!name) {
+      setVoteHeadFeedback('Vote head name is required.');
+      return;
+    }
+
+    if (percentage < 0 || percentage > 100) {
+      setVoteHeadFeedback('Percentage must be between 0 and 100.');
+      return;
+    }
+
+    const payload = {
+      name,
+      vote_head: name,
+      percentage,
+      allocation_percentage: percentage,
+    };
+
+    try {
+      if (editingVoteHeadId) {
+        await updateVoteHead({ id: editingVoteHeadId, data: payload });
+        setVoteHeadFeedback('Vote head updated successfully.');
+      } else {
+        await createVoteHead(payload);
+        setVoteHeadFeedback('Vote head created successfully.');
+      }
+
+      resetVoteHeadForm();
+    } catch (error) {
+      setVoteHeadFeedback(error?.response?.data?.message || 'Unable to save vote head.');
+    }
+  };
+
+  const handleVoteHeadEdit = (voteHead) => {
+    setEditingVoteHeadId(voteHead.id);
+    setVoteHeadForm({
+      name: voteHead.name,
+      percentage: String(voteHead.percentage ?? ''),
+    });
+    setVoteHeadFeedback('');
+  };
+
+  const handleVoteHeadDelete = async (voteHead) => {
+    const shouldDelete = window.confirm(
+      `Delete vote head "${voteHead.name}"? This action cannot be undone.`,
+    );
+    if (!shouldDelete) return;
+
+    try {
+      await deleteVoteHead(voteHead.id);
+      setVoteHeadFeedback('Vote head deleted successfully.');
+
+      if (editingVoteHeadId === voteHead.id) {
+        resetVoteHeadForm();
+      }
+    } catch (error) {
+      setVoteHeadFeedback(error?.response?.data?.message || 'Unable to delete vote head.');
+    }
+  };
+
+  const handleApplyMoeStandards = async () => {
+    try {
+      const voteHeadsByName = voteHeads.reduce((acc, voteHead) => {
+        acc[normalizeVoteHeadName(voteHead.name)] = voteHead;
+        return acc;
+      }, {});
+
+      for (const standardVoteHead of MOE_STANDARD_VOTE_HEADS) {
+        const key = normalizeVoteHeadName(standardVoteHead.name);
+        const existing = voteHeadsByName[key];
+        const payload = {
+          name: standardVoteHead.name,
+          vote_head: standardVoteHead.name,
+          percentage: standardVoteHead.percentage,
+          allocation_percentage: standardVoteHead.percentage,
+        };
+
+        if (existing) {
+          await updateVoteHead({ id: existing.id, data: payload });
+        } else {
+          await createVoteHead(payload);
+        }
+      }
+
+      setVoteHeadFeedback('MoE standard percentages applied to vote heads.');
+      resetVoteHeadForm();
+    } catch (error) {
+      setVoteHeadFeedback(error?.response?.data?.message || 'Failed to apply MoE standards.');
+    }
   };
 
   return (
@@ -85,6 +277,16 @@ export default function Settings() {
             }`}
           >
             <Calendar size={18} /> Academic Cycle
+          </button>
+          <button
+            onClick={() => setActiveTab('voteheads')}
+            className={`w-full text-left px-4 py-3 rounded-lg text-sm font-bold uppercase tracking-wider flex items-center gap-3 transition-all border ${
+              activeTab === 'voteheads'
+                ? 'bg-text-border/30 text-action-mint border-action-mint/30'
+                : 'bg-transparent text-slate-300 border-transparent hover:bg-white/5 hover:text-white'
+            }`}
+          >
+            <PieChart size={18} /> Vote Heads & MoE %
           </button>
         </div>
 
@@ -189,6 +391,149 @@ export default function Settings() {
                     <option value="Term 3">Term 3</option>
                   </select>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'voteheads' && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 border-b border-white/10 pb-4">
+                <div>
+                  <h2 className="text-lg font-bold text-white uppercase tracking-widest">
+                    Vote Heads Management
+                  </h2>
+                  <p className="text-xs text-slate-300 mt-1 uppercase tracking-wider">
+                    CRUD access for Admin, Principal, and Bursar accounts
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleApplyMoeStandards}
+                  disabled={isMutatingVoteHeads}
+                  className="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider border border-action-mint/40 text-action-mint hover:bg-action-mint/10 disabled:opacity-60 flex items-center gap-2"
+                >
+                  {isMutatingVoteHeads ? <Loader2 size={14} className="animate-spin" /> : <ShieldCheck size={14} />}
+                  Apply MoE Standard %
+                </button>
+              </div>
+
+              <form onSubmit={handleVoteHeadSubmit} className="grid grid-cols-1 md:grid-cols-[1fr,180px,auto,auto] gap-3 items-end">
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-widest mb-2">
+                    Vote Head Name
+                  </label>
+                  <input
+                    type="text"
+                    value={voteHeadForm.name}
+                    onChange={(event) =>
+                      setVoteHeadForm((previous) => ({ ...previous, name: event.target.value }))
+                    }
+                    placeholder="e.g. Lunch programme"
+                    className="w-full bg-structural-navy border border-text-border text-white px-4 py-2.5 text-sm font-sans focus:outline-none focus:ring-2 focus:ring-action-mint rounded-lg"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-widest mb-2">
+                    MoE %
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.01"
+                    value={voteHeadForm.percentage}
+                    onChange={(event) =>
+                      setVoteHeadForm((previous) => ({ ...previous, percentage: event.target.value }))
+                    }
+                    placeholder="0"
+                    className="w-full bg-structural-navy border border-text-border text-white px-4 py-2.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-action-mint rounded-lg"
+                    required
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={isMutatingVoteHeads}
+                  className="px-4 py-2.5 bg-action-mint text-structural-navy text-xs font-bold uppercase tracking-wider rounded-lg border border-action-mint disabled:opacity-60 flex items-center gap-2 justify-center"
+                >
+                  {isMutatingVoteHeads ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
+                  {editingVoteHeadId ? 'Update' : 'Create'}
+                </button>
+                <button
+                  type="button"
+                  onClick={resetVoteHeadForm}
+                  className="px-4 py-2.5 bg-transparent text-slate-300 text-xs font-bold uppercase tracking-wider rounded-lg border border-text-border hover:bg-white/5"
+                >
+                  Reset
+                </button>
+              </form>
+
+              {voteHeadFeedback ? (
+                <div className="text-sm text-action-mint bg-action-mint/10 border border-action-mint/30 rounded-lg px-4 py-2">
+                  {voteHeadFeedback}
+                </div>
+              ) : null}
+
+              <div className="bg-structural-navy/45 border border-text-border rounded-xl overflow-hidden">
+                <div className="px-4 py-3 border-b border-text-border flex items-center justify-between">
+                  <span className="text-xs uppercase tracking-widest text-slate-300 font-bold">Configured Vote Heads</span>
+                  <span className={`text-xs font-bold ${Math.abs(totalPercentage - 100) < 0.01 ? 'text-action-mint' : 'text-alert-crimson'}`}>
+                    Total: {totalPercentage.toFixed(2)}%
+                  </span>
+                </div>
+
+                {isLoadingVoteHeads ? (
+                  <div className="px-4 py-6 text-slate-300 text-sm">Loading vote heads...</div>
+                ) : voteHeads.length === 0 ? (
+                  <div className="px-4 py-6 text-slate-300 text-sm">No vote heads found. Create one or apply MoE standards.</div>
+                ) : (
+                  <div className="max-h-[380px] overflow-auto">
+                    <table className="w-full text-sm">
+                      <thead className="bg-black/20 sticky top-0">
+                        <tr>
+                          <th className="text-left px-4 py-2 text-xs text-slate-300 uppercase tracking-wider">Vote Head</th>
+                          <th className="text-right px-4 py-2 text-xs text-slate-300 uppercase tracking-wider">MoE %</th>
+                          <th className="text-right px-4 py-2 text-xs text-slate-300 uppercase tracking-wider">Balance</th>
+                          <th className="text-right px-4 py-2 text-xs text-slate-300 uppercase tracking-wider">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {voteHeads.map((voteHead) => (
+                          <tr key={voteHead.id} className="border-t border-white/5">
+                            <td className="px-4 py-2 text-white font-medium">{voteHead.name}</td>
+                            <td className="px-4 py-2 text-right font-mono text-action-mint">{Number(voteHead.percentage || 0).toFixed(2)}%</td>
+                            <td className="px-4 py-2 text-right font-mono text-slate-300">
+                              {Number(voteHead.current_balance || 0).toLocaleString('en-KE', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              })}
+                            </td>
+                            <td className="px-4 py-2">
+                              <div className="flex items-center justify-end gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => handleVoteHeadEdit(voteHead)}
+                                  className="p-2 rounded-lg border border-white/10 text-slate-200 hover:text-action-mint hover:border-action-mint/40"
+                                  title="Edit vote head"
+                                >
+                                  <Pencil size={14} />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleVoteHeadDelete(voteHead)}
+                                  className="p-2 rounded-lg border border-white/10 text-slate-200 hover:text-alert-crimson hover:border-alert-crimson/40"
+                                  title="Delete vote head"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             </div>
           )}

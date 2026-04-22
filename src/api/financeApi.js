@@ -93,8 +93,91 @@ export const financeApi = {
 
   // 6. Fetch current vote head distribution
   getVoteHeads: async () => {
-    const response = await apiClient.get("/api/finance/vote-heads");
-    return response.data;
+    const endpoints = ["/api/finance/vote-heads", "/api/finance/vote_heads"];
+
+    let lastError;
+
+    for (const endpoint of endpoints) {
+      try {
+        const response = await apiClient.get(endpoint);
+        return response.data;
+      } catch (error) {
+        lastError = error;
+        if (error?.response?.status !== 404) {
+          throw error;
+        }
+      }
+    }
+
+    throw lastError;
+  },
+
+  createVoteHead: async (voteHeadData) => {
+    const endpoints = ["/api/finance/vote-heads", "/api/finance/vote_heads"];
+
+    let lastError;
+
+    for (const endpoint of endpoints) {
+      try {
+        const response = await apiClient.post(endpoint, voteHeadData);
+        return response.data;
+      } catch (error) {
+        lastError = error;
+        if (error?.response?.status !== 404) {
+          throw error;
+        }
+      }
+    }
+
+    throw lastError;
+  },
+
+  updateVoteHead: async ({ id, data }) => {
+    const normalizedId = encodeURIComponent(id);
+    const endpoints = [
+      `/api/finance/vote-heads/${normalizedId}`,
+      `/api/finance/vote_heads/${normalizedId}`,
+    ];
+
+    let lastError;
+
+    for (const endpoint of endpoints) {
+      try {
+        const response = await apiClient.put(endpoint, data);
+        return response.data;
+      } catch (error) {
+        lastError = error;
+        if (error?.response?.status !== 404) {
+          throw error;
+        }
+      }
+    }
+
+    throw lastError;
+  },
+
+  deleteVoteHead: async (id) => {
+    const normalizedId = encodeURIComponent(id);
+    const endpoints = [
+      `/api/finance/vote-heads/${normalizedId}`,
+      `/api/finance/vote_heads/${normalizedId}`,
+    ];
+
+    let lastError;
+
+    for (const endpoint of endpoints) {
+      try {
+        const response = await apiClient.delete(endpoint);
+        return response.data;
+      } catch (error) {
+        lastError = error;
+        if (error?.response?.status !== 404) {
+          throw error;
+        }
+      }
+    }
+
+    throw lastError;
   },
 
   // 7. Fetch dashboard summary totals

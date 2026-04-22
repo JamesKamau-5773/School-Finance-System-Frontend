@@ -28,6 +28,11 @@ const invalidateDashboardFinancials = (queryClient) => {
   queryClient.invalidateQueries({ queryKey: QUERY_KEYS.summary });
 };
 
+const invalidateVoteHeadData = (queryClient) => {
+  queryClient.invalidateQueries({ queryKey: QUERY_KEYS.voteHeads });
+  queryClient.invalidateQueries({ queryKey: QUERY_KEYS.summary });
+};
+
 // 1. Hook to fetch and cache the ledger with optional filters
 export const useTransactions = (filters = {}) => {
   return useQuery({
@@ -93,6 +98,39 @@ export const useVoteHeads = () => {
     queryKey: QUERY_KEYS.voteHeads,
     queryFn: financeApi.getVoteHeads,
     staleTime: 1000 * 60 * 2,
+  });
+};
+
+export const useCreateVoteHead = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: financeApi.createVoteHead,
+    onSuccess: () => {
+      invalidateVoteHeadData(queryClient);
+    },
+  });
+};
+
+export const useUpdateVoteHead = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: financeApi.updateVoteHead,
+    onSuccess: () => {
+      invalidateVoteHeadData(queryClient);
+    },
+  });
+};
+
+export const useDeleteVoteHead = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: financeApi.deleteVoteHead,
+    onSuccess: () => {
+      invalidateVoteHeadData(queryClient);
+    },
   });
 };
 
