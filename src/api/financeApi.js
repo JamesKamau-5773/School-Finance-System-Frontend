@@ -1,5 +1,35 @@
 import apiClient from "./apiClient";
 
+const generateVoteHeadCode = (voteHeadData = {}) => {
+  const explicitCode = String(voteHeadData?.code || "").trim();
+  if (explicitCode) return explicitCode.toUpperCase().slice(0, 12);
+
+  const sourceName = String(
+    voteHeadData?.name || voteHeadData?.vote_head || "",
+  ).trim();
+
+  if (!sourceName) {
+    return `VH${String(Date.now()).slice(-6)}`;
+  }
+
+  const acronym = sourceName
+    .split(/[^A-Za-z0-9]+/)
+    .filter(Boolean)
+    .map((part) => part[0]?.toUpperCase() || "")
+    .join("");
+
+  if (acronym.length >= 2) {
+    return acronym.slice(0, 12);
+  }
+
+  const compact = sourceName.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+  if (compact.length >= 2) {
+    return compact.slice(0, 12);
+  }
+
+  return `VH${String(Date.now()).slice(-6)}`;
+};
+
 /**
  * Finance API Endpoints
  *
@@ -114,12 +144,16 @@ export const financeApi = {
 
   createVoteHead: async (voteHeadData) => {
     const endpoints = ["/api/finance/vote-heads", "/api/finance/vote_heads"];
+    const payload = {
+      ...voteHeadData,
+      code: generateVoteHeadCode(voteHeadData),
+    };
 
     let lastError;
 
     for (const endpoint of endpoints) {
       try {
-        const response = await apiClient.post(endpoint, voteHeadData);
+        const response = await apiClient.post(endpoint, payload);
         return response.data;
       } catch (error) {
         lastError = error;
@@ -134,6 +168,10 @@ export const financeApi = {
 
   updateVoteHead: async ({ id, data }) => {
     const normalizedId = encodeURIComponent(id);
+    const payload = {
+      ...data,
+      code: generateVoteHeadCode(data),
+    };
     const endpoints = [
       `/api/finance/vote-heads/${normalizedId}`,
       `/api/finance/vote_heads/${normalizedId}`,
@@ -143,7 +181,7 @@ export const financeApi = {
 
     for (const endpoint of endpoints) {
       try {
-        const response = await apiClient.put(endpoint, data);
+        const response = await apiClient.put(endpoint, payload);
         return response.data;
       } catch (error) {
         lastError = error;

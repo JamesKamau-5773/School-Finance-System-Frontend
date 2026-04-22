@@ -42,10 +42,35 @@ const normalizeVoteHeadName = (value) =>
     .replace(/[^a-z0-9]+/g, ' ')
     .trim();
 
+const buildVoteHeadCode = (name, fallbackCode = '') => {
+  const explicit = String(fallbackCode || '').trim();
+  if (explicit) return explicit.toUpperCase().slice(0, 12);
+
+  const source = String(name || '').trim();
+  if (!source) return `VH${String(Date.now()).slice(-6)}`;
+
+  const acronym = source
+    .split(/[^A-Za-z0-9]+/)
+    .filter(Boolean)
+    .map((part) => part[0]?.toUpperCase() || '')
+    .join('');
+
+  if (acronym.length >= 2) {
+    return acronym.slice(0, 12);
+  }
+
+  const compact = source.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+  if (compact.length >= 2) {
+    return compact.slice(0, 12);
+  }
+
+  return `VH${String(Date.now()).slice(-6)}`;
+};
+
 export default function Settings() {
   const [activeTab, setActiveTab] = useState('institution');
   const [isSaving, setIsSaving] = useState(false);
-  const [voteHeadForm, setVoteHeadForm] = useState({ name: '', percentage: '' });
+  const [voteHeadForm, setVoteHeadForm] = useState({ name: '', percentage: '', code: '' });
   const [editingVoteHeadId, setEditingVoteHeadId] = useState(null);
   const [voteHeadFeedback, setVoteHeadFeedback] = useState('');
 
@@ -101,6 +126,7 @@ export default function Settings() {
           id,
           name,
           percentage,
+          code: item?.code || item?.vote_head_code || '',
           current_balance: Number(item?.current_balance || 0) || 0,
         };
       })
@@ -123,7 +149,7 @@ export default function Settings() {
   };
 
   const resetVoteHeadForm = () => {
-    setVoteHeadForm({ name: '', percentage: '' });
+    setVoteHeadForm({ name: '', percentage: '', code: '' });
     setEditingVoteHeadId(null);
   };
 
@@ -146,6 +172,7 @@ export default function Settings() {
     const payload = {
       name,
       vote_head: name,
+      code: buildVoteHeadCode(name, voteHeadForm.code),
       percentage,
       allocation_percentage: percentage,
     };
@@ -170,6 +197,7 @@ export default function Settings() {
     setVoteHeadForm({
       name: voteHead.name,
       percentage: String(voteHead.percentage ?? ''),
+      code: String(voteHead.code || ''),
     });
     setVoteHeadFeedback('');
   };
@@ -205,6 +233,7 @@ export default function Settings() {
         const payload = {
           name: standardVoteHead.name,
           vote_head: standardVoteHead.name,
+          code: buildVoteHeadCode(standardVoteHead.name, existing?.code),
           percentage: standardVoteHead.percentage,
           allocation_percentage: standardVoteHead.percentage,
         };
@@ -417,7 +446,7 @@ export default function Settings() {
                 </button>
               </div>
 
-              <form onSubmit={handleVoteHeadSubmit} className="grid grid-cols-1 md:grid-cols-[1fr,180px,auto,auto] gap-3 items-end">
+              <form onSubmit={handleVoteHeadSubmit} className="grid grid-cols-1 md:grid-cols-[1fr,130px,130px,auto,auto] gap-3 items-end">
                 <div>
                   <label className="block text-xs font-bold text-slate-300 uppercase tracking-widest mb-2">
                     Vote Head Name
@@ -431,6 +460,20 @@ export default function Settings() {
                     placeholder="e.g. Lunch programme"
                     className="w-full bg-structural-navy border border-text-border text-white px-4 py-2.5 text-sm font-sans focus:outline-none focus:ring-2 focus:ring-action-mint rounded-lg"
                     required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-widest mb-2">
+                    Code
+                  </label>
+                  <input
+                    type="text"
+                    value={voteHeadForm.code}
+                    onChange={(event) =>
+                      setVoteHeadForm((previous) => ({ ...previous, code: event.target.value.toUpperCase() }))
+                    }
+                    placeholder="AUTO"
+                    className="w-full bg-structural-navy border border-text-border text-white px-4 py-2.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-action-mint rounded-lg"
                   />
                 </div>
                 <div>
