@@ -10,13 +10,67 @@ const PrintableReceipt = React.forwardRef(({ data }, ref) => {
   const student = data?.student || {};
   const totals = data?.totals || {};
   const meta = data?.meta || {};
+  const paidAmount = Number(totals?.paid_amount || 0) || 0;
+  const feesBalance = Number(
+    totals?.balance ??
+      totals?.fees_balance ??
+      student?.balance ??
+      meta?.fees_balance ??
+      0,
+  ) || 0;
 
-  const totalRows = 10;
-  const emptyRows = Math.max(0, totalRows - allocations.length);
+  const voteHeadRows = [
+    'Lunch programme',
+    'Repair, Maintenance & Improvement RMI',
+    'Local Traveling & Transport',
+    'Administrative Cost',
+    'Medical Fees',
+    'Electricity Water & Conservancy EW&C',
+    'Activity fund',
+    'Personal Emolument',
+    'Insurance',
+    'Student ID',
+    'Caution Money',
+    'Fees Arrears',
+    'Others (Specify)',
+  ];
+
+  const normalizeVoteHead = (value) =>
+    String(value || '')
+      .toLowerCase()
+      .replace(/&/g, 'and')
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim();
+
+  const allocationMap = allocations.reduce((acc, allocation) => {
+    const key = normalizeVoteHead(allocation?.vote_head);
+    const amount = Number(allocation?.amount || 0) || 0;
+    if (!key) return acc;
+    acc[key] = (acc[key] || 0) + amount;
+    return acc;
+  }, {});
+
+  const filledVoteHeads = voteHeadRows.map((voteHead, index) => {
+    const key = normalizeVoteHead(voteHead);
+    const mappedAmount = Number(allocationMap[key] || 0) || 0;
+
+    if (mappedAmount > 0) {
+      return { voteHead, amount: mappedAmount };
+    }
+
+    if (index === 0 && paidAmount > 0 && allocations.length === 0) {
+      return { voteHead, amount: paidAmount };
+    }
+
+    return { voteHead, amount: 0 };
+  });
+
+  const totalRows = Math.max(13, filledVoteHeads.length);
+  const emptyRows = Math.max(0, totalRows - filledVoteHeads.length);
 
   return (
-    <div ref={ref} className="hidden print:block font-serif" style={printStyles}>
-      <div className="w-[148mm] mx-auto p-4 border-4 border-black">
+    <div ref={ref} className="hidden print:block font-serif bg-white text-black" style={printStyles}>
+      <div className="w-[148mm] mx-auto p-4 border-4 border-black bg-white text-black">
         <div className="text-center mb-4">
           <h1 className="text-2xl font-bold">ST GERALD HIGH SCHOOL</h1>
           <h2 className="text-xl font-semibold border-b-4 border-double border-black inline-block px-4">
@@ -69,10 +123,17 @@ const PrintableReceipt = React.forwardRef(({ data }, ref) => {
             </tr>
           </thead>
           <tbody>
-            {allocations.map((alloc, index) => (
+            {filledVoteHeads.map((row, index) => (
               <tr key={index} className="border-b-2 border-black">
-                <td className="border-r-2 border-black p-1">{alloc.vote_head || ''}</td>
-                <td className="p-1 text-right font-mono">{Number(alloc?.amount || 0).toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                <td className="border-r-2 border-black p-1">{row.voteHead}</td>
+                <td className="p-1 text-right font-mono">
+                  {row.amount > 0
+                    ? Number(row.amount).toLocaleString('en-KE', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })
+                    : ''}
+                </td>
               </tr>
             ))}
             {emptyRows > 0 && Array.from({ length: emptyRows }).map((_, index) => (
@@ -85,7 +146,7 @@ const PrintableReceipt = React.forwardRef(({ data }, ref) => {
           <tfoot>
             <tr className="border-t-4 border-black font-bold">
               <td className="border-r-2 border-black p-1 text-right">TOTAL</td>
-              <td className="p-1 text-right font-mono">{Number(totals?.paid_amount || 0).toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+              <td className="p-1 text-right font-mono">{paidAmount.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
             </tr>
           </tfoot>
         </table>
@@ -104,6 +165,13 @@ const PrintableReceipt = React.forwardRef(({ data }, ref) => {
             </div>
           </div>
           <div className="text-xs">
+            <p>
+              Fees Balance:{" "}
+              {feesBalance.toLocaleString('en-KE', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </p>
             <p>Receiving Officer: {meta.receiving_officer || 'N/A'}</p>
             <p>Reference No: {meta.reference_no || 'N/A'}</p>
           </div>

@@ -32,6 +32,18 @@ export default function ReceivePaymentModal({ isOpen, onClose, student }) {
         : [];
 
     const normalizedAmount = Number(payload?.totals?.paid_amount || payload?.paid_amount || formData?.amount || 0) || 0;
+    const existingBalance = Number(student?.balance || 0) || 0;
+    const computedBalance = Math.max(0, existingBalance - normalizedAmount);
+    const normalizedBalance = Number(
+      payload?.totals?.balance ??
+        payload?.totals?.fees_balance ??
+        payload?.fees_balance ??
+        payload?.student?.balance ??
+        payload?.balance ??
+        payload?.new_balance ??
+        payload?.remaining_balance ??
+        computedBalance,
+    ) || 0;
 
     return {
       receipt_no: payload?.receipt_no || payload?.receiptNumber || payload?.id || `RCPT-${Date.now()}`,
@@ -42,15 +54,18 @@ export default function ReceivePaymentModal({ isOpen, onClose, student }) {
         term: payload?.student?.term || payload?.term || "",
         year: payload?.student?.year || payload?.year || new Date().getFullYear(),
         adm_no: payload?.student?.adm_no || payload?.student?.admission_number || student?.admission_number || "",
+        balance: normalizedBalance,
       },
       allocations: rawAllocations,
       totals: {
         paid_amount: normalizedAmount,
         amount_in_words: payload?.totals?.amount_in_words || payload?.amount_in_words || "",
+        balance: normalizedBalance,
       },
       meta: {
         receiving_officer: payload?.meta?.receiving_officer || payload?.receiving_officer || "",
         reference_no: payload?.meta?.reference_no || payload?.reference_no || formData?.reference || "",
+        fees_balance: normalizedBalance,
       },
     };
   };
@@ -91,7 +106,7 @@ export default function ReceivePaymentModal({ isOpen, onClose, student }) {
           ${sharedStyles}
           <style>
             @page { size: A5 portrait; margin: 8mm; }
-            body { margin: 0; }
+            body { margin: 0; background: #ffffff; color: #000000; }
           </style>
         </head>
         <body>${printContent}</body>
