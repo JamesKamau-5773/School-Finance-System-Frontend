@@ -1,13 +1,18 @@
-import React, { useState } from "react";
-import { X, WalletCards, Receipt, Building2, Loader2 } from "lucide-react";
+import React, { useRef, useState } from "react";
+import ReactDOMServer from "react-dom/server";
+import { X, WalletCards, Receipt, Building2, Loader2, Printer } from "lucide-react";
 import { useReceivePayment } from "./hooks/useStudents";
+import PrintableReceipt from "../finance/PrintableReceipt";
 
 export default function ReceivePaymentModal({ isOpen, onClose, student }) {
+  const receiptRef = useRef(null);
   const [formData, setFormData] = useState({
     amount: "",
     method: "Bank Slip",
     reference: "",
   });
+  const [receiptData, setReceiptData] = useState(null);
+  const [successMessage, setSuccessMessage] = useState("");
 
   const {
     mutate: processPayment,
@@ -17,6 +22,89 @@ export default function ReceivePaymentModal({ isOpen, onClose, student }) {
   } = useReceivePayment();
 
   if (!isOpen || !student) return null;
+
+  const buildReceiptPayload = (responsePayload) => {
+    const payload = responsePayload?.receipt || responsePayload?.data?.receipt || responsePayload?.data || responsePayload || {};
+    const rawAllocations = Array.isArray(payload?.allocations)
+      ? payload.allocations
+      : Array.isArray(payload?.data?.allocations)
+        ? payload.data.allocations
+        : [];
+
+    const normalizedAmount = Number(payload?.totals?.paid_amount || payload?.paid_amount || formData?.amount || 0) || 0;
+
+    return {
+      receipt_no: payload?.receipt_no || payload?.receiptNumber || payload?.id || `RCPT-${Date.now()}`,
+      date: payload?.date || new Date().toISOString(),
+      student: {
+        name: payload?.student?.name || payload?.student_name || student?.full_name || "",
+        form: payload?.student?.form || payload?.student?.grade_level || student?.grade_level || "",
+        term: payload?.student?.term || payload?.term || "",
+        year: payload?.student?.year || payload?.year || new Date().getFullYear(),
+        adm_no: payload?.student?.adm_no || payload?.student?.admission_number || student?.admission_number || "",
+      },
+      allocations: rawAllocations,
+      totals: {
+        paid_amount: normalizedAmount,
+        amount_in_words: payload?.totals?.amount_in_words || payload?.amount_in_words || "",
+      },
+      meta: {
+        receiving_officer: payload?.meta?.receiving_officer || payload?.receiving_officer || "",
+        reference_no: payload?.meta?.reference_no || payload?.reference_no || formData?.reference || "",
+      },
+    };
+  };
+
+  const handleModalClose = () => {
+    setReceiptData(null);
+    setSuccessMessage("");
+    onClose();
+  };
+
+  const handlePrint = () => {
+    if (!receiptData) return;
+
+    const printContent = ReactDOMServer.renderToString(
+      <PrintableReceipt data={receiptData} ref={receiptRef} />,
+    );
+    const sharedStyles = Array.from(
+      document.querySelectorAll("link[rel='stylesheet'], style"),
+    )
+      .map((node) => node.outerHTML)
+      .join("\n");
+
+    const iframe = document.createElement("iframe");
+    iframe.style.position = "absolute";
+    iframe.style.width = "0";
+    iframe.style.height = "0";
+    iframe.style.border = "0";
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow?.document;
+    if (!doc) return;
+
+    doc.open();
+    doc.write(`
+      <html>
+        <head>
+          <title>Print Receipt</title>
+          ${sharedStyles}
+          <style>
+            @page { size: A5 portrait; margin: 8mm; }
+            body { margin: 0; }
+          </style>
+        </head>
+        <body>${printContent}</body>
+      </html>
+    `);
+    doc.close();
+
+    setTimeout(() => {
+      iframe.contentWindow?.focus();
+      iframe.contentWindow?.print();
+      setTimeout(() => document.body.removeChild(iframe), 500);
+    }, 300);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -28,9 +116,10 @@ export default function ReceivePaymentModal({ isOpen, onClose, student }) {
         reference: formData.reference,
       },
       {
-        onSuccess: () => {
+        onSuccess: (response) => {
+          setReceiptData(buildReceiptPayload(response));
+          setSuccessMessage("Payment recorded successfully. You can now print the official receipt.");
           setFormData({ amount: "", method: "Bank Slip", reference: "" });
-          onClose();
         },
       },
     );
@@ -77,6 +166,12 @@ export default function ReceivePaymentModal({ isOpen, onClose, student }) {
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
+          {successMessage && (
+            <div className="p-3 bg-action-mint/15 border border-action-mint/40 rounded-lg text-action-mint text-sm font-bold">
+              {successMessage}
+            </div>
+          )}
+
           {isError && (
             <div className="p-3 bg-rose-500/20 border border-rose-500/50 rounded-lg text-rose-400 text-sm font-bold">
               {error?.response?.data?.message ||
@@ -168,11 +263,20 @@ export default function ReceivePaymentModal({ isOpen, onClose, student }) {
           <div className="pt-4 flex justify-end gap-3 border-t border-white/10 mt-6">
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleModalClose}
               disabled={isPending}
               className="edtech-btn-secondary !px-6 !py-2 text-sm"
             >
               Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handlePrint}
+              disabled={!receiptData || isPending}
+              className="edtech-btn-secondary !px-6 !py-2 text-sm flex items-center gap-2 disabled:opacity-50"
+            >
+              <Printer size={16} />
+              Print Receipt
             </button>
             <button
               type="submit"
@@ -189,6 +293,8 @@ export default function ReceivePaymentModal({ isOpen, onClose, student }) {
             </button>
           </div>
         </form>
+
+        {receiptData ? <PrintableReceipt ref={receiptRef} data={receiptData} /> : null}
       </div>
     </div>
   );
