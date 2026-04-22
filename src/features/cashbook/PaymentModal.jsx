@@ -233,8 +233,9 @@ export default function PaymentModal({ isOpen, onClose }) {
           <title>Print Receipt</title>
           ${sharedStyles}
           <style>
-            @page { size: A5 portrait; margin: 8mm; }
-            body { margin: 0; background: #ffffff; color: #000000; }
+            @page { size: A5 portrait; margin: 10mm; }
+            html, body { margin: 0; padding: 0; background: #ffffff; color: #000000; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
           </style>
         </head>
         <body>${printContent}</body>
