@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { X, User, Receipt, CreditCard, Hash, Loader2, Check } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import ReactDOMServer from "react-dom/server";
+import { X, User, Receipt, CreditCard, Hash, Loader2, Check, Printer } from "lucide-react";
 import { useSubmitPayment } from "./hooks/useCashbook";
 import { financeApi } from "../../api/financeApi";
+import PrintableReceipt from "../finance/PrintableReceipt";
 
 export default function PaymentModal({ isOpen, onClose }) {
   const [formData, setFormData] = useState({
@@ -14,6 +16,9 @@ export default function PaymentModal({ isOpen, onClose }) {
   const [confirmedStudent, setConfirmedStudent] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState(null);
+  const [receiptData, setReceiptData] = useState(null);
+  const [successMessage, setSuccessMessage] = useState("");
+  const receiptRef = useRef(null);
 
   const {
     mutate: submitPayment,
@@ -128,6 +133,101 @@ export default function PaymentModal({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
+  const buildReceiptPayload = (responsePayload) => {
+    const payload = responsePayload?.receipt || responsePayload?.data?.receipt || responsePayload?.data || responsePayload || {};
+    const rawAllocations = Array.isArray(payload?.allocations)
+      ? payload.allocations
+      : Array.isArray(payload?.data?.allocations)
+        ? payload.data.allocations
+        : [];
+
+    const normalizedAmount = Number(payload?.totals?.paid_amount || payload?.paid_amount || formData?.amount || 0) || 0;
+
+    return {
+      receipt_no: payload?.receipt_no || payload?.receiptNumber || payload?.id || `RCPT-${Date.now()}`,
+      date: payload?.date || new Date().toISOString(),
+      student: {
+        name: payload?.student?.name || payload?.student_name || confirmedStudent?.name || "",
+        form: payload?.student?.form || payload?.student?.grade_level || confirmedStudent?.form || "",
+        term: payload?.student?.term || payload?.term || "",
+        year: payload?.student?.year || payload?.year || new Date().getFullYear(),
+        adm_no: payload?.student?.adm_no || payload?.student?.admission_number || confirmedStudent?.admissionNumber || "",
+      },
+      allocations: rawAllocations,
+      totals: {
+        paid_amount: normalizedAmount,
+        amount_in_words: payload?.totals?.amount_in_words || payload?.amount_in_words || "",
+      },
+      meta: {
+        receiving_officer: payload?.meta?.receiving_officer || payload?.receiving_officer || "",
+        reference_no: payload?.meta?.reference_no || payload?.reference_no || formData?.reference || "",
+      },
+    };
+  };
+
+  const resetModalState = () => {
+    setFormData({
+      studentId: "",
+      amount: "",
+      method: "MPESA",
+      reference: "",
+    });
+    setConfirmedStudent(null);
+    setSearchError(null);
+    setReceiptData(null);
+    setSuccessMessage("");
+  };
+
+  const handleClose = () => {
+    resetModalState();
+    onClose();
+  };
+
+  const handlePrint = () => {
+    if (!receiptData) return;
+
+    const printContent = ReactDOMServer.renderToString(
+      <PrintableReceipt data={receiptData} ref={receiptRef} />,
+    );
+    const sharedStyles = Array.from(
+      document.querySelectorAll("link[rel='stylesheet'], style"),
+    )
+      .map((node) => node.outerHTML)
+      .join("\n");
+
+    const iframe = document.createElement("iframe");
+    iframe.style.position = "absolute";
+    iframe.style.width = "0";
+    iframe.style.height = "0";
+    iframe.style.border = "0";
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow?.document;
+    if (!doc) return;
+
+    doc.open();
+    doc.write(`
+      <html>
+        <head>
+          <title>Print Receipt</title>
+          ${sharedStyles}
+          <style>
+            @page { size: A5 portrait; margin: 8mm; }
+            body { margin: 0; }
+          </style>
+        </head>
+        <body>${printContent}</body>
+      </html>
+    `);
+    doc.close();
+
+    setTimeout(() => {
+      iframe.contentWindow?.focus();
+      iframe.contentWindow?.print();
+      setTimeout(() => document.body.removeChild(iframe), 500);
+    }, 300);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!confirmedStudent) {
@@ -144,14 +244,13 @@ export default function PaymentModal({ isOpen, onClose }) {
       },
       {
         onSuccess: () => {
-          setFormData({
-            studentId: "",
+          setReceiptData(buildReceiptPayload());
+          setSuccessMessage("Payment recorded successfully. You can now print the official receipt.");
+          setFormData((prev) => ({
+            ...prev,
             amount: "",
-            method: "MPESA",
             reference: "",
-          });
-          setConfirmedStudent(null);
-          onClose();
+          }));
         },
       }
     );
@@ -168,7 +267,7 @@ export default function PaymentModal({ isOpen, onClose }) {
             Record Payment
           </h2>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="text-slate-400 hover:text-white transition-colors p-1 rounded-full hover:bg-white/10"
           >
             <X size={20} />
@@ -180,6 +279,12 @@ export default function PaymentModal({ isOpen, onClose }) {
           {searchError && (
             <div className="p-3 bg-rose-500/20 border border-rose-500/50 rounded-lg text-rose-400 text-sm font-bold">
               {searchError}
+            </div>
+          )}
+
+          {successMessage && (
+            <div className="p-3 bg-action-mint/15 border border-action-mint/40 rounded-lg text-action-mint text-sm font-bold">
+              {successMessage}
             </div>
           )}
 
@@ -337,11 +442,20 @@ export default function PaymentModal({ isOpen, onClose }) {
           <div className="pt-4 flex justify-end gap-3 border-t border-white/10 mt-6">
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleClose}
               disabled={isPending}
               className="edtech-btn-secondary px-4 py-2 rounded-full text-sm font-bold disabled:opacity-50"
             >
               Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handlePrint}
+              disabled={!receiptData || isPending}
+              className="edtech-btn-secondary px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 disabled:opacity-50"
+            >
+              <Printer size={16} />
+              Print Receipt
             </button>
             <button
               type="submit"
@@ -353,6 +467,8 @@ export default function PaymentModal({ isOpen, onClose }) {
             </button>
           </div>
         </form>
+
+        {receiptData ? <PrintableReceipt ref={receiptRef} data={receiptData} /> : null}
       </div>
     </div>
   );
