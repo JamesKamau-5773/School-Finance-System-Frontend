@@ -3,6 +3,7 @@ import ReactDOMServer from "react-dom/server";
 import { X, WalletCards, Receipt, Building2, Loader2, Printer } from "lucide-react";
 import { useReceivePayment } from "./hooks/useStudents";
 import PrintableReceipt from "../finance/PrintableReceipt";
+import { amountInWordsShort } from "../../utils/numberToWords";
 
 export default function ReceivePaymentModal({ isOpen, onClose, student }) {
   const receiptRef = useRef(null);
@@ -45,8 +46,13 @@ export default function ReceivePaymentModal({ isOpen, onClose, student }) {
         computedBalance,
     ) || 0;
 
+    const receiptNoSource = String(
+      payload?.receipt_no || payload?.receiptNumber || payload?.id || Date.now(),
+    ).replace(/\D/g, "");
+    const receiptNo = receiptNoSource.slice(-4).padStart(4, "0");
+
     return {
-      receipt_no: payload?.receipt_no || payload?.receiptNumber || payload?.id || `RCPT-${Date.now()}`,
+      receipt_no: receiptNo,
       date: payload?.date || new Date().toISOString(),
       student: {
         name: payload?.student?.name || payload?.student_name || student?.full_name || "",
@@ -59,7 +65,7 @@ export default function ReceivePaymentModal({ isOpen, onClose, student }) {
       allocations: rawAllocations,
       totals: {
         paid_amount: normalizedAmount,
-        amount_in_words: payload?.totals?.amount_in_words || payload?.amount_in_words || "",
+        amount_in_words: payload?.totals?.amount_in_words || payload?.amount_in_words || `${amountInWordsShort(normalizedAmount)} Only`,
         balance: normalizedBalance,
       },
       meta: {

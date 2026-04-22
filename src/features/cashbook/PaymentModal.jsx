@@ -4,6 +4,7 @@ import { X, User, Receipt, CreditCard, Hash, Loader2, Check, Printer } from "luc
 import { useSubmitPayment } from "./hooks/useCashbook";
 import { financeApi } from "../../api/financeApi";
 import PrintableReceipt from "../finance/PrintableReceipt";
+import { amountInWordsShort } from "../../utils/numberToWords";
 
 export default function PaymentModal({ isOpen, onClose }) {
   const [formData, setFormData] = useState({
@@ -155,8 +156,13 @@ export default function PaymentModal({ isOpen, onClose }) {
         computedBalance,
     ) || 0;
 
+    const receiptNoSource = String(
+      payload?.receipt_no || payload?.receiptNumber || payload?.id || Date.now(),
+    ).replace(/\D/g, "");
+    const receiptNo = receiptNoSource.slice(-4).padStart(4, "0");
+
     return {
-      receipt_no: payload?.receipt_no || payload?.receiptNumber || payload?.id || `RCPT-${Date.now()}`,
+      receipt_no: receiptNo,
       date: payload?.date || new Date().toISOString(),
       student: {
         name: payload?.student?.name || payload?.student_name || confirmedStudent?.name || "",
@@ -169,7 +175,7 @@ export default function PaymentModal({ isOpen, onClose }) {
       allocations: rawAllocations,
       totals: {
         paid_amount: normalizedAmount,
-        amount_in_words: payload?.totals?.amount_in_words || payload?.amount_in_words || "",
+        amount_in_words: payload?.totals?.amount_in_words || payload?.amount_in_words || `${amountInWordsShort(normalizedAmount)} Only`,
         balance: normalizedBalance,
       },
       meta: {
@@ -258,8 +264,8 @@ export default function PaymentModal({ isOpen, onClose }) {
         reference: formData.reference,
       },
       {
-        onSuccess: () => {
-          setReceiptData(buildReceiptPayload());
+        onSuccess: (response) => {
+          setReceiptData(buildReceiptPayload(response));
           setSuccessMessage("Payment recorded successfully. You can now print the official receipt.");
           setFormData((prev) => ({
             ...prev,
