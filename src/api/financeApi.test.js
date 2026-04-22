@@ -4,6 +4,8 @@ vi.mock('./apiClient', () => ({
   default: {
     get: vi.fn(),
     post: vi.fn(),
+    put: vi.fn(),
+    delete: vi.fn(),
   },
 }));
 
@@ -144,6 +146,123 @@ describe('financeApi.createFeeStructure', () => {
     expect(apiClient.post).toHaveBeenNthCalledWith(2, '/api/finance/fees/structures', {
       ...feeData,
       amount: 1200,
+    });
+    expect(result).toEqual(responseData);
+  });
+});
+
+describe('financeApi.createVoteHead', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('posts to vote-head endpoint with generated code from name', async () => {
+    const responseData = { id: 1, name: 'Lunch programme', code: 'LP' };
+    apiClient.post.mockResolvedValue({ data: responseData });
+
+    const payload = {
+      name: 'Lunch programme',
+      vote_head: 'Lunch programme',
+      percentage: 22,
+    };
+
+    const result = await financeApi.createVoteHead(payload);
+
+    expect(apiClient.post).toHaveBeenCalledWith('/api/finance/vote-heads', {
+      ...payload,
+      code: 'LP',
+    });
+    expect(result).toEqual(responseData);
+  });
+
+  it('uses explicit code when provided and normalizes to uppercase max length', async () => {
+    const responseData = { id: 2, name: 'Insurance', code: 'INSURANCE001' };
+    apiClient.post.mockResolvedValue({ data: responseData });
+
+    const payload = {
+      name: 'Insurance',
+      code: 'insurance001extra',
+      percentage: 4,
+    };
+
+    await financeApi.createVoteHead(payload);
+
+    expect(apiClient.post).toHaveBeenCalledWith('/api/finance/vote-heads', {
+      ...payload,
+      code: 'INSURANCE001',
+    });
+  });
+
+  it('falls back to legacy underscore endpoint on 404', async () => {
+    const payload = {
+      name: 'Medical Fees',
+      percentage: 5,
+    };
+    const responseData = { id: 3, name: 'Medical Fees', code: 'MF' };
+
+    apiClient.post
+      .mockRejectedValueOnce({ response: { status: 404 } })
+      .mockResolvedValueOnce({ data: responseData });
+
+    const result = await financeApi.createVoteHead(payload);
+
+    expect(apiClient.post).toHaveBeenNthCalledWith(1, '/api/finance/vote-heads', {
+      ...payload,
+      code: 'MF',
+    });
+    expect(apiClient.post).toHaveBeenNthCalledWith(2, '/api/finance/vote_heads', {
+      ...payload,
+      code: 'MF',
+    });
+    expect(result).toEqual(responseData);
+  });
+});
+
+describe('financeApi.updateVoteHead', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('puts to vote-head endpoint with encoded id and generated code', async () => {
+    const responseData = { id: 'abc/1', name: 'Activity fund', code: 'AF' };
+    apiClient.put.mockResolvedValue({ data: responseData });
+
+    const result = await financeApi.updateVoteHead({
+      id: 'abc/1',
+      data: { name: 'Activity fund', percentage: 8 },
+    });
+
+    expect(apiClient.put).toHaveBeenCalledWith('/api/finance/vote-heads/abc%2F1', {
+      name: 'Activity fund',
+      percentage: 8,
+      code: 'AF',
+    });
+    expect(result).toEqual(responseData);
+  });
+
+  it('falls back to legacy underscore endpoint on 404', async () => {
+    const responseData = { id: 10, name: 'Administrative Cost', code: 'AC' };
+
+    apiClient.put
+      .mockRejectedValueOnce({ response: { status: 404 } })
+      .mockResolvedValueOnce({ data: responseData });
+
+    const payload = {
+      id: 10,
+      data: { name: 'Administrative Cost', percentage: 8 },
+    };
+
+    const result = await financeApi.updateVoteHead(payload);
+
+    expect(apiClient.put).toHaveBeenNthCalledWith(1, '/api/finance/vote-heads/10', {
+      name: 'Administrative Cost',
+      percentage: 8,
+      code: 'AC',
+    });
+    expect(apiClient.put).toHaveBeenNthCalledWith(2, '/api/finance/vote_heads/10', {
+      name: 'Administrative Cost',
+      percentage: 8,
+      code: 'AC',
     });
     expect(result).toEqual(responseData);
   });
