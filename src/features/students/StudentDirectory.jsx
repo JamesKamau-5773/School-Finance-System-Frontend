@@ -53,7 +53,11 @@ export default function StudentDirectory() {
   });
   const { mutate: deleteStudent } = useDeleteStudent();
 
-  const students = response?.data || [];
+  const students = Array.isArray(response?.data)
+    ? response.data
+    : Array.isArray(response?.students)
+      ? response.students
+      : [];
 
   const gradeOptions = useMemo(() => {
     const allGrades = students

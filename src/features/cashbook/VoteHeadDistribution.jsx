@@ -3,10 +3,20 @@ import { PieChart } from 'lucide-react';
 import { useVoteHeads, useSummary } from './hooks/useCashbook';
 
 export default function VoteHeadDistribution() {
-  const { data: voteHeads = [], isLoading: isLoadingVotes } = useVoteHeads();
-  const { data: summary = { total_collections: 0 } } = useSummary();
+  const { data: voteHeadData, isLoading: isLoadingVotes } = useVoteHeads();
+  const { data: summaryData } = useSummary();
   const glassPanelClass =
     "rounded-3xl border border-app-background/45 bg-app-background/18 backdrop-blur-2xl shadow-xl shadow-structural-navy/45";
+
+  const voteHeads = Array.isArray(voteHeadData)
+    ? voteHeadData
+    : Array.isArray(voteHeadData?.data)
+      ? voteHeadData.data
+      : [];
+
+  const summary = summaryData && typeof summaryData === 'object'
+    ? summaryData
+    : { total_collections: 0 };
 
   const totalIncome = summary.total_collections || summary.total_income || 1; // Prevent division by zero
 
