@@ -88,20 +88,20 @@ const PrintableReceipt = React.forwardRef(({ data }, ref) => {
 
   return (
     <div ref={ref} className="hidden print:block font-serif bg-white text-black" style={printStyles}>
-      <div className="w-[148mm] mx-auto p-1.5 border-4 border-black bg-white text-black" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
-        <div className="text-center mb-1.5">
-          <h1 className="text-[17px] leading-none font-bold">ST GERALD HIGH SCHOOL</h1>
-          <h2 className="text-[12px] leading-none font-semibold border-b-4 border-double border-black inline-block px-4 mt-0.5">
+      <div className="w-[148mm] mx-auto p-2 border-4 border-black bg-white text-black min-h-[188mm]" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+        <div className="text-center mb-2">
+          <h1 className="text-[18px] leading-none font-bold">ST GERALD HIGH SCHOOL</h1>
+          <h2 className="text-[13px] leading-none font-semibold border-b-4 border-double border-black inline-block px-4 mt-0.5">
             School Official Receipt
           </h2>
         </div>
 
-        <div className="flex justify-between mb-1 text-[10px] leading-none">
+        <div className="flex justify-between mb-1.5 text-[10px] leading-none">
           <span>Receipt No: {formattedReceiptNo}</span>
           <span>Date: {data?.date ? new Date(data.date).toLocaleDateString() : 'N/A'}</span>
         </div>
 
-        <div className="mb-1.5 text-[10px] space-y-0.5 leading-none">
+        <div className="mb-1.5 text-[10px] space-y-1 leading-none">
           <div className="flex items-end">
             <span className="font-semibold">Received From:</span>
             <span className="flex-grow border-b border-dotted border-black mx-1.5"></span>
@@ -122,18 +122,18 @@ const PrintableReceipt = React.forwardRef(({ data }, ref) => {
           </div>
         </div>
 
-        <table className="w-full border-collapse border-2 border-black text-[9px] mb-1.5">
+        <table className="w-full border-collapse border-2 border-black text-[10px] mb-2">
           <thead>
             <tr className="border-2 border-black">
-              <th className="border-r-2 border-black p-0.25 w-2/3">Vote Head</th>
-              <th className="p-0.25">Amount (KES)</th>
+              <th className="border-r-2 border-black p-0.5 w-2/3">Vote Head</th>
+              <th className="p-0.5">Amount (KES)</th>
             </tr>
           </thead>
           <tbody>
             {filledVoteHeads.map((row, index) => (
-              <tr key={index} className="border-b-2 border-black h-[15px] leading-none">
-                <td className="border-r-2 border-black p-0.25">{row.voteHead}</td>
-                <td className="p-0.25 text-right font-mono">
+              <tr key={index} className="border-b-2 border-black h-[18px] leading-none">
+                <td className="border-r-2 border-black p-0.5">{row.voteHead}</td>
+                <td className="p-0.5 text-right font-mono">
                   {row.amount > 0
                     ? Number(row.amount).toLocaleString('en-KE', {
                         minimumFractionDigits: 2,
@@ -144,29 +144,29 @@ const PrintableReceipt = React.forwardRef(({ data }, ref) => {
               </tr>
             ))}
             {emptyRows > 0 && Array.from({ length: emptyRows }).map((_, index) => (
-              <tr key={`empty-${index}`} className="border-b-2 border-black h-[15px] leading-none">
-                <td className="border-r-2 border-black p-0.25"></td>
-                <td className="p-0.25"></td>
+              <tr key={`empty-${index}`} className="border-b-2 border-black h-[18px] leading-none">
+                <td className="border-r-2 border-black p-0.5"></td>
+                <td className="p-0.5"></td>
               </tr>
             ))}
           </tbody>
           <tfoot>
             <tr className="border-t-4 border-black font-bold">
-              <td className="border-r-2 border-black p-0.25 text-right">TOTAL</td>
-              <td className="p-0.25 text-right font-mono">{paidAmount.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+              <td className="border-r-2 border-black p-0.5 text-right">TOTAL</td>
+              <td className="p-0.5 text-right font-mono">{paidAmount.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
             </tr>
           </tfoot>
         </table>
 
-        <div className="mb-1 text-[10px] leading-none">
+        <div className="mb-1.5 text-[10px] leading-none">
           <span className="font-semibold">Amount in Words:</span>
           <span className="ml-2 italic">{amountInWords}</span>
         </div>
 
-        <div className="flex justify-between items-end mt-1 text-[10px] leading-none">
+        <div className="flex justify-between items-end mt-2 text-[10px] leading-none">
           <div className="w-2/3">
             <p className="font-bold">RECEIVED WITH THANKS</p>
-            <div className="mt-2.5">
+            <div className="mt-3.5">
               <span className="border-t-2 border-dotted border-black w-full block"></span>
               <p className="text-center">A/C Clerk</p>
             </div>
