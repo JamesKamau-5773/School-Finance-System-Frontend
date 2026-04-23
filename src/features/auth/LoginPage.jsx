@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, User, KeyRound, Loader2, ArrowLeft, Activity } from 'lucide-react';
+import { Lock, User, KeyRound, Loader2, ArrowLeft, Activity, Eye, EyeOff } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext'; 
 
@@ -24,6 +24,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [focusedField, setFocusedField] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
   
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -199,15 +200,23 @@ export default function LoginPage() {
                   <KeyRound size={16} className={focusedField === 'pwd' ? 'text-[#05CD99]' : 'text-slate-500'} transition="colors" />
                 </div>
                 <input 
-                  type="password" 
+                  type={showPassword ? 'text' : 'password'}
                   onFocus={() => setFocusedField('pwd')}
                   onBlur={() => setFocusedField(null)}
-                  className="w-full bg-black/20 border border-white/10 text-white pl-12 pr-4 py-3.5 text-sm focus:outline-none focus:border-[#05CD99]/50 focus:bg-black/40 transition-all rounded-xl shadow-inner placeholder:text-slate-500"
+                  className="w-full bg-black/20 border border-white/10 text-white pl-12 pr-14 py-3.5 text-sm focus:outline-none focus:border-[#05CD99]/50 focus:bg-black/40 transition-all rounded-xl shadow-inner placeholder:text-slate-500"
                   placeholder="••••••••••••"
                   value={formData.password}
                   onChange={(e) => setFormData({...formData, password: e.target.value})}
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((previous) => !previous)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-[#05CD99] transition-colors"
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
               </div>
             </div>
 
