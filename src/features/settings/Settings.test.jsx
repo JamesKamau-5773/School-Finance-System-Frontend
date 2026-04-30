@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockUseVoteHeads = vi.fn();
@@ -28,6 +28,8 @@ import Settings from './Settings';
 describe('Settings vote-head management', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    localStorage.clear();
+    vi.spyOn(window, 'alert').mockImplementation(() => {});
     mockCreateVoteHead.mockResolvedValue({});
     mockUpdateVoteHead.mockResolvedValue({});
     mockDeleteVoteHead.mockResolvedValue({});
@@ -96,5 +98,43 @@ describe('Settings vote-head management', () => {
     await waitFor(() => {
       expect(mockCreateVoteHead).toHaveBeenCalled();
     });
+  });
+
+  it('loads and saves academic term from persistent system settings storage', async () => {
+    vi.useFakeTimers();
+    const setItemSpy = vi.spyOn(Storage.prototype, 'setItem');
+
+    localStorage.setItem(
+      'sfs_system_settings',
+      JSON.stringify({
+        academicYear: '2027',
+        currentTerm: 'Term 2',
+      }),
+    );
+
+    mockUseVoteHeads.mockReturnValue({ data: { data: [] }, isLoading: false });
+
+    render(<Settings />);
+
+    fireEvent.click(screen.getByRole('button', { name: /academic cycle/i }));
+
+    const [academicYearSelect, currentTermSelect] = screen.getAllByRole('combobox');
+    expect(academicYearSelect).toHaveValue('2027');
+    expect(currentTermSelect).toHaveValue('Term 2');
+
+    fireEvent.change(currentTermSelect, { target: { value: 'Term 3' } });
+    fireEvent.click(screen.getByRole('button', { name: /save configurations/i }));
+
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+
+    expect(setItemSpy).toHaveBeenCalledWith(
+      'sfs_system_settings',
+      expect.stringContaining('"currentTerm":"Term 3"'),
+    );
+
+    setItemSpy.mockRestore();
+    vi.useRealTimers();
   });
 });

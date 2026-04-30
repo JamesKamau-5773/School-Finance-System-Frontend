@@ -19,6 +19,38 @@ import {
   useDeleteVoteHead,
 } from '../cashbook/hooks/useCashbook';
 
+const SYSTEM_SETTINGS_STORAGE_KEY = 'sfs_system_settings';
+
+const DEFAULT_SYSTEM_SETTINGS = {
+  schoolName: 'St. Gerald High',
+  email: 'finance@stgerald.ac.ke',
+  phone: '+254 700 000 000',
+  address: 'P.O Box 123 - 20100, Nakuru',
+
+  bankName: 'KCB Bank',
+  accountName: 'St Gerald Main Collection',
+  accountNumber: '1122334455',
+  kraPin: 'P051234567Z',
+
+  academicYear: '2026',
+  currentTerm: 'Term 1',
+};
+
+const loadSystemSettings = () => {
+  try {
+    const saved = localStorage.getItem(SYSTEM_SETTINGS_STORAGE_KEY);
+    if (!saved) return DEFAULT_SYSTEM_SETTINGS;
+
+    const parsed = JSON.parse(saved);
+    return {
+      ...DEFAULT_SYSTEM_SETTINGS,
+      ...parsed,
+    };
+  } catch {
+    return DEFAULT_SYSTEM_SETTINGS;
+  }
+};
+
 const MOE_STANDARD_VOTE_HEADS = [
   { name: 'Lunch programme', percentage: 22 },
   { name: 'Repair, Maintenance & Improvement RMI', percentage: 10 },
@@ -75,20 +107,7 @@ export default function Settings() {
   const [voteHeadFeedback, setVoteHeadFeedback] = useState('');
 
   // Simulated state for system settings
-  const [formData, setFormData] = useState({
-    schoolName: 'St. Gerald High',
-    email: 'finance@stgerald.ac.ke',
-    phone: '+254 700 000 000',
-    address: 'P.O Box 123 - 20100, Nakuru',
-    
-    bankName: 'KCB Bank',
-    accountName: 'St Gerald Main Collection',
-    accountNumber: '1122334455',
-    kraPin: 'P051234567Z',
-    
-    academicYear: '2026',
-    currentTerm: 'Term 1'
-  });
+  const [formData, setFormData] = useState(loadSystemSettings);
 
   const { data: voteHeadResponse, isLoading: isLoadingVoteHeads } = useVoteHeads();
   const {
@@ -143,6 +162,7 @@ export default function Settings() {
     setIsSaving(true);
     // Simulate API call to backend
     setTimeout(() => {
+      localStorage.setItem(SYSTEM_SETTINGS_STORAGE_KEY, JSON.stringify(formData));
       setIsSaving(false);
       alert('System Settings Updated Successfully.');
     }, 1000);
